@@ -17,7 +17,15 @@
 - 정식 Release, 태그, 병합과 원본 PR #2 댓글은 이번 작업에서 수행하지 않는다.
 - 아래 Windows 전용/Apple Silicon 전용 기록은 당시 이력이며 현재 지원 범위가 아니다.
 - 로컬 검증: Core/Mac 116개, Windows 원본 소스 26개, 다중 기기 39개 통과.
-  Mac Release 경고 0·오류 0. 최종 3종 ZIP의 네이티브 원격 실행 결과는 CI에서 확인한다.
+  Mac Release 경고 0·오류 0.
+- 기능 커밋 `c75e08b` 원격 검사 완료: Windows x64 전체 빌드·포터블 ZIP·네이티브
+  도구 실행·금지 파일 회귀 9개, Mac arm64 및 Intel x64의 네이티브 빌드·116개
+  공통 테스트·39개 다중 기기 테스트·ZIP 재압축 해제·번들 실행 검사 모두 통과.
+  helper는 Windows/Linux 재현 빌드·각 16개 테스트 통과. 검사 실행 번호는
+  Windows `37145623673`, Mac `37145623668`, helper `37145623660`이다.
+- 3종 `2.0.1-phone-preview` ZIP과 SHA-256은 위 CI artifact에 저장했다.
+  artifact 보관 기간은 30일이며 정식 Release는 생성하지 않았다. 로컬로 받은
+  ZIP은 보관 기간과 별개로 다른 PC에 복사해 사용할 수 있다.
 
 ## 2026-10-03 Windows 휴대폰 DeX 미리보기 선택 작업 (이력)
 

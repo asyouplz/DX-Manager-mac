@@ -4,7 +4,7 @@
 
 - [x] 사용자 요청으로 Intel Mac 지원 제외 결정을 변경하고 macOS 14+ arm64/x64 문서화
 - [x] Mac 표시/숨김 선택 메뉴 및 CLI, 기기별 저장과 loopback 수명주기 연결
-- [ ] Windows x64·Mac arm64·Mac x64 네이티브 CI와 3종 ZIP 확보
+- [x] Windows x64·Mac arm64·Mac x64 네이티브 CI와 3종 ZIP 확보 (`c75e08b`)
 - [ ] S26에서 Windows·Mac 새 숨김 모드 및 종료/기존 모드 복원 실기 확인
 
 - [x] Windows DeX 휴대폰 미리보기 숨김 선택 UI와 기기별 설정 저장
