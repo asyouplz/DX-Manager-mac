@@ -1,0 +1,148 @@
+name: Windows portable package and .NET Framework validation
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/windows-validation.yml"
+      - "DexManager/**"
+      - "DexManager.AdbProxy/**"
+      - "DexManager.WindowsTests/**"
+      - "Shared/**"
+      - "DXLoopback/**"
+      - "tools/loopback/**"
+      - "scripts/Build-DexLoopback.ps1"
+      - "scripts/Package-Release.ps1"
+      - "scripts/Get-VerifiedCompanion.ps1"
+      - "scripts/Windows-Portable-Common.ps1"
+      - "scripts/Verify-WindowsPackage.ps1"
+      - "scripts/Test-WindowsPackageGuards.ps1"
+      - "docs/**"
+      - "LICENSE"
+      - "global.json"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/windows-validation.yml"
+      - "DexManager/**"
+      - "DexManager.AdbProxy/**"
+      - "DexManager.WindowsTests/**"
+      - "Shared/**"
+      - "DXLoopback/**"
+      - "tools/loopback/**"
+      - "scripts/Build-DexLoopback.ps1"
+      - "scripts/Package-Release.ps1"
+      - "scripts/Get-VerifiedCompanion.ps1"
+      - "scripts/Windows-Portable-Common.ps1"
+      - "scripts/Verify-WindowsPackage.ps1"
+      - "scripts/Test-WindowsPackageGuards.ps1"
+      - "docs/**"
+      - "LICENSE"
+      - "global.json"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Preview version used in the portable ZIP filename
+        required: true
+        default: "2.0.1-phone-preview"
+
+permissions:
+  contents: read
+
+jobs:
+  windows-validation:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install pinned .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Resolve portable preview version
+        shell: pwsh
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          $version = $env:REQUESTED_VERSION
+          if ([string]::IsNullOrWhiteSpace($version)) { $version = '2.0.1-phone-preview' }
+          if ($version -notmatch '^[0-9A-Za-z][0-9A-Za-z._-]*$') { throw 'Invalid package version.' }
+          "DXM_PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
+
+      - name: Prepare pinned .NET Framework 4.6.2 reference assemblies
+        shell: pwsh
+        run: |
+          $archive = Join-Path $env:RUNNER_TEMP 'net462.nupkg'
+          $destination = Join-Path $env:RUNNER_TEMP 'net462-references'
+          Invoke-WebRequest 'https://api.nuget.org/v3-flatcontainer/microsoft.netframework.referenceassemblies.net462/1.0.3/microsoft.netframework.referenceassemblies.net462.1.0.3.nupkg' -OutFile $archive
+          $expected = 'ee692a845743500910855d4c330ca6e9ef87c16e16f740e4474d187185d66e21'
+          if ((Get-FileHash $archive -Algorithm SHA256).Hash -ne $expected) {
+            throw 'The .NET Framework reference package checksum does not match.'
+          }
+          [System.IO.Compression.ZipFile]::ExtractToDirectory($archive, $destination)
+          "DXM_TARGET_FRAMEWORK_ROOT=$destination\build" >> $env:GITHUB_ENV
+
+      - name: Restore Windows ADB proxy without product package dependencies
+        shell: pwsh
+        run: dotnet restore DexManager.AdbProxy/DexManager.AdbProxy.csproj -p:TargetFrameworkRootPath="$env:DXM_TARGET_FRAMEWORK_ROOT"
+
+      - name: Build Windows x64 application and proxy for .NET Framework 4.6.2
+        shell: pwsh
+        run: |
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+          $msbuild = & $vswhere -latest -products '*' -requires Microsoft.Component.MSBuild -find 'MSBuild\**\Bin\MSBuild.exe' | Select-Object -First 1
+          if (-not $msbuild) { throw 'Visual Studio MSBuild was not found.' }
+          & $msbuild DexManager/DexManager.csproj /t:Build /p:Configuration=Release /p:TargetFrameworkRootPath="$env:DXM_TARGET_FRAMEWORK_ROOT" /warnaserror /nologo /verbosity:minimal
+          if ($LASTEXITCODE -ne 0) { throw 'Windows .NET Framework build failed.' }
+
+      - name: Run Windows-source regression tests
+        run: dotnet run --project DexManager.WindowsTests/DexManager.WindowsTests.csproj --configuration Release
+
+      - name: Run .NET Framework ADB proxy self-test
+        shell: pwsh
+        run: |
+          & .\DexManager.AdbProxy\bin\Release\net462\DXMAdbProxy.exe --self-test
+          if ($LASTEXITCODE -ne 0) { throw 'ADB proxy self-test failed.' }
+
+      - name: Verify bundled loopback helper integrity
+        shell: pwsh
+        run: |
+          $jar = '.\tools\loopback\dxm-loopback.jar'
+          $expected = ((Get-Content "$jar.sha256" -Raw).Trim() -split '\s+')[0]
+          if ($expected -notmatch '^[a-f0-9]{64}$') { throw 'Invalid helper checksum format.' }
+          if ((Get-FileHash $jar -Algorithm SHA256).Hash -ne $expected) { throw 'Helper checksum mismatch.' }
+          $source = Get-Content '.\DexManager\Services\LoopbackDexService.cs' -Raw
+          $pinned = [regex]::Match($source, 'HelperSha256\s*=\s*"([a-fA-F0-9]{64})"').Groups[1].Value
+          if ($pinned -ne $expected) { throw 'The runtime and bundled helper checksums do not match.' }
+          $copy = '.\DexManager\bin\Release\tools\loopback\dxm-loopback.jar'
+          if ((Get-FileHash $copy -Algorithm SHA256).Hash -ne $expected) { throw 'Build output helper checksum mismatch.' }
+
+      - name: Fetch the unchanged, verified official Companion APK
+        shell: pwsh
+        run: |
+          $apk = Join-Path $env:RUNNER_TEMP 'verified-companion/DX-Companion.apk'
+          .\scripts\Get-VerifiedCompanion.ps1 -OutputPath $apk
+          "DXM_COMPANION_APK=$apk" >> $env:GITHUB_ENV
+
+      - name: Package and smoke-test a cleanly extracted Windows portable ZIP
+        shell: pwsh
+        run: |
+          .\scripts\Package-Release.ps1 -SkipBuild -Version $env:DXM_PACKAGE_VERSION -CompanionApkSource $env:DXM_COMPANION_APK
+
+      - name: Verify packaging rejects private data and missing or modified helpers
+        shell: pwsh
+        run: |
+          .\scripts\Test-WindowsPackageGuards.ps1 -ArchivePath "dist/DX-Manager-v$env:DXM_PACKAGE_VERSION-win-x64.zip"
+
+      - name: Upload the prebuilt Windows portable preview
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: DX-Manager-v${{ env.DXM_PACKAGE_VERSION }}-win-x64
+          path: |
+            dist/DX-Manager-v${{ env.DXM_PACKAGE_VERSION }}-win-x64.zip
+            dist/DX-Manager-v${{ env.DXM_PACKAGE_VERSION }}-win-x64.zip.sha256
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30

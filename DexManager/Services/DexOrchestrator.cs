@@ -28,6 +28,9 @@ namespace DexManager.Services
                 new Dictionary<string, VirtualDisplayLease>(
                     StringComparer.OrdinalIgnoreCase);
         private int _naturalExitCleanupScheduled;
+        private int _busyOperations;
+        private bool _lastStartUsedLoopback;
+        private int _startGeneration;
 
         public DexOrchestrator(
             AdbService adbService,
@@ -57,6 +60,20 @@ namespace DexManager.Services
             get { return _scrcpyService.IsRunning; }
         }
 
+        public bool IsBusy
+        {
+            get { return Volatile.Read(ref _busyOperations) != 0; }
+        }
+
+        public bool WantsOverlayCleanup
+        {
+            get
+            {
+                return !_lastStartUsedLoopback &&
+                    !GetDeviceRunSettings().VirtualDisplay.HidePhonePreview;
+            }
+        }
+
         public ManagedDisplaySession CurrentSession
         {
             get { return _currentSession; }
@@ -77,18 +94,29 @@ namespace DexManager.Services
 
         public Task StartAsync(string serial)
         {
+            var generation = Volatile.Read(ref _startGeneration);
+            Interlocked.Increment(ref _busyOperations);
             return Task.Run(delegate
             {
-                lock (_operationGate) StartCore(serial);
+                try { lock (_operationGate) StartCore(serial, generation); }
+                finally { Interlocked.Decrement(ref _busyOperations); }
             });
         }
 
         public Task StopAsync()
         {
+            CancelPendingStart();
+            Interlocked.Increment(ref _busyOperations);
             return Task.Run(delegate
             {
-                lock (_operationGate) StopCore();
+                try { lock (_operationGate) StopCore(); }
+                finally { Interlocked.Decrement(ref _busyOperations); }
             });
+        }
+
+        public void CancelPendingStart()
+        {
+            Interlocked.Increment(ref _startGeneration);
         }
 
         public Task<bool> RetryDeferredCleanupAsync(string serial)
@@ -128,16 +156,21 @@ namespace DexManager.Services
 
         public Task<bool> ApplyRuntimeSettingsAsync()
         {
+            Interlocked.Increment(ref _busyOperations);
             return Task.Run(delegate
             {
-                lock (_operationGate)
-                    return ApplyRuntimeSettingsCore();
+                try
+                {
+                    lock (_operationGate)
+                        return ApplyRuntimeSettingsCore();
+                }
+                finally { Interlocked.Decrement(ref _busyOperations); }
             });
         }
 
-        private void StartCore(string requestedSerial)
+        private void StartCore(string requestedSerial, int generation)
         {
-            if (IsShutdownRequested) return;
+            if (IsStartCancelled(generation)) return;
             if (_scrcpyService.IsRunning)
             {
                 _logService.Warning(LocalizationService.Get(
@@ -161,6 +194,10 @@ namespace DexManager.Services
             }
             CleanupStaleSession(serial);
             var runSettings = GetDeviceRunSettings();
+            _lastStartUsedLoopback = runSettings.VirtualDisplay.HidePhonePreview;
+            var effectiveScrcpy = _lastStartUsedLoopback
+                ? LoopbackDexProtocol.CreateScrcpySettings(runSettings.Scrcpy)
+                : runSettings.Scrcpy;
 
             VirtualDisplayLease lease = null;
             var scrcpyStarted = false;
@@ -168,21 +205,21 @@ namespace DexManager.Services
             {
                 _launchCoordinator.RunExclusive(delegate
                 {
-                    ThrowIfShutdownRequested();
+                    ThrowIfStartCancelled(generation);
                     lease = _virtualDisplayService.EnsureVirtualDisplay(
                         serial,
                         runSettings.VirtualDisplay,
                         _settings.Timing.VirtualDisplayDetectionTimeoutMs,
-                        delegate { return IsShutdownRequested; });
-                    ThrowIfShutdownRequested();
+                        delegate { return IsStartCancelled(generation); });
+                    ThrowIfStartCancelled(generation);
                     _scrcpyService.Start(
-                        runSettings.Scrcpy,
+                        effectiveScrcpy,
                         lease.DisplayId,
                         serial);
                     scrcpyStarted = true;
                 });
 
-                if (IsShutdownRequested)
+                if (IsStartCancelled(generation))
                     throw new OperationCanceledException();
 
                 if (!_scrcpyService.IsRunning)
@@ -266,6 +303,7 @@ namespace DexManager.Services
         private bool ApplyRuntimeSettingsCore()
         {
             if (IsShutdownRequested) return false;
+            var generation = Volatile.Read(ref _startGeneration);
             try
             {
                 var serial = _currentSession == null
@@ -294,7 +332,7 @@ namespace DexManager.Services
                 ClearSession(session);
 
                 if (_shutdownSignal.WaitOne(1000)) return false;
-                StartCore(serial);
+                StartCore(serial, generation);
                 if (!_scrcpyService.IsRunning) return false;
                 _logService.Info(LocalizationService.Get(
                     "Log.Dex.ApplyCompleted"));
@@ -400,7 +438,8 @@ namespace DexManager.Services
             if (string.Equals(
                 stale.Serial,
                 nextSerial,
-                StringComparison.OrdinalIgnoreCase))
+                StringComparison.OrdinalIgnoreCase) &&
+                (stale.DisplayLease == null || !stale.DisplayLease.IsLoopback))
             {
                 // A reconnect must be evaluated by EnsureVirtualDisplay.
                 // Releasing the stale lease here would always delete a
@@ -477,6 +516,9 @@ namespace DexManager.Services
             if (string.IsNullOrWhiteSpace(serial)) return true;
             if (!_pendingDisplayCleanup.ContainsKey(serial))
                 return true;
+            var pending = _pendingDisplayCleanup[serial];
+            if (pending.IsLoopback && !ReleaseDisplayLease(pending))
+                return false;
             // The device is available again. Do not delete the old overlay
             // merely because the previous connection ended unexpectedly;
             // the next start will compare its actual resolution and DPI.
@@ -490,6 +532,9 @@ namespace DexManager.Services
         private bool ReleaseDisplayLease(VirtualDisplayLease lease)
         {
             if (lease == null) return true;
+            // Closing an owned persistent channel does not require an online
+            // device. EOF/heartbeat timeout cleans the corresponding helper.
+            if (lease.IsLoopback) return _virtualDisplayService.Release(lease);
             if (string.IsNullOrWhiteSpace(lease.Serial) ||
                 !_adbService.IsAuthorizedDeviceConnected(lease.Serial))
             {
@@ -500,6 +545,8 @@ namespace DexManager.Services
 
         private void CleanupConnectedTargetOverlay(string serial)
         {
+            if (_lastStartUsedLoopback ||
+                GetDeviceRunSettings().VirtualDisplay.HidePhonePreview) return;
             if (string.IsNullOrWhiteSpace(serial) ||
                 !_adbService.IsAuthorizedDeviceConnected(serial))
             {
@@ -535,9 +582,15 @@ namespace DexManager.Services
                 as VirtualDisplayLease;
         }
 
-        private void ThrowIfShutdownRequested()
+        private bool IsStartCancelled(int generation)
         {
-            if (IsShutdownRequested)
+            return IsShutdownRequested ||
+                generation != Volatile.Read(ref _startGeneration);
+        }
+
+        private void ThrowIfStartCancelled(int generation)
+        {
+            if (IsStartCancelled(generation))
                 throw new OperationCanceledException();
         }
 
@@ -547,18 +600,21 @@ namespace DexManager.Services
                 AppSettings settings)
             {
                 var runSettings = GetDeviceRunSettings(settings);
-                runSettings.LastSuccess.Width =
-                    runSettings.VirtualDisplay.Width;
-                runSettings.LastSuccess.Height =
-                    runSettings.VirtualDisplay.Height;
-                runSettings.LastSuccess.Dpi =
-                    runSettings.VirtualDisplay.Dpi;
+                // Loopback uses Samsung's negotiated mode, not overlay presets.
+                if (!runSettings.VirtualDisplay.HidePhonePreview)
+                {
+                    runSettings.LastSuccess.Width = runSettings.VirtualDisplay.Width;
+                    runSettings.LastSuccess.Height = runSettings.VirtualDisplay.Height;
+                    runSettings.LastSuccess.Dpi = runSettings.VirtualDisplay.Dpi;
+                }
                 runSettings.LastSuccess.AdbPath = _adbService.AdbPath;
                 runSettings.LastSuccess.ScrcpyPath =
                     _scrcpyService.ScrcpyPath;
                 runSettings.LastSuccess.ScrcpyArguments =
                     _scrcpyService.BuildArguments(
-                        runSettings.Scrcpy,
+                        runSettings.VirtualDisplay.HidePhonePreview
+                            ? LoopbackDexProtocol.CreateScrcpySettings(runSettings.Scrcpy)
+                            : runSettings.Scrcpy,
                         displayId,
                         serial);
                 runSettings.LastSuccess.DisplayId = displayId;

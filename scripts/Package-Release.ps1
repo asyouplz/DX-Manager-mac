@@ -1,20 +1,26 @@
 param(
     [string]$Version = "",
     [switch]$SkipBuild,
-    [string]$TargetFrameworkRootPath = ""
+    [string]$TargetFrameworkRootPath = "",
+    [string]$CompanionApkSource = ""
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot 'Windows-Portable-Common.ps1')
+if ([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT) {
+    throw 'Build and validate the Windows portable ZIP on Windows (or use the Windows CI artifact).'
+}
 
 $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
 $solutionPath = Join-Path $repoRoot "DexManager.sln"
 $releaseRoot = Join-Path $repoRoot "DexManager\bin\Release"
 $distRoot = Join-Path $repoRoot "dist"
 $packageRoot = Join-Path $distRoot "DX Manager"
-$companionApkSource = Join-Path $repoRoot `
-    "DXDisplayCleanup\app\build\outputs\apk\release\app-release.apk"
-$companionApkSha256 = `
-    "7CD40017789E22440DCA0291AB0C45ADB564A19D8A623E669F373395536B880F"
+if ([string]::IsNullOrWhiteSpace($CompanionApkSource)) {
+    $CompanionApkSource = Join-Path $repoRoot `
+        "DXDisplayCleanup\app\build\outputs\apk\release\app-release.apk"
+}
+Assert-DxmCompanionApk $CompanionApkSource
 
 function Assert-ChildPath([string]$Parent, [string]$Child) {
     $parentPath = [IO.Path]::GetFullPath($Parent).TrimEnd('\') + '\'
@@ -61,38 +67,7 @@ $releaseAdbProcesses = Get-Process adb -ErrorAction SilentlyContinue |
         }
     }
 if ($releaseAdbProcesses -and (Test-Path -LiteralPath $releaseAdbPath)) {
-    & $releaseAdbPath kill-server
-    Start-Sleep -Milliseconds 300
-    $remainingReleaseAdb = Get-Process adb -ErrorAction SilentlyContinue |
-        Where-Object {
-            try {
-                [string]::Equals(
-                    [IO.Path]::GetFullPath($_.Path),
-                    [IO.Path]::GetFullPath($releaseAdbPath),
-                    [StringComparison]::OrdinalIgnoreCase)
-            }
-            catch {
-                $false
-            }
-        }
-    if ($remainingReleaseAdb) {
-        throw "The bundled ADB server is still running. Stop it before packaging."
-    }
-}
-
-foreach ($runtimeDirectory in @(
-    (Join-Path $repoRoot "DexManager\bin\Debug\logs"),
-    (Join-Path $repoRoot "DexManager\bin\Debug\screenshot"),
-    (Join-Path $repoRoot "DexManager\bin\Debug\screenshots"),
-    (Join-Path $repoRoot "DexManager\bin\Release\logs"),
-    (Join-Path $repoRoot "DexManager\bin\Release\screenshot"),
-    (Join-Path $repoRoot "DexManager\bin\Release\screenshots")
-)) {
-    Assert-ChildPath $repoRoot $runtimeDirectory
-    if (Test-Path -LiteralPath $runtimeDirectory) {
-        Get-ChildItem -LiteralPath $runtimeDirectory -File -Recurse |
-            Remove-Item -Force
-    }
+    throw "The bundled Release ADB is running. Stop the application's session before packaging."
 }
 
 if (!$SkipBuild) {
@@ -140,6 +115,10 @@ foreach ($item in $requiredOutput) {
     }
 }
 $requiredFiles = @(
+    "tools\loopback\dxm-loopback.jar",
+    "tools\loopback\dxm-loopback.jar.sha256",
+    "tools\loopback\LICENSE",
+    "tools\loopback\NOTICE",
     "ko\DXManager.resources.dll",
     "tools\adb-proxy\DXMAdbProxy.exe",
     "tools\adb\legacy\adb.exe",
@@ -173,18 +152,16 @@ foreach ($item in $requiredFiles) {
     }
 }
 
-if (!(Test-Path -LiteralPath $companionApkSource -PathType Leaf)) {
-    throw "The signed DX Companion Release APK is missing: $companionApkSource"
+$loopbackSource = Get-Content -Raw -LiteralPath (Join-Path $repoRoot `
+    "DexManager\Services\LoopbackDexService.cs")
+$loopbackHashMatch = [regex]::Match($loopbackSource, 'HelperSha256 = "([a-fA-F0-9]{64})"')
+if (!$loopbackHashMatch.Success -or (Get-FileHash -Algorithm SHA256 `
+    -LiteralPath (Join-Path $releaseRoot "tools\loopback\dxm-loopback.jar")).Hash `
+    -ne $loopbackHashMatch.Groups[1].Value) {
+    throw "The bundled loopback helper does not match the application's pinned hash."
 }
-$actualCompanionHash = (Get-FileHash `
-    -LiteralPath $companionApkSource `
-    -Algorithm SHA256).Hash
-if (![string]::Equals(
-    $actualCompanionHash,
-    $companionApkSha256,
-    [StringComparison]::OrdinalIgnoreCase)) {
-    throw "The signed DX Companion APK hash does not match the v2.0.0 release candidate."
-}
+
+Assert-DxmCompanionApk $CompanionApkSource
 
 if ([string]::IsNullOrWhiteSpace($Version)) {
     $assemblyInfo = Get-Content -LiteralPath (Join-Path $repoRoot "DexManager\Properties\AssemblyInfo.cs")
@@ -225,7 +202,7 @@ foreach ($item in $requiredOutput) {
 $packageCompanionDirectory = Join-Path $packageRoot "tools\companion"
 New-Item -ItemType Directory -Path $packageCompanionDirectory -Force |
     Out-Null
-Copy-Item -LiteralPath $companionApkSource `
+Copy-Item -LiteralPath $CompanionApkSource `
     -Destination (Join-Path $packageCompanionDirectory "DX-Companion.apk")
 
 # Release builds create a PDB for the managed ADB helper under tools. Keep
@@ -243,7 +220,8 @@ foreach ($document in @(
     "USER_GUIDE_EN.md",
     "USER_GUIDE_KO.md",
     "FAQ_EN.md",
-    "FAQ_KO.md"
+    "FAQ_KO.md",
+    "PHONE_PREVIEW_MODE.md"
 )) {
     Copy-Item -LiteralPath (Join-Path $repoRoot "docs\$document") -Destination $packageDocs
 }
@@ -272,13 +250,14 @@ foreach ($markdownPath in $packageMarkdownFiles) {
 Get-ChildItem -LiteralPath $packageRoot -Filter ".gitkeep" -File -Recurse |
     Remove-Item -Force
 
-$unexpectedPdb = Get-ChildItem -LiteralPath $packageRoot -Filter "*.pdb" `
-    -File -Recurse | Select-Object -First 1
-if ($unexpectedPdb) {
-    throw "Debug symbols must not be included in the package: $($unexpectedPdb.FullName)"
-}
+Assert-DxmPortableContents $packageRoot
 
 Compress-Archive -LiteralPath $packageRoot -DestinationPath $zipPath -CompressionLevel Optimal
+$archiveHash = (Get-FileHash -LiteralPath $zipPath -Algorithm SHA256).Hash.ToLowerInvariant()
+[IO.File]::WriteAllText("$zipPath.sha256", "$archiveHash  $([IO.Path]::GetFileName($zipPath))`n", `
+    (New-Object Text.UTF8Encoding($false)))
+& (Join-Path $PSScriptRoot 'Verify-WindowsPackage.ps1') -ArchivePath $zipPath
 
-Write-Host "Release folder: $packageRoot"
-Write-Host "Release archive: $zipPath"
+Write-Host "Verified portable folder: $packageRoot"
+Write-Host "Verified portable archive: $zipPath"
+Write-Host "SHA-256 file: $zipPath.sha256"

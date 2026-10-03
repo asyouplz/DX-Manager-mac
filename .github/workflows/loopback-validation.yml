@@ -1,0 +1,65 @@
+name: Loopback DeX helper validation
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/loopback-validation.yml"
+      - "DXLoopback/**"
+      - "scripts/Build-DexLoopback.*"
+      - "tools/loopback/**"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/loopback-validation.yml"
+      - "DXLoopback/**"
+      - "scripts/Build-DexLoopback.*"
+      - "tools/loopback/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rebuild:
+    name: Reproduce helper (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install pinned build-only JDK
+        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: '17.0.16+8'
+
+      - name: Build and test on Linux
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          DXM_JAVA_HOME="$JAVA_HOME" DXM_LOOPBACK_OUTPUT="$RUNNER_TEMP/rebuilt-loopback" bash scripts/Build-DexLoopback.sh
+          (cd tools/loopback && sha256sum --check dxm-loopback.jar.sha256)
+          cmp tools/loopback/dxm-loopback.jar "$RUNNER_TEMP/rebuilt-loopback/dxm-loopback.jar"
+          cmp DXLoopback/LICENSE tools/loopback/LICENSE
+          cmp DXLoopback/NOTICE tools/loopback/NOTICE
+
+      - name: Build and test on Windows
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          $OutputDirectory = Join-Path $env:RUNNER_TEMP 'rebuilt-loopback'
+          .\scripts\Build-DexLoopback.ps1 -JavaHome $env:JAVA_HOME -OutputDirectory $OutputDirectory
+          $Expected = (Get-Content tools/loopback/dxm-loopback.jar.sha256 -Raw).Split(' ')[0]
+          $Bundled = (Get-FileHash -Algorithm SHA256 tools/loopback/dxm-loopback.jar).Hash.ToLowerInvariant()
+          $Rebuilt = (Get-FileHash -Algorithm SHA256 (Join-Path $OutputDirectory 'dxm-loopback.jar')).Hash.ToLowerInvariant()
+          if ($Expected -ne $Bundled -or $Rebuilt -ne $Bundled) { throw 'Helper reproducibility/integrity mismatch.' }
+          foreach ($Name in @('LICENSE', 'NOTICE')) {
+            $Source = (Get-FileHash -Algorithm SHA256 (Join-Path DXLoopback $Name)).Hash
+            $Copy = (Get-FileHash -Algorithm SHA256 (Join-Path tools/loopback $Name)).Hash
+            if ($Source -ne $Copy) { throw "Attribution mismatch: $Name" }
+          }

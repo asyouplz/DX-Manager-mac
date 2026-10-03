@@ -25,6 +25,7 @@ namespace DexManager.Forms
             public bool WasConnected;
             public string ActiveSerial = string.Empty;
             public int ConnectionGeneration;
+            public Task DexCleanupTask = Task.FromResult(0);
             public int SelectedMode;
             public bool[] ModeSettingsDirty = new bool[4];
         }
@@ -170,6 +171,11 @@ namespace DexManager.Forms
 
         private void SelectDeviceContext(DeviceUiContext context)
         {
+            SelectDeviceContext(context, true);
+        }
+
+        private void SelectDeviceContext(DeviceUiContext context, bool saveCurrentMode)
+        {
             if (context == null || ReferenceEquals(
                     context,
                     _selectedDeviceContext) &&
@@ -178,7 +184,7 @@ namespace DexManager.Forms
                 return;
             }
 
-            SaveCurrentModeBeforeSwitch();
+            if (saveCurrentMode) SaveCurrentModeBeforeSwitch();
             if (_selectedDeviceContext != null)
             {
                 _selectedDeviceContext.SelectedMode = _selectedMode;

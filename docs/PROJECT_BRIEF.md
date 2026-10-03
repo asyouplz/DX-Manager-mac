@@ -28,11 +28,14 @@ GitHub 메인 README와 별도로 HTML이 없는 `docs\PACKAGE_README.md`를 배
 폴더의 `README.md`로 사용하며, 모든 이중 언어 문서는 영어 다음 한국어
 순서로 작성한다.
 
-macOS 에디션은 `scripts/Package-Mac-Release.sh`로 Apple Silicon arm64
-self-contained ZIP을 만든다. ZIP에는 arm64로 미리 publish한 DX Manager와 ADB
+macOS 에디션은 `scripts/Package-Mac-Release.sh`로 Apple Silicon arm64와 Intel x64
+self-contained ZIP을 각각 만든다. ZIP에는 해당 CPU로 미리 publish한 DX Manager와 ADB
 proxy, 공식 scrcpy 4.1 정적 빌드, ADB, scrcpy-server, 실행기와 라이선스를
 포함한다. 사용자는 Homebrew나 .NET을 설치하거나 소스를 빌드하지 않고 ZIP 전체를
-풀어 실행한다. Intel Mac(x86_64)은 지원하지 않으며 x64 ZIP을 만들지 않는다.
+풀어 실행한다. 최소 운영체제는 macOS 14이며 구형 Intel macOS 지원은 보장하지 않는다.
+Windows x64도 소스 빌드 없는 ZIP을 제공하되 .NET Framework 4.6.2 이상과 USB
+드라이버 등 운영체제별 사전 조건은 별도로 안내한다. 세 패키지 모두 휴대폰 화면
+숨김용 사전 빌드 helper를 포함하며, 해당 모드는 실기 검증 전의 실험 기능이다.
 
 ## 완료 기능
 

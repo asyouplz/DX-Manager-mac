@@ -1,5 +1,14 @@
 # Known Issues and Constraints
 
+## 휴대폰 DeX 미리보기 숨김: Windows·macOS 실험 기능
+
+`HidePhonePreview`는 Samsung의 비공개 wireless DeX API와 로컬 RTSP 협상에
+의존한다. S26/One UI 및 실제 Windows·Mac 조합은 아직 검증하지 않았다. API가
+없거나 기존 외부 화면이 있으면 중단하며 기존 화면을 임의로 종료하지 않는다.
+화면 끄기·overlay 해상도/DPI는 이 모드에 적용하지 않는다. 자체 토큰에 해당하는
+연결만 정리하며 연결 유실 시 15초 heartbeat 만료 복구를 시도하지만 펌웨어
+실패까지 보장하지 않는다. 상세는 `PHONE_PREVIEW_MODE.md`를 따른다.
+
 ## 네트워크 격리
 
 무선 ADB는 PC와 휴대폰의 직접 로컬 통신이 필요하다. 같은 대역이어도 게스트
@@ -135,21 +144,21 @@ DX Manager가 만든 화면과 사용자가 개발자 옵션에서 직접 선택
 ## 배포
 
 - 설치 프로그램 없음
-- Assembly/File version은 `2.0.0.0`
+- 기존 릴리스 기준은 2.0.0, 현재 기능 검토용 빌드는 `2.0.1-phone-preview`
 - 앱 아이콘, 제작자/GitHub 링크, MIT 라이선스와 제3자 고지 완료
 - README, 사용 설명서와 FAQ의 한국어/영어 스크린샷 배치 완료
 - 공개 ZIP에서 개인 설정, PDB, 로그와 테스트 스크린샷 제외 확인
-- 자동화 테스트 없이 주요 흐름은 실기 테스트에 의존
+- 자동 빌드·회귀 테스트와 별개로 실제 Galaxy/One UI 동작은 실기 테스트가 필요
 
 ## macOS 포터블 서명과 실기 범위
 
-macOS arm64 ZIP은 self-contained이므로 Homebrew와 별도 .NET 설치에 의존하지
-않는다. Intel Mac(x86_64)은 지원 범위가 아니며 x64 ZIP을 제공하지 않는다. 다만
+macOS arm64 및 Intel x64 ZIP은 self-contained이므로 Homebrew와 별도 .NET 설치에
+의존하지 않는다. 지원 목표는 macOS 14 이상이며 구형 Intel OS는 보장하지 않는다. 다만
 현재 자동화 설정에는 Apple Developer ID 인증서와
 notarization 자격 증명이 구성되어 있지 않다. 브라우저로 받은 ZIP은 최초 실행
 시 Gatekeeper 승인이 필요할 수 있으며, 서명·공증 전에는 모든 macOS
 버전에서 경고 없는 최초 실행을 보장하지 않는다. 패키징 스크립트가 quarantine
 속성을 자동 삭제하거나 macOS 보안 기능을 우회하지 않는다.
 
-Apple Silicon ZIP은 Apple Silicon Mac에서 실제 바이너리 기동을 확인했다.
-Intel Mac용 빌드·배포·실기 검증은 수행하지 않는다.
+각 CPU의 네이티브 CI에서 압축 해제와 번들 바이너리 기동을 검사한다. 이 검사는
+실제 Galaxy DeX, 사용자 Mac의 Gatekeeper, 절전 복귀와 장시간 동작 검증을 대신하지 않는다.

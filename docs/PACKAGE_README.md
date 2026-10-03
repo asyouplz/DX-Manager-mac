@@ -33,6 +33,13 @@ if necessary; an offline installer is available there. If .NET Framework 4.7.2
 or 4.8 is already installed, no downgrade or separate 4.6.2 installation is
 required.
 
+The ZIP is prebuilt: Visual Studio, Java and the Android SDK are not required.
+Portability does not remove OS prerequisites; install the Samsung USB driver if
+Windows does not recognize the phone. This preview adds an optional **Hide DeX
+preview (experimental)** switch. Stop DeX, choose the mode, then start again.
+The default preserves the original phone preview. Galaxy S26/One UI physical
+validation of hiding remains pending; see [details](docs/PHONE_PREVIEW_MODE.md).
+
 ### Quick start
 
 1. Extract the entire ZIP to a user-writable folder.
@@ -193,6 +200,13 @@ Windows 7 SP1에는 .NET Framework 4.6.2가 기본 포함되지 않습니다. �
 설치하십시오. 같은 페이지에서 오프라인 설치 파일도 받을 수 있습니다.
 4.7.2 또는 4.8이 이미 설치되어 있다면 4.6.2로 낮추거나 추가 설치할 필요가
 없습니다.
+
+ZIP은 미리 빌드되어 있어 Visual Studio·Java·Android SDK가 필요하지 않습니다.
+포터블이라도 Windows의 .NET Framework와 USB 드라이버 조건은 별개입니다.
+기기가 인식되지 않으면 삼성 USB 드라이버를 설치해야 할 수 있습니다.
+이 검토용 빌드에는 **휴대폰 DeX 숨기기 (실험)** 선택이 추가됩니다.
+**DeX 중지 → 표시 방식 선택 → DeX 시작** 순서로 사용합니다. 기본은 기존 표시
+방식이며 S26/One UI 숨김 실기 검증은 남아 있습니다. [상세 안내](docs/PHONE_PREVIEW_MODE.md)
 
 ### 빠른 시작
 

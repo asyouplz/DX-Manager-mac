@@ -20,8 +20,8 @@ Official source: https://github.com/dotnet/runtime/tree/v8.0.30
 
 ## scrcpy
 
-The package includes the official static scrcpy 4.1 archive for Apple Silicon
-arm64. scrcpy and scrcpy-server are licensed under the
+The package includes the official static scrcpy 4.1 archive matching its CPU:
+Apple Silicon arm64 or Intel x86_64. scrcpy and scrcpy-server are licensed under the
 Apache License, Version 2.0. The complete license supplied by the official
 archive is retained in `tools/scrcpy/LICENSE` and is also provided as
 `scrcpy-LICENSE.txt` in the package license directory.
@@ -55,6 +55,16 @@ applicable LGPL 2.1, SDL/zlib, dav1d BSD 2-Clause, and zlib license texts in its
 - https://github.com/libusb/libusb/tree/v1.0.30
 - https://code.videolan.org/videolan/dav1d
 - https://zlib.net/
+
+## Optional loopback DeX helper
+
+`tools/loopback/dxm-loopback.jar` is the prebuilt Android helper for optional
+phone-preview-free DeX. It follows the ScrcpyDeX loopback activation method.
+Its Apache 2.0 license and attribution are retained beside the JAR as `LICENSE`
+and `NOTICE`. DX Manager helper source and reproducible build instructions are
+provided in the repository's `DXLoopback/` directory.
+
+Reference project: https://github.com/Aureliano021/ScrcpyDex
 
 ## Samsung DeX trademark notice
 

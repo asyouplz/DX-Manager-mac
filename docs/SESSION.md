@@ -1,8 +1,54 @@
 # Session Handoff
 
-마지막 갱신: 2026-08-31
+마지막 갱신: 2026-10-04
 
-## macOS 포터블 배포 작업
+## 현재 작업: Mac 표시 선택과 3종 포터블 확대
+
+- 같은 작업 브랜치와 우리 저장소 초안 PR #1을 확장한다. Windows x64,
+  macOS Apple Silicon arm64, Intel x64를 각각 미리 빌드한 ZIP으로 제공한다.
+- 사용자의 이번 요청으로 과거 Intel Mac 제외 결정을 변경한다. Mac 최소 OS는
+  14 이상이며, 별도 Homebrew/.NET 설치 없이 번들로 실행한다.
+- Mac에도 `P` 메뉴 및 CLI 표시/숨김 선택을 제공한다. 기본은 기존 overlay이며
+  휴대폰별 설정과 기존 stable identity 정리를 보존한다.
+- Windows는 .NET Framework 4.6.2 및 기존 서명 Companion 포함 정책을 유지한다.
+  공식 v2.0.1 ZIP에서 검증한 APK만 추출해 CI 패키징에 사용한다.
+- 자동 빌드·테스트·재압축 해제 검증과 S26 실기 성공을 구분한다. 새 숨김 모드는
+  양 OS에서 실험 상태이며 실제 S26/One UI, 절전/장시간 동작 확인이 남아 있다.
+- 정식 Release, 태그, 병합과 원본 PR #2 댓글은 이번 작업에서 수행하지 않는다.
+- 아래 Windows 전용/Apple Silicon 전용 기록은 당시 이력이며 현재 지원 범위가 아니다.
+- 로컬 검증: Core/Mac 116개, Windows 원본 소스 26개, 다중 기기 39개 통과.
+  Mac Release 경고 0·오류 0.
+- 기능 커밋 `c75e08b` 원격 검사 완료: Windows x64 전체 빌드·포터블 ZIP·네이티브
+  도구 실행·금지 파일 회귀 9개, Mac arm64 및 Intel x64의 네이티브 빌드·116개
+  공통 테스트·39개 다중 기기 테스트·ZIP 재압축 해제·번들 실행 검사 모두 통과.
+  helper는 Windows/Linux 재현 빌드·각 16개 테스트 통과. 검사 실행 번호는
+  Windows `37145623673`, Mac `37145623668`, helper `37145623660`이다.
+- 3종 `2.0.1-phone-preview` ZIP과 SHA-256은 위 CI artifact에 저장했다.
+  artifact 보관 기간은 30일이며 정식 Release는 생성하지 않았다. 로컬로 받은
+  ZIP은 보관 기간과 별개로 다른 PC에 복사해 사용할 수 있다.
+
+## 2026-10-03 Windows 휴대폰 DeX 미리보기 선택 작업 (이력)
+
+- 작업 브랜치: `codex/dex-phone-display-mode`, 대상: `asyouplz/DX-Manager-mac`.
+- v2.0.1의 최초 연결 시 기기별 설정 덮어쓰기 수정만 가져왔다. upstream main
+  전체를 병합하거나 인텔 맥 지원을 다시 추가하지 않았다.
+- Windows DeX 전용 `HidePhonePreview`를 기기별로 저장한다. 기본값 false는
+  기존 overlay 방식이며, true는 ScrcpyDeX 방법을 참고한 실험용 loopback 연결이다.
+- UI·Android helper·Windows 수명주기·포터블 번들 및 자동 검증을 추가한다.
+  상세와 실기 체크리스트는 `PHONE_PREVIEW_MODE.md`를 따른다.
+- S26/Windows 실기, GUI 시각 검증, 장시간 사용은 미확인이다. PR은 이 경계를
+  명시한 초안으로 제출하며 정식 릴리스나 병합은 별도로 승인받는다.
+- Mac 런타임과 기존 Companion APK/설치/권한 정책은 변경하지 않는다.
+- 우리 저장소 초안 PR: https://github.com/asyouplz/DX-Manager-mac/pull/1
+- 코드 커밋 `8f28c32`의 GitHub 검사 통과: Windows x64/.NET Framework 4.6.2
+  전체 빌드·Windows 원본 소스 회귀 26개·proxy 실행 검사, Linux/Windows helper
+  재현 빌드와 각각 16개 JVM 테스트, Apple Silicon 포터블 빌드·공통 테스트
+  98개·다중 기기 테스트 39개. Windows 서버 빌드 검증과 실제 사용자 PC/S26
+  동작은 구분하며, 아래 실기 미확인 항목은 그대로 남긴다.
+- 아래 macOS 및 과거 Windows 기록은 당시 작업 이력이며 이번 기능의 실기
+  검증 결과를 뜻하지 않는다.
+
+## 2026-08 macOS 포터블 배포 작업 (이력)
 
 - 작업 브랜치: `codex/macos-portable-release`
 - 원본 저장소의 Draft PR #3에서 검토 중이며 제목과 본문은 한국어로 작성한다.

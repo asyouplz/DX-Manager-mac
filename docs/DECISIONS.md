@@ -1,5 +1,30 @@
 # Decision Log
 
+## 2026-10-04: 맥 숨김 선택과 Windows·Mac 3종 포터블
+
+사용자 요청에 따라 2026-08의 Intel Mac 제외 결정을 변경한다. macOS 14 이상
+Apple Silicon arm64와 Intel x64를 각각 self-contained ZIP으로 만들고 각 CPU의
+네이티브 CI에서 실행한다. Windows x64는 기존 .NET Framework 4.6.2 호환성을
+유지하며, 포터블은 소스 빌드/앱 설치가 불필요하다는 뜻이지 OS 런타임과 USB
+드라이버까지 필요 없다는 뜻은 아니다.
+
+Windows의 loopback 호스트 서비스·프로토콜 소스를 Core가 공유해 맥에도 표시/숨김
+선택을 추가한다. 기존 overlay 기본값과 Mac의 stable identity 정리는 유지한다.
+선택 UI는 Windows 스위치, Mac `P` 메뉴/CLI로 제공한다. 세 ZIP은 PR 검토용으로
+미리 만들며 정식 릴리스/병합은 하지 않는다. 플랫폼 확장은 실기 호환성 확인과
+별개이며 S26/One UI 검증 전에는 실험 표시를 유지한다.
+
+## 2026-10-03: 휴대폰 미리보기 없는 DeX는 명시적 실험 선택
+
+기존 overlay를 화면 밖으로 옮기거나 scrcpy 일반 가상 화면으로 대체하지 않고,
+ScrcpyDeX의 삼성 무선 DeX loopback 활성화 방법을 별도 경로로 추가한다.
+기본값과 기존 실행 흐름은 유지하며 실행 중 모드 전환은 허용하지 않는다.
+휴대폰을 일반 화면으로 사용하려는 목적에 맞게 이 경로의 화면 OFF 요청만
+무시하고 저장된 기존 설정은 보존한다. 삼성 협상 해상도를 임의로 바꾸지 않는다.
+세션별 임의 토큰, 명시적 serial, helper 입력 채널과 heartbeat로 수명을 묶고,
+기존 외부 화면을 끊거나 이름이 같은 모든 프로세스를 종료하는 방식은 사용하지
+않는다. 지원 범위 확대는 실기 검증 이후 별도로 결정한다.
+
 ## .NET Framework 4.6.2
 
 64비트 Windows 7 SP1과 오프라인·폐쇄망 환경을 지원하기 위한 최소 대상
@@ -328,6 +353,8 @@ Scrcpy, DeX orchestrator, 단일창, 화면 OFF, Companion 수신기와 PC→휴
 작업으로 수행한다.
 
 ## 2026-08 - macOS는 Apple Silicon arm64 self-contained ZIP으로 배포한다
+
+이 절은 당시 결정의 기록이다. Intel 제외 범위는 2026-10-04 결정으로 대체한다.
 
 macOS 사용자가 저장소를 clone하거나 .NET, Homebrew, scrcpy와 ADB를 직접
 설치하도록 하지 않는다. 원본 Windows 프로젝트가 실행 파일과 도구 폴더 전체를

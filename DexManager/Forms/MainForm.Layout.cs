@@ -67,6 +67,7 @@ namespace DexManager.Forms
             MoveToCard(_useHidMouseBox, _optionsCard, 20, 119);
             MoveToCard(_forceStopAppBox, _optionsCard, 362, 49);
             MoveToCard(_flexDisplayBox, _optionsCard, 362, 84);
+            MoveToCard(_hidePhonePreviewBox, _optionsCard, 362, 119);
             MoveToCard(
                 _stayAwakeBox,
                 _optionsCard,
@@ -79,6 +80,7 @@ namespace DexManager.Forms
                 _useHidMouseBox,
                 _forceStopAppBox,
                 _flexDisplayBox,
+                _hidePhonePreviewBox,
                 _stayAwakeBox
             })
             {
@@ -179,6 +181,7 @@ namespace DexManager.Forms
                 _useHidMouseBox,
                 _forceStopAppBox,
                 _flexDisplayBox,
+                _hidePhonePreviewBox,
                 _stayAwakeBox
             })
             {

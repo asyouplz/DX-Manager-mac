@@ -1,2 +1,9 @@
 This file marks a complete DX Manager portable package.
 Keep it beside DXManager.Mac so the bundled scrcpy and ADB are selected first.
+Use the arm64 ZIP on Apple Silicon or the x64 ZIP on Intel Mac.
+The matching .NET runtime, ADB proxy, scrcpy, ADB and prebuilt loopback helper
+are included. No Homebrew, .NET SDK, Java installation or local build is needed.
+Keep the complete extracted folder together, including tools and licenses.
+macOS 14 or later is the supported target; older versions are not verified.
+This package is not Developer ID signed or notarized. macOS may require approval
+on first launch. The launcher does not bypass Gatekeeper or remove quarantine.

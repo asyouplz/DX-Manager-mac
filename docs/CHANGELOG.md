@@ -2,7 +2,53 @@
 
 세부 변경은 Git 이력을 사용하고 여기에는 큰 이정표만 적는다.
 
+## 2026-10-04 - Windows and macOS portable preview (unreleased)
+
+- Extend the optional phone-preview-free DeX mode to the Mac menu and CLI,
+  preserving per-phone settings and the original overlay default.
+- Restore Intel Mac x64 alongside Apple Silicon arm64, targeting macOS 14+.
+- Prebuild Windows x64 and both Mac ZIPs with runtime tools and the Android
+  helper; check fresh extraction on native CI for each target CPU.
+- Keep the existing signed Windows Companion policy and distinguish portable
+  app files from Windows .NET Framework/USB driver prerequisites.
+- Galaxy S26/One UI physical validation remains pending on both platforms.
+
+### 한국어
+
+- Mac 메뉴와 CLI에도 휴대폰 화면 표시/숨김 선택을 추가하고 휴대폰별 설정과
+  기존 overlay 기본값을 유지한다.
+- 사용자 요청으로 Intel Mac x64를 복원한다. Apple Silicon arm64와 함께
+  macOS 14 이상을 대상으로 각각 ZIP을 제공한다.
+- Windows x64와 Mac 2종 ZIP을 미리 빌드하고 각 CPU의 네이티브 CI에서 다시
+  압축을 풀어 번들 도구와 필수 파일을 검사한다.
+- Windows의 기존 서명 Companion 포함 정책은 유지한다. 포터블 앱 파일과
+  Windows .NET Framework/USB 드라이버 사전 조건은 구분한다.
+- 양 OS의 S26/One UI 실기 검증은 남아 있으며 정식 릴리스는 아니다.
+
+## 2026-10 - Windows DeX phone-preview option (unreleased)
+
+Historical Windows-only scope; superseded by the 2026-10-04 entry above.
+당시 Windows 전용 범위는 위 2026-10-04 항목으로 확대되었다.
+
+- Add an opt-in experimental loopback DeX mode to avoid the phone-side overlay;
+  keep the existing display mode as the default and preserve per-device settings.
+- Bundle the prebuilt Android helper and source/license/build instructions;
+  add Windows-source regression and .NET Framework 4.6.2 build checks.
+- Include the upstream v2.0.1 first-device settings fix without reintroducing
+  Intel Mac support. Galaxy S26/Windows physical validation remains pending.
+
+### 한국어
+
+- Windows DeX에 `휴대폰 DeX 숨기기 (실험)` 선택을 추가하고 기존 표시 방식을
+  기본값으로 유지한다. 화면 끄기·해상도 기존 값은 보존한다.
+- 미리 빌드한 Android helper와 소스·라이선스·빌드 방법을 포함하고, 기기별
+  연결·종료 정리 및 Windows 원본 코드의 자동 테스트를 추가한다.
+- v2.0.1 최초 기기 설정 수정과 Windows .NET Framework 4.6.2 proxy 빌드를
+  반영한다. 인텔 맥은 지원하지 않으며 S26/Windows 실기 검증은 남아 있다.
+
 ## 2026-08 - v2.0.0 (macOS Cross-Platform Edition)
+
+아래는 당시 기록이다. Intel 제외 정책은 2026-10-04에 변경되었다.
 
 - Apple Silicon arm64용 self-contained 포터블 ZIP 패키징 추가. Intel Mac은
   지원하지 않으며 x64 ZIP을 제공하지 않음

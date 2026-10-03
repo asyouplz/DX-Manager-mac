@@ -42,28 +42,47 @@
 `Version ...` 값이 표시되는지 확인한다.
 실기 확인을 못 했으면 명시한다.
 
+Windows·Mac 휴대폰 DeX 숨김 기능 변경 시 추가로 다음을 실행한다. 첫 명령은
+별도 Core 사본이 아니라 실제 Windows 서비스·모델 소스를 연결해 설정과
+ADB 프로세스 수명주기를 검증한다. helper를 수정했으면 JDK 17로 다시 빌드하고
+`LoopbackDexService.HelperSha256`도 새 번들 값과 함께 갱신한다.
+
+```powershell
+dotnet run --project DexManager.WindowsTests/DexManager.WindowsTests.csproj --configuration Release
+.\scripts\Build-DexLoopback.ps1 -JavaHome 'C:\build-tools\jdk-17'
+```
+
+helper 재현 빌드는 `DXLoopback/README.md`와 전용 CI를 따른다. Mac에서 net462
+참조 어셈블리로 컴파일을 확인한 것과 실제 Windows 전체 빌드·GUI 실행은
+구분한다. 새 기능의 실기 항목은 `PHONE_PREVIEW_MODE.md`에 정리했다.
+
 공개용 포터블 폴더와 ZIP은 저장소 루트에서 다음 명령으로 만든다.
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Package-Release.ps1
 ```
 
-macOS 공개 후보는 사용자가 빌드하지 않아도 되도록 Apple Silicon arm64
-self-contained ZIP을 미리 만든다. Intel Mac용 x64 ZIP은 만들지 않는다.
+macOS 공개 후보는 사용자가 빌드하지 않아도 되도록 Apple Silicon arm64와 Intel
+x64 self-contained ZIP을 미리 만든다. 지원 목표는 macOS 14 이상이다.
 
 ```bash
 scripts/Package-Mac-Release.sh --rid osx-arm64
+scripts/Package-Mac-Release.sh --rid osx-x64
 ```
 
 macOS 스크립트는 현재 저장소의 다른 아키텍처용 개발 도구를 그대로 복사하지
-않는다. DX Manager와 `DXMAdbProxy`를 `osx-arm64` RID로 publish하고, SHA-256을
-고정한 공식 scrcpy 4.1 macOS arm64 정적 아카이브를 넣는다. ZIP을 다시 풀어 실행
+않는다. DX Manager와 `DXMAdbProxy`를 지정된 RID로 publish하고, SHA-256을
+고정한 공식 scrcpy 4.1의 해당 CPU 정적 아카이브를 넣는다. ZIP을 다시 풀어 실행
 권한, Mach-O 아키텍처, 외부 Homebrew·사용자 경로 의존성, 버전, 필수 문서와
 사용자 데이터·디버그 파일 제외를 확인한다. 파일 권한·순서·시각은
 `SOURCE_DATE_EPOCH` 또는 현재 Git 커밋 시각으로 정규화한다. GitHub Actions
-workflow는 Apple Silicon `macos-15`에서 arm64 패키지를 빌드·테스트해 PR
-artifact로 보관한다. `v*` 버전 태그에서는 ZIP과 체크섬을 다시 검증한 뒤 Release
+workflow는 Apple Silicon `macos-15`와 Intel `macos-15-intel`에서 각 패키지를
+빌드·테스트해 PR artifact로 보관한다. `v*` 버전 태그에서는 ZIP과 체크섬을 다시 검증한 뒤 Release
 초안을 만들고, 유지관리자가 초안을 확인한 뒤 공개한다.
+
+패키징의 실행 검사는 `--version`, `--help`, proxy 자체 검사, ADB/scrcpy 버전
+명령으로 제한한다. 실제 기기를 탐색하는 TUI를 열고 `Q`를 보내는 검사는 수행하지
+않는다. 세션 종료 검증은 fake ADB 기반 회귀 테스트와 별도 승인된 실기로 구분한다.
 
 시스템에 .NET Framework 4.6.2 Developer Pack이 없으면 참조 어셈블리 루트를
 `-TargetFrameworkRootPath`로 지정하거나 현재 셸의
@@ -75,11 +94,18 @@ artifact로 보관한다. `v*` 버전 태그에서는 ZIP과 체크섬을 다시
 `E:\vs\dex system\dist`에서 생성·확인한다. C 드라이브의 Codex 작업 폴더에서
 만든 `bin\Release`와 `dist`는 빌드·실기 검증용으로만 사용하며 정식 릴리스본으로
 안내하지 않는다.
-스크립트는 DX Manager 실행 여부를 확인하고 번들 Release ADB 서버를 정리한
-뒤 Debug/Release의 로그와 스크린샷 테스트 파일을 비운다.
-v2.0.0 패키지는 Scrcpy 4.1 런타임,
+패키징은 생성한 배포 폴더만 검사하며 개발 폴더의 로그·스크린샷·설정을 삭제하지
+않는다. Windows CI는 `scripts/Get-VerifiedCompanion.ps1`로 공식 v2.0.1 ZIP의
+고정 해시와 서명 인증서를 검증한 기존 APK만 추출하고 `-CompanionApkSource`로
+패키징에 전달한다. 자동 설치나 APK 포함 정책은 바꾸지 않는다.
+Windows 검토용 ZIP은 네이티브 Windows에서 다시 풀어 ADB·scrcpy·proxy 실행,
+필수 파일·체크섬·APK 서명과 사용자 데이터 제외를 검사한 뒤 artifact로 보관한다.
+PR artifact는 메이님의 정식 릴리스 전달 위치를 대신하지 않는다.
+패키지는 Scrcpy 4.1 런타임,
 `tools\adb-proxy\DXMAdbProxy.exe`와 서명이 검증된
 `tools\companion\DX-Companion.apk`를 반드시 포함해야 한다.
+세 플랫폼 패키지 모두 `tools/loopback`의 사전 빌드 JAR·SHA-256·라이선스·고지를
+포함한다. helper 변경 없이 새 JDK나 Android SDK를 사용자에게 요구하지 않는다.
 
 Android 정리 앱은 다음 명령으로 단위 테스트, lint와 서명 Release 빌드를
 함께 실행한다.
@@ -99,8 +125,8 @@ Android 앱은 문서화된 복구 설정 이외의 설정이나 임의 shell �
 
 - diff를 확인하고 한 커밋에 한 목적만 담는다.
 - 생성물과 사용자 데이터를 커밋하지 않는다.
-- 빌드·커밋·배포 전에 `bin\Debug`와 `bin\Release` 아래 `logs`,
-  `screenshot`의 테스트 파일을 비운다.
+- 빌드·커밋·배포 시 `bin\Debug`와 `bin\Release`의 사용자 로그·스크린샷을
+  보존하고, 생성한 배포 폴더와 ZIP에 포함되지 않았는지 검사한다.
 - merge, tag, push, GitHub Release는 사용자 확인 없이 하지 않는다.
 - 파괴적인 reset/checkout을 사용하지 않는다.
 - 설계 변경은 `DECISIONS.md`

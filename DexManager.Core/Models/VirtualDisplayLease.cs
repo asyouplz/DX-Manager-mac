@@ -8,5 +8,7 @@ namespace DexManager.Models
         public string AppliedOverlaySetting { get; set; }
         public bool OwnsOverlaySetting { get; set; }
         public bool ReusedExistingDisplay { get; set; }
+        public bool IsLoopback { get; set; }
+        public string LoopbackSessionId { get; set; }
     }
 }

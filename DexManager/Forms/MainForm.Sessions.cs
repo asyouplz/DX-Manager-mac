@@ -105,6 +105,12 @@ namespace DexManager.Forms
         private async Task StartDexAsync()
         {
             if (_exitInProgress || _orchestrator.IsShutdownRequested) return;
+            var orchestrator = _orchestrator;
+            var context = _selectedDeviceContext;
+            if (orchestrator.IsRunning || orchestrator.IsBusy ||
+                _phonePreviewPendingStarts.ContainsKey(orchestrator)) return;
+            var generation = context == null ? -1 : context.ConnectionGeneration;
+            var serial = GetSelectedDeviceSerial();
             try
             {
                 if (_selectedMode == 0) ApplyRunSettings(false);
@@ -126,40 +132,56 @@ namespace DexManager.Forms
                 Color.DarkOrange,
                 LocalizationService.Get("Main.DexStarting"),
                 LocalizationService.Get("Main.DexPreparing"));
+            BeginPhonePreviewStart(orchestrator);
             try
             {
-                var serial = GetSelectedDeviceSerial();
+                var runSettings = GetSelectedDeviceRunSettings();
                 if (string.IsNullOrWhiteSpace(serial))
                 {
                     throw new InvalidOperationException(
                         LocalizationService.Get(
                             "Error.Dex.NoAuthorizedDevice"));
                 }
-                if (!await WaitForDeviceStartDelayAsync(serial)) return;
-                var scrcpySettings =
-                    GetSelectedDeviceRunSettings().Scrcpy;
-                if (scrcpySettings.TurnScreenOff)
+                if (!await WaitForDeviceStartDelayAsync(
+                        serial, context, generation)) return;
+                var scrcpySettings = runSettings.Scrcpy;
+                if (scrcpySettings.TurnScreenOff &&
+                    !runSettings.VirtualDisplay.HidePhonePreview)
                     RememberManagedSerial(serial);
-                await _orchestrator.StartAsync(serial);
-                if (_exitInProgress || !_orchestrator.IsRunning) return;
+                await orchestrator.StartAsync(serial);
+                if (_exitInProgress || !orchestrator.IsRunning ||
+                    (context != null && !IsContextConnectionCurrent(
+                        context, serial, generation))) return;
                 RememberStartedApp(
                     scrcpySettings.StartAppPackage,
                     scrcpySettings.StartAppName);
-                _modeSettingsDirty[0] = false;
+                if (context != null) context.ModeSettingsDirty[0] = false;
+                else if (ReferenceEquals(orchestrator, _orchestrator))
+                    _modeSettingsDirty[0] = false;
             }
             catch (Exception ex)
             {
-                if (!_exitInProgress)
+                if (!_exitInProgress &&
+                    ReferenceEquals(orchestrator, _orchestrator))
                 {
                     ShowError(
                         LocalizationService.Get("Error.StartDex"),
                         ex);
                 }
+                else
+                {
+                    _logService.Error(LocalizationService.Get(
+                        "Error.StartDex"), ex);
+                }
             }
             finally
             {
-                UpdateRunningState();
-                UpdatePhoneScreenWakeSchedule();
+                EndPhonePreviewStart(orchestrator);
+                if (!_exitInProgress && !IsDisposed)
+                {
+                    UpdateRunningState();
+                    UpdatePhoneScreenWakeSchedule();
+                }
             }
         }
 
