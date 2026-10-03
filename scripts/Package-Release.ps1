@@ -140,6 +140,10 @@ foreach ($item in $requiredOutput) {
     }
 }
 $requiredFiles = @(
+    "tools\loopback\dxm-loopback.jar",
+    "tools\loopback\dxm-loopback.jar.sha256",
+    "tools\loopback\LICENSE",
+    "tools\loopback\NOTICE",
     "ko\DXManager.resources.dll",
     "tools\adb-proxy\DXMAdbProxy.exe",
     "tools\adb\legacy\adb.exe",
@@ -171,6 +175,15 @@ foreach ($item in $requiredFiles) {
     if (!(Test-Path -LiteralPath $path -PathType Leaf)) {
         throw "Required Release file is missing: $path"
     }
+}
+
+$loopbackSource = Get-Content -Raw -LiteralPath (Join-Path $repoRoot `
+    "DexManager\Services\LoopbackDexService.cs")
+$loopbackHashMatch = [regex]::Match($loopbackSource, 'HelperSha256 = "([a-fA-F0-9]{64})"')
+if (!$loopbackHashMatch.Success -or (Get-FileHash -Algorithm SHA256 `
+    -LiteralPath (Join-Path $releaseRoot "tools\loopback\dxm-loopback.jar")).Hash `
+    -ne $loopbackHashMatch.Groups[1].Value) {
+    throw "The bundled loopback helper does not match the application's pinned hash."
 }
 
 if (!(Test-Path -LiteralPath $companionApkSource -PathType Leaf)) {
@@ -243,7 +256,8 @@ foreach ($document in @(
     "USER_GUIDE_EN.md",
     "USER_GUIDE_KO.md",
     "FAQ_EN.md",
-    "FAQ_KO.md"
+    "FAQ_KO.md",
+    "PHONE_PREVIEW_MODE.md"
 )) {
     Copy-Item -LiteralPath (Join-Path $repoRoot "docs\$document") -Destination $packageDocs
 }

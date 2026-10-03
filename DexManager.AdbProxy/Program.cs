@@ -31,7 +31,7 @@ internal static class Program
                 return Fail("DX Manager: the real ADB executable is unavailable.");
             }
 
-            var currentProcessPath = Environment.ProcessPath ?? Process.GetCurrentProcess().MainModule?.FileName;
+            var currentProcessPath = GetCurrentProcessPath();
             if (!string.IsNullOrWhiteSpace(currentProcessPath) &&
                 PathsReferToSameFile(realAdbPath, currentProcessPath))
             {
@@ -81,7 +81,7 @@ internal static class Program
             }
             if (argument.StartsWith("--serial=", StringComparison.Ordinal))
             {
-                serial = argument["--serial=".Length..];
+                serial = argument.Substring("--serial=".Length);
                 index++;
                 continue;
             }
@@ -309,7 +309,7 @@ internal static class Program
             return string.Equals(
                 leftNorm,
                 rightNorm,
-                OperatingSystem.IsWindows() || OperatingSystem.IsMacOS()
+                UsesCaseInsensitivePaths()
                     ? StringComparison.OrdinalIgnoreCase
                     : StringComparison.Ordinal);
         }
@@ -326,5 +326,36 @@ internal static class Program
         return exitCode;
     }
 
-    private sealed record PushRequest(string Serial, string LocalPath, string RemoteDirectory);
+    private static string GetCurrentProcessPath()
+    {
+#if NETFRAMEWORK
+        using var process = Process.GetCurrentProcess();
+        return process.MainModule?.FileName;
+#else
+        return Environment.ProcessPath ?? Process.GetCurrentProcess().MainModule?.FileName;
+#endif
+    }
+
+    private static bool UsesCaseInsensitivePaths()
+    {
+#if NETFRAMEWORK
+        return true; // The .NET Framework build is Windows-only.
+#else
+        return OperatingSystem.IsWindows() || OperatingSystem.IsMacOS();
+#endif
+    }
+
+    private sealed class PushRequest
+    {
+        public PushRequest(string serial, string localPath, string remoteDirectory)
+        {
+            Serial = serial;
+            LocalPath = localPath;
+            RemoteDirectory = remoteDirectory;
+        }
+
+        public string Serial { get; }
+        public string LocalPath { get; }
+        public string RemoteDirectory { get; }
+    }
 }

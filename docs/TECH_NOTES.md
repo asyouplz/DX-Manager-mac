@@ -1,5 +1,17 @@
 # Technical Notes
 
+## 선택형 loopback DeX
+
+Windows `VirtualDisplayService`는 `HidePhonePreview=false`이면 기존 overlay
+경로를 사용한다. true이면 기존 overlay가 없는지 확인한 뒤 `LoopbackDexService`
+를 호출한다. 번들 SHA-256 확인 → 명시적 serial에 임의 세션 jar 전송 →
+`app_process`의 지속 ADB stdin/stdout 연결 → 유일한 새 Wi-Fi display ID 확인 →
+기존 scrcpy 시작 순서다. `ProcessRunner`의 종료 gate에 지속 프로세스도 등록한다.
+`VirtualDisplayLease`의 loopback 토큰이 cleanup 소유권을 결정한다. 이 경로에서는
+overlay 삭제/복원 명령을 실행하지 않는다. `PING`은 3초 간격이며 helper는 15초
+동안 신호를 받지 못하면 자신의 연결만 정리한다. `STOP` 또는 EOF도 정리한다.
+helper 내부 RTSP·프레이밍·소유권 세부 사항은 `DXLoopback/README.md`를 따른다.
+
 ## 주요 구조
 
 `Program.cs`가 설정을 읽고 서비스를 조립한다.

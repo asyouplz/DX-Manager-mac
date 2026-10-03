@@ -2,6 +2,24 @@
 
 세부 변경은 Git 이력을 사용하고 여기에는 큰 이정표만 적는다.
 
+## 2026-10 - Windows DeX phone-preview option (unreleased)
+
+- Add an opt-in experimental loopback DeX mode to avoid the phone-side overlay;
+  keep the existing display mode as the default and preserve per-device settings.
+- Bundle the prebuilt Android helper and source/license/build instructions;
+  add Windows-source regression and .NET Framework 4.6.2 build checks.
+- Include the upstream v2.0.1 first-device settings fix without reintroducing
+  Intel Mac support. Galaxy S26/Windows physical validation remains pending.
+
+### 한국어
+
+- Windows DeX에 `휴대폰 DeX 숨기기 (실험)` 선택을 추가하고 기존 표시 방식을
+  기본값으로 유지한다. 화면 끄기·해상도 기존 값은 보존한다.
+- 미리 빌드한 Android helper와 소스·라이선스·빌드 방법을 포함하고, 기기별
+  연결·종료 정리 및 Windows 원본 코드의 자동 테스트를 추가한다.
+- v2.0.1 최초 기기 설정 수정과 Windows .NET Framework 4.6.2 proxy 빌드를
+  반영한다. 인텔 맥은 지원하지 않으며 S26/Windows 실기 검증은 남아 있다.
+
 ## 2026-08 - v2.0.0 (macOS Cross-Platform Edition)
 
 - Apple Silicon arm64용 self-contained 포터블 ZIP 패키징 추가. Intel Mac은

@@ -32,6 +32,16 @@
   <data name="Main.MaxFps" xml:space="preserve"><value>Max FPS</value></data>
   <data name="Main.Options" xml:space="preserve"><value>Launch options</value></data>
   <data name="Main.ScreenOff" xml:space="preserve"><value>Turn phone screen off (-S)</value></data>
+  <data name="Main.HidePhonePreview" xml:space="preserve"><value>Hide phone DeX (experimental)</value></data>
+  <data name="Main.HidePhonePreview.Help" xml:space="preserve"><value>Checked: show DeX only on the PC and keep using the phone separately. Unchecked: use the existing phone preview. Change this only while DeX is stopped. This experimental Samsung mode may not work on every model or One UI version.</value></data>
+  <data name="Main.HidePhonePreview.ResolutionHelp" xml:space="preserve"><value>Hidden-preview mode uses the resolution negotiated by Samsung wireless DeX. These resolution and DPI values are not applied, but remain saved for the existing preview mode.</value></data>
+  <data name="Main.ScreenOff.HiddenPreview" xml:space="preserve"><value>Phone screen off (not applied)</value></data>
+  <data name="Main.ScreenOff.HiddenPreview.Help" xml:space="preserve"><value>Hidden-preview DeX does not turn the phone screen off. Your saved screen-off preference is kept for the existing preview mode. A separate single-window session can still turn the phone screen off.</value></data>
+  <data name="Error.Loopback.BundleMissing" xml:space="preserve"><value>The experimental DeX helper is missing or could not be verified. Extract the complete portable archive again.</value></data>
+  <data name="Error.Loopback.StartFailed" xml:space="preserve"><value>Could not start DeX with the phone preview hidden. Stop any existing DeX or external display session, unlock the phone, and try again. This mode needs verification on each device and One UI version. Details: {0}</value></data>
+  <data name="Error.Loopback.Timeout" xml:space="preserve"><value>Timed out while creating the hidden DeX display. You can switch back to the existing preview mode.</value></data>
+  <data name="Error.Loopback.OverlayActive" xml:space="preserve"><value>Stop the currently displayed DeX session first. The existing virtual display setting has not been deleted automatically.</value></data>
+  <data name="Error.Loopback.PowerArgument" xml:space="preserve"><value>Hidden-preview mode does not allow additional screen-power arguments: {0}</value></data>
   <data name="Main.HidKeyboard" xml:space="preserve"><value>HID keyboard (-K)</value></data>
   <data name="Main.HidMouse" xml:space="preserve"><value>HID mouse (-M)</value></data>
   <data name="Main.ForceStop" xml:space="preserve"><value>Force-stop selected app</value></data>

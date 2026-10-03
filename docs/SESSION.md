@@ -1,6 +1,21 @@
 # Session Handoff
 
-마지막 갱신: 2026-08-31
+마지막 갱신: 2026-10-03
+
+## Windows 휴대폰 DeX 미리보기 선택 작업
+
+- 작업 브랜치: `codex/dex-phone-display-mode`, 대상: `asyouplz/DX-Manager-mac`.
+- v2.0.1의 최초 연결 시 기기별 설정 덮어쓰기 수정만 가져왔다. upstream main
+  전체를 병합하거나 인텔 맥 지원을 다시 추가하지 않았다.
+- Windows DeX 전용 `HidePhonePreview`를 기기별로 저장한다. 기본값 false는
+  기존 overlay 방식이며, true는 ScrcpyDeX 방법을 참고한 실험용 loopback 연결이다.
+- UI·Android helper·Windows 수명주기·포터블 번들 및 자동 검증을 추가한다.
+  상세와 실기 체크리스트는 `PHONE_PREVIEW_MODE.md`를 따른다.
+- S26/Windows 실기, GUI 시각 검증, 장시간 사용은 미확인이다. PR은 이 경계를
+  명시한 초안으로 제출하며 정식 릴리스나 병합은 별도로 승인받는다.
+- Mac 런타임과 기존 Companion APK/설치/권한 정책은 변경하지 않는다.
+- 아래 macOS 및 과거 Windows 기록은 당시 작업 이력이며 이번 기능의 실기
+  검증 결과를 뜻하지 않는다.
 
 ## macOS 포터블 배포 작업
 

@@ -178,6 +178,8 @@ namespace DexManager.Forms
             _useHidMouseBox.Checked = useHidMouse;
             _forceStopAppBox.Checked = forceStopStartApp;
             _flexDisplayBox.Checked = flexDisplay;
+            _hidePhonePreviewBox.Checked =
+                runSettings.VirtualDisplay.HidePhonePreview;
             _additionalArgumentsBox.Text = additionalArguments;
             SetSelectedAppPackage(startAppPackage, startAppName);
             _resolutionBox.SelectedIndex = FindResolutionPresetIndex(
@@ -185,6 +187,7 @@ namespace DexManager.Forms
                 height);
             ApplyResolutionSelection();
             _loadingRunSettings = false;
+            UpdatePhonePreviewControls();
             UpdateApplySettingsLink();
             UpdateAppProfileControls();
         }
@@ -462,6 +465,8 @@ namespace DexManager.Forms
                     }
                     runSettings.VirtualDisplay.Dpi = (int)_dpiBox.Value;
                     runSettings.VirtualDisplay.ReuseExistingDisplay = true;
+                    runSettings.VirtualDisplay.HidePhonePreview =
+                        _hidePhonePreviewBox.Checked;
                     runSettings.Scrcpy.BitRate = bitRate;
                     runSettings.Scrcpy.MaxFps = GetSelectedMaxFps();
                     runSettings.Scrcpy.TurnScreenOff =

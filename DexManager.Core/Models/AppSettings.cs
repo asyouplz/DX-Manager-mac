@@ -76,7 +76,8 @@ namespace DexManager.Models
                     Suffix = "hdmi",
                     ReuseExistingDisplay = true,
                     CustomWidth = 1600,
-                    CustomHeight = 900
+                    CustomHeight = 900,
+                    HidePhonePreview = false
                 },
                 Scrcpy = new ScrcpySettings
                 {
@@ -1031,7 +1032,8 @@ namespace DexManager.Models
                 Suffix = source.Suffix,
                 ReuseExistingDisplay = source.ReuseExistingDisplay,
                 CustomWidth = source.CustomWidth,
-                CustomHeight = source.CustomHeight
+                CustomHeight = source.CustomHeight,
+                HidePhonePreview = source.HidePhonePreview
             };
         }
 

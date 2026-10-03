@@ -1,5 +1,14 @@
 # Known Issues and Constraints
 
+## 휴대폰 DeX 미리보기 숨김: Windows 실험 기능
+
+`HidePhonePreview`는 Samsung의 비공개 wireless DeX API와 로컬 RTSP 협상에
+의존한다. S26/One UI 및 실제 Windows 조합은 아직 검증하지 않았다. API가
+없거나 기존 외부 화면이 있으면 중단하며 기존 화면을 임의로 종료하지 않는다.
+화면 끄기·overlay 해상도/DPI는 이 모드에 적용하지 않는다. 자체 토큰에 해당하는
+연결만 정리하며 연결 유실 시 15초 heartbeat 만료 복구를 시도하지만 펌웨어
+실패까지 보장하지 않는다. 상세는 `PHONE_PREVIEW_MODE.md`를 따른다.
+
 ## 네트워크 격리
 
 무선 ADB는 PC와 휴대폰의 직접 로컬 통신이 필요하다. 같은 대역이어도 게스트

@@ -65,6 +65,8 @@ distribution.
 
 ## Features
 
+- Windows experimental opt-in: [DeX without the phone-side preview](docs/PHONE_PREVIEW_MODE.md).
+  The existing display mode remains the default; Galaxy S26 validation is pending.
 - Simultaneously manage multiple physical Galaxy phones
 - Start and stop an independent Samsung DeX virtual display for each phone
 - Open three independently configured single-app windows per phone
@@ -404,6 +406,10 @@ DX Manager is an independently developed personal project.
 ---
 
 <a id="korean"></a>
+
+Windows 실험 기능: [휴대폰 DeX 화면 숨기기](docs/PHONE_PREVIEW_MODE.md)를
+선택할 수 있습니다. 기본값은 기존 표시 방식이며, 갤럭시 S26 실기 검증은
+아직 필요합니다.
 
 # 한국어
 

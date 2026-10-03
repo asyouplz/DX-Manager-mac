@@ -2,7 +2,9 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework Condition="'$(OS)' == 'Windows_NT'">net462</TargetFramework>
+    <TargetFramework Condition="'$(OS)' != 'Windows_NT'">net8.0</TargetFramework>
+    <AutomaticallyUseReferenceAssemblyPackages>false</AutomaticallyUseReferenceAssemblyPackages>
     <RootNamespace>DexManager.AdbProxy</RootNamespace>
     <AssemblyName>DXMAdbProxy</AssemblyName>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -17,10 +19,28 @@
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
+    <PlatformTarget>x64</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\Shared\FileTransferProtocol.cs">
       <Link>Shared\FileTransferProtocol.cs</Link>
     </Compile>
   </ItemGroup>
+
+  <Target Name="CopyWindowsProxyToManager" AfterTargets="Build"
+          Condition="'$(TargetFramework)' == 'net462'">
+    <PropertyGroup>
+      <WindowsProxyDirectory>$(MSBuildProjectDirectory)/../DexManager/bin/$(Configuration)/tools/adb-proxy</WindowsProxyDirectory>
+    </PropertyGroup>
+    <MakeDir Directories="$(WindowsProxyDirectory)" />
+    <Copy SourceFiles="$(TargetPath)"
+          DestinationFolder="$(WindowsProxyDirectory)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetPath).config"
+          DestinationFolder="$(WindowsProxyDirectory)" SkipUnchangedFiles="true"
+          Condition="Exists('$(TargetPath).config')" />
+  </Target>
 
 </Project>

@@ -42,6 +42,20 @@
 `Version ...` 값이 표시되는지 확인한다.
 실기 확인을 못 했으면 명시한다.
 
+Windows 휴대폰 DeX 숨김 기능 변경 시 추가로 다음을 실행한다. 첫 명령은
+별도 Core 사본이 아니라 실제 Windows 서비스·모델 소스를 연결해 설정과
+ADB 프로세스 수명주기를 검증한다. helper를 수정했으면 JDK 17로 다시 빌드하고
+`LoopbackDexService.HelperSha256`도 새 번들 값과 함께 갱신한다.
+
+```powershell
+dotnet run --project DexManager.WindowsTests/DexManager.WindowsTests.csproj --configuration Release
+.\scripts\Build-DexLoopback.ps1 -JavaHome 'C:\build-tools\jdk-17'
+```
+
+helper 재현 빌드는 `DXLoopback/README.md`와 전용 CI를 따른다. Mac에서 net462
+참조 어셈블리로 컴파일을 확인한 것과 실제 Windows 전체 빌드·GUI 실행은
+구분한다. 새 기능의 실기 항목은 `PHONE_PREVIEW_MODE.md`에 정리했다.
+
 공개용 포터블 폴더와 ZIP은 저장소 루트에서 다음 명령으로 만든다.
 
 ```powershell

@@ -2,6 +2,12 @@
 
 ## 다음 작업
 
+- [x] Windows DeX 휴대폰 미리보기 숨김 선택 UI와 기기별 설정 저장
+- [x] 기존 overlay 기본값 유지, loopback helper 세션별 시작/정리 분리
+- [ ] `PHONE_PREVIEW_MODE.md`의 S26/Windows 실기 검증 후 실험 표시 재검토
+- [ ] 연결 해제·다중 기기·절전 복귀·장시간 사용과 발열 실측
+- [ ] PR의 Windows 원격 빌드/테스트 및 helper 재현 빌드 결과 확인
+
 - [x] macOS Apple Silicon 포터블 배포 기반
   - [x] arm64 DX Manager와 ADB proxy self-contained single-file publish
   - [x] 공식 scrcpy 4.1 arm64 아카이브 SHA-256 검증 및 번들
