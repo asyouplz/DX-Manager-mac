@@ -2,7 +2,7 @@
 
 ## 선택형 loopback DeX
 
-Windows `VirtualDisplayService`는 `HidePhonePreview=false`이면 기존 overlay
+Windows 및 Core `VirtualDisplayService`는 `HidePhonePreview=false`이면 기존 overlay
 경로를 사용한다. true이면 기존 overlay가 없는지 확인한 뒤 `LoopbackDexService`
 를 호출한다. 번들 SHA-256 확인 → 명시적 serial에 임의 세션 jar 전송 →
 `app_process`의 지속 ADB stdin/stdout 연결 → 유일한 새 Wi-Fi display ID 확인 →
@@ -11,6 +11,12 @@ Windows `VirtualDisplayService`는 `HidePhonePreview=false`이면 기존 overlay
 overlay 삭제/복원 명령을 실행하지 않는다. `PING`은 3초 간격이며 helper는 15초
 동안 신호를 받지 못하면 자신의 연결만 정리한다. `STOP` 또는 EOF도 정리한다.
 helper 내부 RTSP·프레이밍·소유권 세부 사항은 `DXLoopback/README.md`를 따른다.
+
+Core는 Windows의 `LoopbackDexService`와 프로토콜 소스를 프로젝트 링크로 공유한다.
+Mac 호스트는 `P` 및 `--dex --hide-phone-preview`/`--show-phone-preview`를 제공한다.
+일반 overlay 정리의 물리 identity 재검증은 유지하며 loopback lease는 overlay
+초기화와 분리한다. helper JAR는 Windows x64와 macOS arm64/x64 ZIP 모두에
+사전 빌드 상태로 포함한다. 사용자가 JDK/Android SDK를 설치할 필요는 없다.
 
 ## 주요 구조
 

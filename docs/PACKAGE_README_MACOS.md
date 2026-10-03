@@ -5,8 +5,8 @@ complete archive and run it from the extracted folder. The package includes the
 DX Manager runtime, scrcpy 4.1, ADB, and the scrcpy server. Homebrew and a
 separate .NET installation are not required.
 
-The portable package requires **macOS 14 Sonoma or later** and an Apple
-Silicon Mac.
+The portable package requires **macOS 14 Sonoma or later** on an Apple Silicon
+or Intel Mac. Use the ZIP matching the Mac's CPU.
 
 ## English
 
@@ -14,10 +14,10 @@ Silicon Mac.
 
 - **Supported:** Apple Silicon Macs with an Apple M-series chip. Use the package
   labeled **arm64**.
-- **Not supported:** Intel Macs (x86_64). An x64 package is not provided.
+- **Also supported:** Intel Macs (x86_64). Use the package labeled **x64**.
 
 If you are not sure which Mac you have, open the Apple menu and select **About
-This Mac**. Continue only when the window shows an Apple chip.
+This Mac**. An Apple chip needs arm64; an Intel processor needs x64.
 
 ### 2. Verify the downloaded ZIP
 
@@ -26,7 +26,8 @@ it beside the ZIP. Before extracting, open Terminal in that folder and run:
 
 ```bash
 release_version="<version>"
-shasum -a 256 -c "DX-Manager-v${release_version}-macos-arm64.zip.sha256"
+package_arch="arm64" # Use x64 for an Intel Mac.
+shasum -a 256 -c "DX-Manager-v${release_version}-macos-${package_arch}.zip.sha256"
 ```
 
 When reading this source document on GitHub, replace `<version>` with the
@@ -68,6 +69,8 @@ Use the menu as follows:
 
 - Press `1` to start DeX mode.
 - Press `2` to stop the active DeX session and remove the virtual display.
+- While stopped, press `P` to choose whether the DeX preview appears on the
+  phone. Hiding it is experimental; the default keeps the original display mode.
 - Press `Q` to exit DX Manager.
 
 Keep the phone connected while starting or stopping the session. Selecting `Q`
@@ -95,14 +98,16 @@ on every supported Mac and macOS version cannot be guaranteed.
 
 ### Package contents and limits
 
-- Bundled DX Manager runtime for Apple Silicon arm64
+- Bundled DX Manager runtime for the selected CPU (arm64 or x64)
 - Bundled scrcpy 4.1, ADB, and scrcpy server
+- Prebuilt loopback helper for the optional phone-preview-free mode; no Java,
+  Android SDK, root, or additional APK installation required
 - No Homebrew requirement
 - No separate .NET installation requirement
 - No DX Companion APK in the current macOS package
 
-Intel Macs are outside the supported scope, and no Intel x64 executable is
-included in the release.
+The optional hide mode still needs Galaxy S26/One UI physical validation on
+each host platform. Native package startup checks do not prove phone compatibility.
 
 Do not add, replace, or delete bundled ADB and scrcpy files unless the package
 instructions for a later version explicitly require it.
@@ -116,17 +121,17 @@ DX Manager macOS 버전은 포터블 ZIP 패키지로 배포됩니다. ZIP 전�
 ADB와 scrcpy 서버가 포함됩니다. Homebrew와 별도의 .NET 설치는 필요하지
 않습니다.
 
-포터블 패키지는 **macOS 14 Sonoma 이상 Apple Silicon Mac**에서 사용할 수
-있습니다.
+포터블 패키지는 **macOS 14 Sonoma 이상 Apple Silicon 또는 Intel Mac**에서
+사용할 수 있습니다. Mac의 CPU에 맞는 ZIP을 선택하십시오.
 
 ### 1. 지원 대상 Mac 확인
 
 - **지원:** Apple M 시리즈 칩이 탑재된 Apple Silicon Mac. **arm64**로 표시된
   패키지를 사용하십시오.
-- **미지원:** Intel Mac(x86_64). x64 패키지는 제공하지 않습니다.
+- **지원:** Intel Mac(x86_64). **x64**로 표시된 패키지를 사용하십시오.
 
 Mac의 종류를 모르면 Apple 메뉴에서 **이 Mac에 관하여**를 여십시오. 이 화면에
-Apple 칩이 표시되는 경우에만 계속하십시오.
+Apple 칩이면 arm64, Intel 프로세서이면 x64를 선택하십시오.
 
 ### 2. 다운로드한 ZIP 확인
 
@@ -136,7 +141,8 @@ Apple 칩이 표시되는 경우에만 계속하십시오.
 
 ```bash
 release_version="<version>"
-shasum -a 256 -c "DX-Manager-v${release_version}-macos-arm64.zip.sha256"
+package_arch="arm64" # Intel Mac이면 x64로 바꿉니다.
+shasum -a 256 -c "DX-Manager-v${release_version}-macos-${package_arch}.zip.sha256"
 ```
 
 이 원본 문서를 GitHub에서 읽는 경우 `<version>`을 내려받은 파일명에 표시된
@@ -178,6 +184,8 @@ RSA 승인 화면이 나타나지 않으면 휴대폰 잠금이 해제된 상태
 
 - `1`: DeX 모드를 시작합니다.
 - `2`: 실행 중인 DeX 세션을 중지하고 가상 디스플레이를 제거합니다.
+- `P`: 중지 상태에서 휴대폰 DeX 화면의 표시/숨김을 선택합니다. 기본값은 기존
+  표시 방식입니다. 숨김은 아직 실기 검증이 필요한 실험 기능입니다.
 - `Q`: DX Manager를 종료합니다.
 
 세션을 시작하거나 중지하는 동안에는 휴대폰 연결을 유지하십시오. `Q`를
@@ -204,14 +212,15 @@ macOS 버전에 따라 메뉴 문구와 위치가 다를 수 있습니다. Apple
 
 ### 패키지 구성 및 범위
 
-- Apple Silicon arm64용 DX Manager 런타임
+- 선택한 CPU(arm64 또는 x64)용 DX Manager 런타임
 - 번들 scrcpy 4.1, ADB와 scrcpy 서버
+- 휴대폰 화면 숨김용 사전 빌드 보조 프로그램: Java·Android SDK·root·추가 APK 불필요
 - Homebrew 설치 불필요
 - 별도 .NET 설치 불필요
 - 현재 macOS 패키지에는 DX Companion APK가 포함되지 않음
 
-Intel Mac은 지원 범위에 포함하지 않으며, Release에 Intel x64 실행 파일을
-포함하지 않습니다.
+선택 기능인 휴대폰 화면 숨김은 각 운영체제와 갤럭시 S26/One UI 조합의 실기
+검증이 남아 있습니다. 패키지 실행 검사는 휴대폰 호환성 확인과 구분합니다.
 
 이후 버전의 패키지 안내에서 명시적으로 요구하지 않는 한 번들 ADB와 scrcpy
 파일을 추가, 교체 또는 삭제하지 마십시오.

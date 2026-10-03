@@ -35,11 +35,13 @@ namespace DexManager.Services
 
         private readonly AdbService _adbService;
         private readonly LogService _logService;
+        private readonly LoopbackDexService _loopbackDex;
 
         public VirtualDisplayService(AdbService adbService, LogService logService)
         {
             _adbService = adbService;
             _logService = logService;
+            _loopbackDex = new LoopbackDexService(adbService, logService);
         }
 
         public string GetOverlaySetting(string serial)
@@ -64,6 +66,16 @@ namespace DexManager.Services
             if (string.IsNullOrWhiteSpace(serial))
                 throw new ArgumentException("Device serial is empty.", "serial");
             if (settings == null) throw new ArgumentNullException("settings");
+
+            if (settings.HidePhonePreview)
+            {
+                // A normal overlay belongs to the existing session. Never
+                // silently delete or replace it when switching modes.
+                if (HasOverlaySetting(GetOverlaySetting(serial)))
+                    throw new InvalidOperationException(LocalizationService.Get(
+                        "Error.Loopback.OverlayActive"));
+                return _loopbackDex.Start(serial, creationWaitMs, cancellationRequested);
+            }
 
             var current = GetOverlaySetting(serial);
             var hasSetting = HasOverlaySetting(current);
@@ -208,6 +220,7 @@ namespace DexManager.Services
         public bool Release(VirtualDisplayLease lease)
         {
             if (lease == null) return true;
+            if (lease.IsLoopback) return _loopbackDex.Release(lease);
             try
             {
                 // Normal DeX cleanup is intentionally unconditional. The

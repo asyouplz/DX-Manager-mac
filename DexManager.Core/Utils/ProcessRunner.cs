@@ -59,6 +59,21 @@ namespace DexManager.Utils
                 "Log.Process.ShutdownRequested"));
         }
 
+        internal void StartPersistentProcess(Process process)
+        {
+            lock (_lifecycleSync)
+            {
+                if (IsShutdownRequested) throw new OperationCanceledException();
+                process.Start();
+                _activeProcesses.Add(process);
+            }
+        }
+
+        internal void ForgetPersistentProcess(Process process)
+        {
+            lock (_lifecycleSync) _activeProcesses.Remove(process);
+        }
+
         public ProcessResult Run(
             string fileName,
             string arguments,

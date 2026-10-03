@@ -5,7 +5,7 @@ set -euo pipefail
 script_directory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repository_root="$(cd "$script_directory/.." && pwd)"
 
-version="2.0.0"
+version="2.0.1-phone-preview"
 rid=""
 output_directory="$repository_root/dist"
 scrcpy_archive=""
@@ -17,16 +17,17 @@ dotnet_license_url="https://raw.githubusercontent.com/dotnet/runtime/v8.0.30/LIC
 dotnet_license_sha256="cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
 dotnet_notices_url="https://raw.githubusercontent.com/dotnet/runtime/v8.0.30/THIRD-PARTY-NOTICES.TXT"
 dotnet_notices_sha256="97c1a7b3da6a4c6ad516448719f45114b41a4d4c5aa300a944476e2e4f5da438"
+loopback_helper_sha256="7d03e0ab7a95cd12e79e13dab77016c80f6bd96ce61fb455299b6b77272e5473"
 
 usage() {
     cat <<'EOF'
 Create one prebuilt, self-contained DX Manager portable ZIP for macOS.
 
 Usage:
-  scripts/Package-Mac-Release.sh --rid osx-arm64 [options]
+  scripts/Package-Mac-Release.sh --rid osx-arm64|osx-x64 [options]
 
 Options:
-  --version VERSION          Package version (default: 2.0.0)
+  --version VERSION         Package version (default: 2.0.1-phone-preview)
   --output-dir DIRECTORY    Generated ZIP directory (default: ./dist)
   --scrcpy-archive FILE     Use an already downloaded official scrcpy archive
   --skip-tests              Skip the test suites (intended only after CI tests)
@@ -34,7 +35,7 @@ Options:
 
 Examples:
   scripts/Package-Mac-Release.sh --rid osx-arm64
-  scripts/Package-Mac-Release.sh --rid osx-arm64 --version 2.0.0
+  scripts/Package-Mac-Release.sh --rid osx-x64 --version 2.0.1-phone-preview
 EOF
 }
 
@@ -140,8 +141,14 @@ case "$rid" in
         scrcpy_asset_arch="aarch64"
         scrcpy_sha256="20fd47c9014dd5e0fa77091f3cb7adbda8445a360c4584aeaa0150b5b3988ff3"
         ;;
+    osx-x64)
+        package_arch="x64"
+        binary_arch="x86_64"
+        scrcpy_asset_arch="x86_64"
+        scrcpy_sha256="ee2a7223bc8dbdc4f482db1134bcf441178dafb833492b71ca4c22090c58ce72"
+        ;;
     *)
-        fail "unsupported RID '$rid'; only osx-arm64 is supported"
+        fail "unsupported RID '$rid'; use osx-arm64 or osx-x64"
         ;;
 esac
 
@@ -207,6 +214,7 @@ dotnet publish "$repository_root/DexManager.Mac/DexManager.Mac.csproj" \
     --self-contained true \
     --output "$main_publish" \
     -p:Version="$version" \
+    -p:InformationalVersion="$version" \
     -p:RuntimeFrameworkVersion="$dotnet_runtime_version" \
     -p:TreatWarningsAsErrors=true \
     -p:CopyBundledMacTools=false \
@@ -224,6 +232,7 @@ dotnet publish "$repository_root/DexManager.AdbProxy/DexManager.AdbProxy.csproj"
     --self-contained true \
     --output "$proxy_publish" \
     -p:Version="$version" \
+    -p:InformationalVersion="$version" \
     -p:RuntimeFrameworkVersion="$dotnet_runtime_version" \
     -p:TreatWarningsAsErrors=true \
     -p:PublishSingleFile=true \
@@ -260,19 +269,35 @@ done
 package_parent="$work_root/package"
 package_root="$package_parent/DX Manager"
 mkdir -p "$package_root/tools/scrcpy" "$package_root/tools/adb-proxy" \
-    "$package_root/config" "$package_root/licenses" "$package_root/docs"
+    "$package_root/tools/loopback" "$package_root/config" "$package_root/licenses" "$package_root/docs"
 
 cp "$main_publish/DXManager.Mac" "$package_root/DXManager.Mac"
 cp "$proxy_publish/DXMAdbProxy" "$package_root/tools/adb-proxy/DXMAdbProxy"
 cp -R "$scrcpy_root/." "$package_root/tools/scrcpy/"
+for helper_file in dxm-loopback.jar dxm-loopback.jar.sha256 LICENSE NOTICE; do
+    [[ -f "$repository_root/tools/loopback/$helper_file" ]] ||
+        fail "prebuilt loopback helper file is missing: $helper_file"
+    cp "$repository_root/tools/loopback/$helper_file" "$package_root/tools/loopback/"
+done
+verify_sha256 "$package_root/tools/loopback/dxm-loopback.jar" \
+    "$loopback_helper_sha256" "prebuilt Android loopback helper"
+(
+    cd "$package_root/tools/loopback"
+    shasum -a 256 --check dxm-loopback.jar.sha256
+)
+[[ "$(unzip -Z1 "$package_root/tools/loopback/dxm-loopback.jar" | LC_ALL=C sort)" == $'LICENSE\nNOTICE\nclasses.dex' ]] ||
+    fail "loopback helper is not a prebuilt Android DEX archive"
 cp "$repository_root/build/macos/Start DX Manager.command" \
     "$package_root/Start DX Manager.command"
 cp "$repository_root/build/macos/PORTABLE_PACKAGE.txt" \
     "$package_root/PORTABLE_PACKAGE.txt"
+printf '\nPackage: %s\nArchitecture: %s\nRuntime: .NET %s (included)\n' \
+    "$version" "$binary_arch" "$dotnet_runtime_version" >> "$package_root/PORTABLE_PACKAGE.txt"
 sed "s/<version>/$version/g" \
     "$repository_root/docs/PACKAGE_README_MACOS.md" > "$package_root/README.md"
 sed "s/<version>/$version/g" \
     "$repository_root/docs/MACOS_GUIDE.md" > "$package_root/docs/MACOS_GUIDE.md"
+cp "$repository_root/docs/PHONE_PREVIEW_MODE.md" "$package_root/docs/PHONE_PREVIEW_MODE.md"
 cp "$repository_root/DexManager/config/README.txt" "$package_root/config/README.txt"
 cp "$repository_root/LICENSE" "$package_root/LICENSE"
 cp "$repository_root/DexManager/licenses/THIRD_PARTY_NOTICES_MACOS.md" \
@@ -282,6 +307,8 @@ cp "$repository_root/DexManager/licenses/LGPL-2.1-LICENSE.txt" "$package_root/li
 cp "$repository_root/DexManager/licenses/SDL3-LICENSE.txt" "$package_root/licenses/"
 cp "$repository_root/DexManager/licenses/zlib-LICENSE.txt" "$package_root/licenses/"
 cp "$repository_root/DexManager/licenses/dav1d-LICENSE.txt" "$package_root/licenses/"
+cp "$repository_root/tools/loopback/LICENSE" "$package_root/licenses/DXLoopback-LICENSE.txt"
+cp "$repository_root/tools/loopback/NOTICE" "$package_root/licenses/DXLoopback-NOTICE.txt"
 
 dotnet_license="$work_root/dotnet-LICENSE.txt"
 dotnet_notices="$work_root/dotnet-THIRD-PARTY-NOTICES.txt"
@@ -310,7 +337,14 @@ for required in \
     "tools/scrcpy/scrcpy" \
     "tools/scrcpy/scrcpy-server" \
     "tools/scrcpy/adb" \
+    "tools/loopback/dxm-loopback.jar" \
+    "tools/loopback/dxm-loopback.jar.sha256" \
+    "tools/loopback/LICENSE" \
+    "tools/loopback/NOTICE" \
+    "docs/PHONE_PREVIEW_MODE.md" \
     "licenses/THIRD_PARTY_NOTICES.md" \
+    "licenses/DXLoopback-LICENSE.txt" \
+    "licenses/DXLoopback-NOTICE.txt" \
     "licenses/dotnet-LICENSE.txt" \
     "licenses/dotnet-THIRD-PARTY-NOTICES.txt"; do
     [[ -f "$package_root/$required" ]] || fail "required package file is missing: $required"
@@ -324,6 +358,8 @@ fi
 unexpected="$(find "$package_root" \
     \( -name 'settings.json*' -o -name '*.pdb' -o -name '*.dSYM' \
        -o -name '.DS_Store' -o -name '*.keystore' -o -name 'signing.properties' \
+       -o -name '*.p12' -o -name '*.pfx' -o -name '*.jks' -o -name '*.apk' \
+       -o -name '*.log' -o -name 'logs' -o -name 'screenshot' \
        -o -name '*.cs' -o -name '*.csproj' -o -name '*.sln' \) \
     -print -quit)"
 [[ -z "$unexpected" ]] || fail "private, source, or debug file found in package: $unexpected"
@@ -362,24 +398,25 @@ if [[ "${CI:-}" == "true" && "$host_arch" != "$binary_arch" ]]; then
     fail "CI runner architecture is $host_arch, expected $binary_arch for $rid"
 fi
 if [[ "$host_arch" == "$binary_arch" ]]; then
-    smoke_home="$work_root/smoke-home"
-    mkdir -p "$smoke_home"
+    smoke_bundle_cache="$work_root/smoke-dotnet-bundle"
+    mkdir -p "$smoke_bundle_cache"
     clean_path="/usr/bin:/bin:/usr/sbin:/sbin"
 
-    version_output="$(HOME="$smoke_home" PATH="$clean_path" \
+    version_output="$(DOTNET_BUNDLE_EXTRACT_BASE_DIR="$smoke_bundle_cache" PATH="$clean_path" \
         "$package_root/DXManager.Mac" --version)"
     [[ "$version_output" == *"$version"* ]] ||
         fail "DX Manager version output does not contain $version: $version_output"
-    HOME="$smoke_home" PATH="$clean_path" "$package_root/DXManager.Mac" --help >/dev/null
-    proxy_output="$(HOME="$smoke_home" PATH="$clean_path" \
+    DOTNET_BUNDLE_EXTRACT_BASE_DIR="$smoke_bundle_cache" PATH="$clean_path" \
+        "$package_root/DXManager.Mac" --help >/dev/null
+    proxy_output="$(DOTNET_BUNDLE_EXTRACT_BASE_DIR="$smoke_bundle_cache" PATH="$clean_path" \
         "$package_root/tools/adb-proxy/DXMAdbProxy" --self-test)"
     [[ "$proxy_output" == *"$version"* ]] ||
         fail "ADB proxy self-test output does not contain $version: $proxy_output"
-    scrcpy_output="$(HOME="$smoke_home" PATH="$clean_path" \
+    scrcpy_output="$(PATH="$clean_path" \
         "$package_root/tools/scrcpy/scrcpy" --version 2>&1)"
     [[ "$scrcpy_output" == *"scrcpy $scrcpy_version"* ]] ||
         fail "scrcpy version verification failed: $scrcpy_output"
-    HOME="$smoke_home" PATH="$clean_path" \
+    PATH="$clean_path" \
         "$package_root/tools/scrcpy/adb" version >/dev/null
 else
     echo "Skipping executable smoke tests: host is $host_arch, package is $binary_arch."
@@ -414,23 +451,40 @@ reextracted="$extract_root/DX Manager"
 [[ -x "$reextracted/tools/scrcpy/adb" ]] || fail "ZIP did not preserve the ADB executable bit"
 
 if [[ "$host_arch" == "$binary_arch" ]]; then
-    extracted_smoke_home="$work_root/extracted-smoke-home"
+    extracted_smoke_bundle_cache="$work_root/extracted-smoke-dotnet-bundle"
     extracted_smoke_tmp="$work_root/extracted-smoke-tmp"
-    mkdir -p "$extracted_smoke_home" "$extracted_smoke_tmp"
-    launcher_version="$(HOME="$extracted_smoke_home" \
+    mkdir -p "$extracted_smoke_bundle_cache" "$extracted_smoke_tmp"
+    launcher_version="$(DOTNET_BUNDLE_EXTRACT_BASE_DIR="$extracted_smoke_bundle_cache" \
         TMPDIR="$extracted_smoke_tmp" \
         PATH="/usr/bin:/bin:/usr/sbin:/sbin" \
         "$reextracted/Start DX Manager.command" --version 2>&1)"
     [[ "$launcher_version" == *"$version"* ]] ||
         fail "re-extracted launcher version check failed: $launcher_version"
-    tui_output="$({ sleep 2; printf 'Q\n'; } | \
-        HOME="$extracted_smoke_home" \
-        TMPDIR="$extracted_smoke_tmp" \
+    DOTNET_BUNDLE_EXTRACT_BASE_DIR="$extracted_smoke_bundle_cache" \
         PATH="/usr/bin:/bin:/usr/sbin:/sbin" \
-        "$reextracted/Start DX Manager.command" 2>&1)"
-    [[ "$tui_output" == *"DX Manager stopped cleanly"* ]] ||
-        fail "re-extracted TUI did not complete Q cleanup: $tui_output"
+        "$reextracted/DXManager.Mac" --help >/dev/null
+    extracted_proxy_output="$(DOTNET_BUNDLE_EXTRACT_BASE_DIR="$extracted_smoke_bundle_cache" \
+        PATH="/usr/bin:/bin:/usr/sbin:/sbin" \
+        "$reextracted/tools/adb-proxy/DXMAdbProxy" --self-test)"
+    [[ "$extracted_proxy_output" == *"$version"* ]] ||
+        fail "re-extracted proxy self-test failed: $extracted_proxy_output"
+    extracted_scrcpy_output="$(PATH="/usr/bin:/bin:/usr/sbin:/sbin" \
+        "$reextracted/tools/scrcpy/scrcpy" --version 2>&1)"
+    [[ "$extracted_scrcpy_output" == *"scrcpy $scrcpy_version"* ]] ||
+        fail "re-extracted scrcpy version verification failed: $extracted_scrcpy_output"
+    PATH="/usr/bin:/bin:/usr/sbin:/sbin" \
+        "$reextracted/tools/scrcpy/adb" version >/dev/null
+    # Do not construct the interactive host during packaging: it scans real
+    # devices and Q may clean up an attached phone's display. Startup above uses
+    # only --version/--help; session cleanup is covered by fake-ADB tests.
 fi
+
+verify_sha256 "$reextracted/tools/loopback/dxm-loopback.jar" \
+    "$loopback_helper_sha256" "re-extracted Android loopback helper"
+(
+    cd "$reextracted/tools/loopback"
+    shasum -a 256 --check dxm-loopback.jar.sha256
+)
 
 zip_hash="$(sha256_file "$staged_zip")"
 printf '%s  %s\n' "$zip_hash" "$(basename "$zip_path")" > "$staged_checksum"

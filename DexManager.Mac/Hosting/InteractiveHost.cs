@@ -36,6 +36,7 @@ public sealed class InteractiveHost : IDisposable
     private bool _disposed;
     private int _shutdownStarted;
     private int _runtimeServicesDisposed;
+    private int _dexStartInProgress;
 
     public InteractiveHost()
     {
@@ -253,6 +254,9 @@ public sealed class InteractiveHost : IDisposable
                     case "S":
                         SelectTargetDevice();
                         break;
+                    case "P":
+                        await SelectPhonePreviewAsync(cancellationToken);
+                        break;
                     case "L":
                         ViewRecentLogs();
                         break;
@@ -267,7 +271,7 @@ public sealed class InteractiveHost : IDisposable
                         _isRunning = false;
                         break;
                     default:
-                        AnsiConsole.Warning($"Unknown command: '{input}'. Enter 1-9, S, L, C, or Q.");
+                        AnsiConsole.Warning($"Unknown command: '{input}'. Enter 1-9, P, S, L, C, or Q.");
                         Thread.Sleep(800);
                         break;
                 }
@@ -312,12 +316,18 @@ public sealed class InteractiveHost : IDisposable
             var activeDevice = GetSelectedDevice();
             var activeSerial = GetPrimarySerial(activeDevice);
             var activeName = activeDevice != null ? $"{activeDevice.DisplayName} ({activeSerial})" : "None";
+            var profile = GetSelectedRunSettings(activeDevice);
 
             Console.WriteLine();
             AnsiConsole.KeyValue("Selected Device", activeName, AnsiConsole.BrightCyan, AnsiConsole.Bold + AnsiConsole.BrightWhite);
-            AnsiConsole.KeyValue("Resolution / DPI", $"{_settings.VirtualDisplay.Width}x{_settings.VirtualDisplay.Height} @ {_settings.VirtualDisplay.Dpi} DPI");
-            AnsiConsole.KeyValue("Stream Bitrate/FPS", $"{_settings.Scrcpy.BitRate} / {_settings.Scrcpy.MaxFps} FPS");
-            AnsiConsole.KeyValue("Screen Off / Awake", $"ScreenOff={_settings.Scrcpy.TurnScreenOff}, StayAwake={_settings.Scrcpy.StayAwake}");
+            AnsiConsole.KeyValue("Phone DeX Preview", PhonePreviewChoice.Describe(profile.VirtualDisplay.HidePhonePreview));
+            AnsiConsole.KeyValue("Resolution / DPI", profile.VirtualDisplay.HidePhonePreview
+                ? "Negotiated by Samsung DeX (saved overlay size is unchanged)"
+                : $"{profile.VirtualDisplay.Width}x{profile.VirtualDisplay.Height} @ {profile.VirtualDisplay.Dpi} DPI");
+            AnsiConsole.KeyValue("Stream Bitrate/FPS", $"{profile.Scrcpy.BitRate} / {profile.Scrcpy.MaxFps} FPS");
+            AnsiConsole.KeyValue("Screen Off / Awake", profile.VirtualDisplay.HidePhonePreview
+                ? $"ScreenOff not applied; saved={profile.Scrcpy.TurnScreenOff}, StayAwake={profile.Scrcpy.StayAwake}"
+                : $"ScreenOff={profile.Scrcpy.TurnScreenOff}, StayAwake={profile.Scrcpy.StayAwake}");
 
             AnsiConsole.SubHeader("OPERATIONS MENU");
             Console.WriteLine($"  {AnsiConsole.BrightGreen}[1]{AnsiConsole.Reset} Start DeX Mode                {AnsiConsole.BrightRed}[2]{AnsiConsole.Reset} Stop DeX Mode");
@@ -325,6 +335,7 @@ public sealed class InteractiveHost : IDisposable
             Console.WriteLine($"  {AnsiConsole.BrightCyan}[5]{AnsiConsole.Reset} Wireless ADB Management       {AnsiConsole.BrightCyan}[6]{AnsiConsole.Reset} File Transfer Coordinator");
             Console.WriteLine($"  {AnsiConsole.BrightCyan}[7]{AnsiConsole.Reset} Diagnostics & Environment     {AnsiConsole.BrightCyan}[8]{AnsiConsole.Reset} DX Companion Guardian");
             Console.WriteLine($"  {AnsiConsole.BrightMagenta}[9]{AnsiConsole.Reset} Settings & Configuration      {AnsiConsole.BrightYellow}[S]{AnsiConsole.Reset} Select Active Device");
+            Console.WriteLine($"  {AnsiConsole.BrightMagenta}[P]{AnsiConsole.Reset} Phone DeX Preview / 휴대폰 표시·숨김 선택 (중지 후 변경)");
             Console.WriteLine($"  {AnsiConsole.BrightBlack}[L]{AnsiConsole.Reset} View Recent Logs              {AnsiConsole.BrightRed}[Q]{AnsiConsole.Reset} Exit DX Manager");
         }
 
@@ -368,6 +379,57 @@ public sealed class InteractiveHost : IDisposable
                 _activeRuntime = _runtimeFactory.Create();
             }
             return _activeRuntime;
+        }
+
+        private DeviceRunSettingsProfile GetSelectedRunSettings(PhysicalDeviceInfo device)
+        {
+            if (device != null && !PhysicalDeviceRegistry.IsTemporaryIdentity(device.Identity))
+                return _settings.GetOrCreateDeviceRunSettings(device.Identity);
+            return new DeviceRunSettingsProfile
+            {
+                VirtualDisplay = _settings.VirtualDisplay,
+                Scrcpy = _settings.Scrcpy
+            };
+        }
+
+        private void SavePhonePreviewChoice(PhysicalDeviceInfo device, string serial, bool hidden)
+        {
+            var liveIdentity = _adbService.GetDeviceIdentity(serial);
+            if (string.IsNullOrWhiteSpace(liveIdentity) ||
+                (!PhysicalDeviceRegistry.IsTemporaryIdentity(device.Identity) &&
+                 !string.Equals(liveIdentity, device.Identity, StringComparison.OrdinalIgnoreCase)))
+                throw new InvalidOperationException("The selected phone identity changed; scan devices again.");
+            PhonePreviewChoice.Save(_settingsService, _settings, liveIdentity, hidden,
+                IsDexRunning || Volatile.Read(ref _dexStartInProgress) != 0 ||
+                !IsDexCleanupComplete);
+            AnsiConsole.Success(PhonePreviewChoice.Describe(hidden));
+        }
+
+        public async Task SelectPhonePreviewAsync(CancellationToken cancellationToken = default)
+        {
+            if (IsDexRunning || Volatile.Read(ref _dexStartInProgress) != 0 || !IsDexCleanupComplete)
+            {
+                AnsiConsole.Warning("Stop DeX and finish cleanup first. / 2를 입력해 DeX를 먼저 중지하세요.");
+                return;
+            }
+            await WaitForDeviceSnapshotAsync(cancellationToken);
+            var device = GetSelectedDevice();
+            var serial = GetPrimarySerial(device);
+            if (device == null || string.IsNullOrWhiteSpace(serial))
+            {
+                AnsiConsole.Warning("Connect and unlock the target phone first. / 휴대폰을 연결하고 잠금을 해제하세요.");
+                return;
+            }
+            AnsiConsole.Header("PHONE DeX PREVIEW / 휴대폰 DeX 표시 선택");
+            Console.WriteLine("  [1] Show on phone — existing mode / 휴대폰에도 표시 — 기존 방식");
+            Console.WriteLine("  [2] Hide on phone — experimental / 휴대폰에 표시 안 함 — 실험");
+            Console.WriteLine("  Hidden mode leaves the phone usable. Samsung/One UI compatibility is not yet verified.");
+            Console.WriteLine("  숨김 모드는 화면 끄기·기존 해상도/DPI를 적용하지 않습니다. 기기별 실기 확인이 필요합니다.");
+            Console.Write("Choice / 선택 (Enter: cancel): ");
+            var choice = Console.ReadLine()?.Trim();
+            if (choice != "1" && choice != "2") return;
+            try { SavePhonePreviewChoice(device, serial, choice == "2"); }
+            catch (Exception ex) { AnsiConsole.Error(ex.Message); }
         }
 
         public bool IsDexRunning =>
@@ -448,7 +510,8 @@ public sealed class InteractiveHost : IDisposable
         }
 
         public async Task<bool> StartDexAsync(
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            bool? hidePhonePreview = null)
         {
             await WaitForDeviceSnapshotAsync(cancellationToken);
             var device = GetSelectedDevice();
@@ -462,10 +525,19 @@ public sealed class InteractiveHost : IDisposable
             _selectedDeviceIdentity = device.Identity;
             AnsiConsole.Header($"STARTING DeX ON {device.DisplayName}");
             var runtime = GetOrCreateRuntime();
+            var ownsStartGate = false;
 
             try
             {
-                AnsiConsole.Info("Configuring overlay display resolution and launching scrcpy...");
+                if (hidePhonePreview.HasValue)
+                    SavePhonePreviewChoice(device, serial, hidePhonePreview.Value);
+                if (Interlocked.CompareExchange(ref _dexStartInProgress, 1, 0) != 0)
+                    return false;
+                ownsStartGate = true;
+                var hidden = GetSelectedRunSettings(device).VirtualDisplay.HidePhonePreview;
+                AnsiConsole.Info(hidden
+                    ? "Starting experimental DeX without a phone overlay. / 휴대폰 화면 숨김 DeX 시작 (실험)..."
+                    : "Configuring overlay display resolution and launching scrcpy...");
                 if (!await runtime.Dex.StartAsync(
                     serial,
                     device.Identity,
@@ -496,6 +568,10 @@ public sealed class InteractiveHost : IDisposable
                 AnsiConsole.Error($"DeX launch error: {ex.Message}");
                 await Task.Delay(1000);
                 return false;
+            }
+            finally
+            {
+                if (ownsStartGate) Interlocked.Exchange(ref _dexStartInProgress, 0);
             }
         }
 
@@ -542,6 +618,11 @@ public sealed class InteractiveHost : IDisposable
                 }
 
                 runtime = GetOrCreateRuntime();
+                if (GetSelectedRunSettings(device).VirtualDisplay.HidePhonePreview)
+                {
+                    AnsiConsole.Warning("No owned hidden-preview session is running in this process. Stop it in the original DX Manager window; an external DeX connection will not be disconnected.");
+                    return false;
+                }
             }
 
             var targetName = device?.DisplayName ??
@@ -571,7 +652,7 @@ public sealed class InteractiveHost : IDisposable
                             "The DeX display overlay could not be removed.");
                     }
                 }
-                AnsiConsole.Success("DeX session stopped and display overlay cleaned up.");
+                AnsiConsole.Success("DeX session stopped and its display connection cleaned up.");
                 await Task.Delay(800);
                 return true;
             }
@@ -872,14 +953,16 @@ public sealed class InteractiveHost : IDisposable
 
         public void ManageSettings()
         {
+            var profile = GetSelectedRunSettings(GetSelectedDevice());
             AnsiConsole.Header("SETTINGS & PREFERENCES");
-            AnsiConsole.KeyValue("1. Display Width", _settings.VirtualDisplay.Width.ToString());
-            AnsiConsole.KeyValue("2. Display Height", _settings.VirtualDisplay.Height.ToString());
-            AnsiConsole.KeyValue("3. Display DPI", _settings.VirtualDisplay.Dpi.ToString());
-            AnsiConsole.KeyValue("4. Bitrate", _settings.Scrcpy.BitRate);
-            AnsiConsole.KeyValue("5. Max FPS", _settings.Scrcpy.MaxFps.ToString());
-            AnsiConsole.KeyValue("6. Turn Screen Off", _settings.Scrcpy.TurnScreenOff.ToString());
-            AnsiConsole.KeyValue("7. Stay Awake", _settings.Scrcpy.StayAwake.ToString());
+            AnsiConsole.KeyValue("1. Display Width", profile.VirtualDisplay.Width.ToString());
+            AnsiConsole.KeyValue("2. Display Height", profile.VirtualDisplay.Height.ToString());
+            AnsiConsole.KeyValue("3. Display DPI", profile.VirtualDisplay.Dpi.ToString());
+            AnsiConsole.KeyValue("4. Bitrate", profile.Scrcpy.BitRate);
+            AnsiConsole.KeyValue("5. Max FPS", profile.Scrcpy.MaxFps.ToString());
+            AnsiConsole.KeyValue("6. Turn Screen Off", profile.Scrcpy.TurnScreenOff.ToString());
+            AnsiConsole.KeyValue("7. Stay Awake", profile.Scrcpy.StayAwake.ToString());
+            AnsiConsole.KeyValue("Phone Preview (P in dashboard)", PhonePreviewChoice.Describe(profile.VirtualDisplay.HidePhonePreview));
             AnsiConsole.KeyValue("8. Scrcpy Path", _settings.Paths.ScrcpyPath ?? "(auto)");
             AnsiConsole.KeyValue("9. ADB Path", _settings.Paths.AdbPath ?? "(auto)");
 
@@ -891,30 +974,32 @@ public sealed class InteractiveHost : IDisposable
             {
                 case "1":
                     Console.Write("Enter Width (e.g. 1920, 2560): ");
-                    if (int.TryParse(Console.ReadLine(), out var w)) _settings.VirtualDisplay.Width = w;
+                    if (int.TryParse(Console.ReadLine(), out var w)) profile.VirtualDisplay.Width = w;
                     break;
                 case "2":
                     Console.Write("Enter Height (e.g. 1080, 1440): ");
-                    if (int.TryParse(Console.ReadLine(), out var h)) _settings.VirtualDisplay.Height = h;
+                    if (int.TryParse(Console.ReadLine(), out var h)) profile.VirtualDisplay.Height = h;
                     break;
                 case "3":
                     Console.Write("Enter DPI (e.g. 160, 200, 240): ");
-                    if (int.TryParse(Console.ReadLine(), out var dpi)) _settings.VirtualDisplay.Dpi = dpi;
+                    if (int.TryParse(Console.ReadLine(), out var dpi)) profile.VirtualDisplay.Dpi = dpi;
                     break;
                 case "4":
                     Console.Write("Enter Bitrate (e.g. 16M, 24M, 32M): ");
                     var br = Console.ReadLine()?.Trim();
-                    if (!string.IsNullOrWhiteSpace(br)) _settings.Scrcpy.BitRate = br;
+                    if (!string.IsNullOrWhiteSpace(br)) profile.Scrcpy.BitRate = br;
                     break;
                 case "5":
                     Console.Write("Enter Max FPS (e.g. 60, 120): ");
-                    if (int.TryParse(Console.ReadLine(), out var fps)) _settings.Scrcpy.MaxFps = fps;
+                    if (int.TryParse(Console.ReadLine(), out var fps)) profile.Scrcpy.MaxFps = fps;
                     break;
                 case "6":
-                    _settings.Scrcpy.TurnScreenOff = !_settings.Scrcpy.TurnScreenOff;
+                    if (profile.VirtualDisplay.HidePhonePreview)
+                        AnsiConsole.Warning("Screen off is not applied in hidden-preview mode; the saved choice is unchanged.");
+                    else profile.Scrcpy.TurnScreenOff = !profile.Scrcpy.TurnScreenOff;
                     break;
                 case "7":
-                    _settings.Scrcpy.StayAwake = !_settings.Scrcpy.StayAwake;
+                    profile.Scrcpy.StayAwake = !profile.Scrcpy.StayAwake;
                     break;
             }
 

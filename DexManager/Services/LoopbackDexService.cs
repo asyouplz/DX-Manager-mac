@@ -160,18 +160,14 @@ namespace DexManager.Services
             lock (_sync) _sessions.Remove(lease.LoopbackSessionId);
             if (!string.IsNullOrEmpty(session.Error))
                 _log.Warning("Loopback helper diagnostic: " + session.Error);
-            // No shell on disconnected transport or OS shutdown. The helper
-            // also removes its own unique jar on exit; no wildcard cleanup.
-            if (!_adb.IsProcessShutdownRequested)
-            {
-                try
-                {
-                    if (_adb.IsAuthorizedDeviceConnected(session.Serial))
-                        _adb.ShellForSerial(session.Serial,
-                            "rm -f " + LoopbackDexProtocol.CreateRemotePath(session.Token), false);
-                }
-                catch (Exception ex) { _log.Warning("Loopback file cleanup: " + ex.Message); }
-            }
+            // Never open a new shell against the captured serial here: a USB
+            // or Wi-Fi endpoint may now belong to another physical phone.
+            // The helper removes its own unique jar on exit over its original
+            // connection. No broad cleanup and no host-side rm fallback.
+            if (process == null)
+                _log.Warning("The loopback helper channel was not started. " +
+                    "A session-specific jar may remain in the original phone's " +
+                    "/data/local/tmp; no reconnect cleanup was attempted.");
             return true;
         }
 

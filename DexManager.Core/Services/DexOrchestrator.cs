@@ -23,6 +23,8 @@ namespace DexManager.Services
         private int _shutdownRequested;
         private Task _shutdownTask;
         private ManagedDisplaySession _currentSession;
+        private readonly HashSet<string> _loopbackAttemptedIdentities =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private readonly List<DeferredDisplayCleanup>
             _pendingDisplayCleanup =
                 new List<DeferredDisplayCleanup>();
@@ -162,6 +164,8 @@ namespace DexManager.Services
             {
                 lock (_operationGate)
                 {
+                    if (!ReleasePendingLoopbackLeases()) return false;
+                    if (UsesLoopbackCleanup(deviceIdentity)) return true;
                     string verifiedIdentity;
                     if (!CleanupConnectedTargetOverlay(
                         serial,
@@ -246,6 +250,15 @@ namespace DexManager.Services
             }
             CleanupStaleSession(serial, deviceIdentity);
             var runSettings = GetDeviceRunSettings(deviceIdentity);
+            if (!ReleasePendingLoopbackLeases())
+                throw new InvalidOperationException("The previous loopback session has not finished cleanup.");
+            var hidePhonePreview = runSettings.VirtualDisplay.HidePhonePreview;
+            if (hidePhonePreview) _loopbackAttemptedIdentities.Add(deviceIdentity);
+            else _loopbackAttemptedIdentities.Remove(deviceIdentity);
+            // Do not change the user's saved normal-mode screen-off preference.
+            var effectiveScrcpySettings = hidePhonePreview
+                ? LoopbackDexProtocol.CreateScrcpySettings(runSettings.Scrcpy)
+                : runSettings.Scrcpy;
 
             VirtualDisplayLease lease = null;
             var scrcpyStarted = false;
@@ -259,12 +272,11 @@ namespace DexManager.Services
                         runSettings.VirtualDisplay,
                         _settings.Timing.VirtualDisplayDetectionTimeoutMs,
                         delegate { return IsShutdownRequested; });
-                    CompleteDeferredCleanupCore(
-                        serial,
-                        deviceIdentity);
+                    if (!lease.IsLoopback)
+                        CompleteDeferredCleanupCore(serial, deviceIdentity);
                     ThrowIfShutdownRequested();
                     _scrcpyService.Start(
-                        runSettings.Scrcpy,
+                        effectiveScrcpySettings,
                         lease.DisplayId,
                         serial);
                     scrcpyStarted = true;
@@ -453,7 +465,7 @@ namespace DexManager.Services
             {
                 DeferDisplayCleanup(session);
             }
-            else if (session == null)
+            else if (session == null && !UsesLoopbackCleanup(fallbackIdentity))
             {
                 string verifiedIdentity;
                 if (!CleanupConnectedTargetOverlay(
@@ -470,6 +482,7 @@ namespace DexManager.Services
                     verifiedIdentity);
             }
             ClearSession(session);
+            ReleasePendingLoopbackLeases();
             _logService.Info(LocalizationService.Get(
                 "Log.Dex.ShutdownCleanupCompleted"));
             if (stopException != null) throw stopException;
@@ -515,6 +528,16 @@ namespace DexManager.Services
         {
             var stale = _currentSession;
             if (stale == null) return;
+            if (stale.DisplayLease?.IsLoopback == true)
+            {
+                if (!ReleaseDisplayLease(stale.DisplayLease, stale.DeviceIdentity))
+                {
+                    DeferDisplayCleanup(stale);
+                    throw new InvalidOperationException("The previous loopback session has not finished cleanup.");
+                }
+                ClearSession(stale);
+                return;
+            }
             if (string.Equals(
                 stale.Serial,
                 nextSerial,
@@ -609,6 +632,7 @@ namespace DexManager.Services
             string serial,
             string deviceIdentity)
         {
+            if (!ReleasePendingLoopbackLeases()) return false;
             if (string.IsNullOrWhiteSpace(serial)) return true;
             var verifiedIdentity = GetVerifiedDeviceIdentity(
                 serial,
@@ -625,6 +649,7 @@ namespace DexManager.Services
             var pendingEntries = GetMatchingDeferredCleanupEntries(
                 serial,
                 deviceIdentity);
+            pendingEntries.RemoveAll(entry => entry.Lease.IsLoopback);
             if (pendingEntries.Count == 0) return;
             RemoveDeferredCleanupEntries(pendingEntries);
             _logService.Info(LocalizationService.Format(
@@ -671,6 +696,10 @@ namespace DexManager.Services
             string expectedDeviceIdentity)
         {
             if (lease == null) return true;
+            // The captured open shell channel owns the loopback connection.
+            // It must close even after USB disconnects or the endpoint is reused.
+            // Never reset an overlay on a replacement transport for this lease.
+            if (lease.IsLoopback) return _virtualDisplayService.Release(lease);
             string verifiedIdentity;
             var cleanupSerial = FindVerifiedCleanupTransport(
                 lease.Serial,
@@ -705,6 +734,26 @@ namespace DexManager.Services
                 return false;
 
             return _virtualDisplayService.Reset(cleanupSerial);
+        }
+
+        private bool UsesLoopbackCleanup(string deviceIdentity)
+        {
+            return _loopbackAttemptedIdentities.Contains(deviceIdentity ?? string.Empty) ||
+                GetDeviceRunSettings(deviceIdentity).VirtualDisplay.HidePhonePreview;
+        }
+
+        private bool ReleasePendingLoopbackLeases()
+        {
+            var complete = true;
+            for (var index = _pendingDisplayCleanup.Count - 1; index >= 0; index--)
+            {
+                var pending = _pendingDisplayCleanup[index];
+                if (!pending.Lease.IsLoopback) continue;
+                if (_virtualDisplayService.Release(pending.Lease))
+                    _pendingDisplayCleanup.RemoveAt(index);
+                else complete = false;
+            }
+            return complete;
         }
 
         private string FindVerifiedCleanupTransport(
@@ -808,7 +857,10 @@ namespace DexManager.Services
                     string.Equals(
                         pending.DeviceIdentity,
                         normalizedIdentity,
-                        StringComparison.OrdinalIgnoreCase))
+                        StringComparison.OrdinalIgnoreCase) &&
+                    pending.Lease.IsLoopback == lease.IsLoopback &&
+                    string.Equals(pending.Lease.LoopbackSessionId,
+                        lease.LoopbackSessionId, StringComparison.Ordinal))
                 {
                     pending.Lease = lease;
                     _logService.Warning(LocalizationService.Format(
@@ -870,7 +922,9 @@ namespace DexManager.Services
                     _scrcpyService.ScrcpyPath;
                 runSettings.LastSuccess.ScrcpyArguments =
                     _scrcpyService.BuildArguments(
-                        runSettings.Scrcpy,
+                        runSettings.VirtualDisplay.HidePhonePreview
+                            ? LoopbackDexProtocol.CreateScrcpySettings(runSettings.Scrcpy)
+                            : runSettings.Scrcpy,
                         displayId,
                         serial);
                 runSettings.LastSuccess.DisplayId = displayId;

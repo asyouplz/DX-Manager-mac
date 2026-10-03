@@ -17,15 +17,15 @@
 ## 2. 시스템 요구사항 (Requirements)
 
 - **운영체제**: macOS 14 Sonoma 이상
-- **아키텍처**: Apple Silicon(Apple M 시리즈, arm64) 전용
-- **미지원**: Intel Mac(x86_64)은 지원하지 않으며 x64 ZIP을 제공하지 않습니다.
+- **아키텍처**: Apple Silicon(arm64) 및 Intel Mac(x64), CPU별 ZIP 제공
 - **포터블 ZIP 사용자**: Homebrew, .NET, scrcpy와 ADB를 별도로 설치하지
-  않습니다. Apple Silicon용으로 미리 빌드된 ZIP에 self-contained .NET 런타임,
+  않습니다. 각 CPU용으로 미리 빌드된 ZIP에 self-contained .NET 런타임,
   scrcpy 4.1, ADB와 scrcpy 서버가 포함됩니다.
 - **소스 개발자**: `global.json`에 지정된 .NET 8 SDK가 필요합니다.
 - **지원 스마트폰**:
   - Samsung Galaxy 기기 중 Samsung DeX를 지원하는 기기 (Galaxy S시리즈, Note시리즈, Z Fold시리즈, Tab S시리즈 등)
-  - Android 16 / One UI 8.x (현재 기준 동작 검증)
+  - 기존 overlay 방식의 확인 기준은 Android 16 / One UI 8.x입니다. 새 휴대폰
+    화면 숨김 기능은 S26/One UI 실기 검증 전인 실험 기능입니다.
 
 ---
 
@@ -34,16 +34,16 @@
 ### 3.1 지원 ZIP 확인
 
 - Apple M 시리즈 Mac: `DX-Manager-v<version>-macos-arm64.zip`
+- Intel Mac: `DX-Manager-v<version>-macos-x64.zip`
 
 여기서 `<version>`은 공개된 Release 버전(예: `2.0.0`)으로 바꿉니다. ZIP 안의
 문서에는 패키징 시 실제 버전이 자동 반영됩니다.
 
-저장소의 GitHub Actions workflow는 `macos-15` Apple Silicon 실행 환경에서 전체
-빌드·테스트·패키지 검증을 수행하도록 구성되어 있습니다. 버전 태그 작업이 성공하면
-검증된 arm64 ZIP과 SHA-256 파일을 포함한 GitHub Release 초안을 만들며,
-유지관리자가 확인 후 공개합니다. 이 변경의 첫 원격 workflow 성공 여부는 아직
-확인해야 합니다. Release가 공개된 뒤 사용자는 arm64 ZIP을
-내려받아 전체 폴더의 압축을 풀고 `Start DX Manager.command`를 더블클릭합니다.
+GitHub Actions는 Apple Silicon `macos-15`와 Intel `macos-15-intel`에서 각각
+빌드·테스트·패키지 실행 검사를 수행합니다. PR에는 검토용 ZIP과 SHA-256 파일을
+artifact로 보관합니다. 정식 Release 공개는 별도 유지관리자 승인 사항입니다.
+사용자는 CPU에 맞는 ZIP을 내려받아 전체 폴더의 압축을 풀고
+`Start DX Manager.command`를 더블클릭합니다.
 소스 빌드는 필요하지 않습니다.
 
 현재 자동 생성 패키지는 Apple Developer ID 서명·공증 전 단계이므로 최초 실행
@@ -82,24 +82,28 @@ DX Manager for macOS는 xUnit 기반 단위/통합 테스트와 다중 기기 �
 사용합니다.
 
 ```bash
-# 95개 xUnit 단위 및 통합 테스트 실행
+# xUnit 단위 및 통합 테스트 실행
 dotnet test DexManager.Mac.sln -c Release
 
 # 39개 다중 기기 세션 격리 회귀 테스트 실행
 dotnet run --project DexManager.MultiDeviceTests -c Release
 ```
 
-### 4.3 Apple Silicon 포터블 ZIP 생성
+### 4.3 CPU별 포터블 ZIP 생성
 
 ```bash
 # Apple Silicon용 self-contained ZIP
 scripts/Package-Mac-Release.sh --rid osx-arm64
+# Intel Mac용 self-contained ZIP
+scripts/Package-Mac-Release.sh --rid osx-x64
 ```
 
-스크립트는 DX Manager와 ADB proxy를 `osx-arm64` RID로 미리 publish하고, 공식
+스크립트는 DX Manager와 ADB proxy를 지정한 RID로 미리 publish하고, 공식
 scrcpy 4.1 정적 빌드의 SHA-256을 확인한 뒤 번들합니다. 생성한 ZIP을 새 임시
 폴더에 다시 풀어 실행 권한, CPU 아키텍처, 외부 Homebrew 경로 의존성, 버전,
 라이선스와 사용자 데이터 제외 여부를 검사합니다.
+로컬 CPU와 다른 아키텍처의 패키지는 교차 빌드만으로 실행 검증을 대신하지 않고
+해당 CPU의 GitHub Actions 실행 결과를 확인합니다.
 
 ---
 
@@ -128,6 +132,8 @@ dotnet run --project DexManager.Mac
 | 명령어 | 단축형 | 설명 |
 | :--- | :--- | :--- |
 | `--dex` | `-x` | 선택된 기기의 DeX 모드를 즉시 시작 (종료는 `Ctrl+C`) |
+| `--dex --hide-phone-preview` | | 휴대폰 미리보기 숨김 모드로 DeX 시작 (실험) |
+| `--dex --show-phone-preview` | | 기존 휴대폰 미리보기 표시 방식으로 DeX 시작 |
 | `--stop-dex` | | 현재 실행 중인 DeX 세션을 중지하고 가상 디스플레이 오버레이 정리 |
 | `--diag` | `-d` | 환경 점검 및 기기 호환성 진단 리포트를 실행하여 콘솔에 출력 |
 | `--version` | `-v` | DX Manager for macOS 버전 정보 출력 |
@@ -147,6 +153,12 @@ dotnet run --project DexManager.Mac
 ## 6. 대화형 콘솔 대시보드 조작 가이드 (Dashboard Guide)
 
 대화형 콘솔이 시작되면 연결된 기기 목록, 현재 선택된 기기, 해상도/DPI 설정 및 상태가 실시간으로 표시됩니다:
+
+휴대폰 화면 표시 방식은 **`2`로 DeX 중지 → `P`로 표시/숨김 선택 → `1`로 시작**
+순서로 바꿉니다. 휴대폰별로 저장되며 기본값은 기존 표시 방식입니다. 숨김 모드는
+휴대폰 전체 화면을 끄지 않고 별도의 무선 DeX 연결을 내부적으로 만듭니다.
+상세 제약과 실기 항목은 [PHONE_PREVIEW_MODE.md](PHONE_PREVIEW_MODE.md)를
+참조하십시오.
 
 ```text
 ╔══════════════════════════════════════════════════════════════════════╗

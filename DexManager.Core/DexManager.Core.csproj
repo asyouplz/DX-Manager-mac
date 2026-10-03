@@ -11,6 +11,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Use the same protocol, bundle hash and owned process lifecycle on both hosts. -->
+    <Compile Include="../DexManager/Services/LoopbackDexService.cs" Link="Services/LoopbackDexService.cs" />
+    <Compile Include="../DexManager/Services/LoopbackDexProtocol.cs" Link="Services/LoopbackDexProtocol.cs" />
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
       <_Parameter1>DexManager.Tests</_Parameter1>
     </AssemblyAttribute>

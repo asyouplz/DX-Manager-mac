@@ -1,4 +1,4 @@
-name: Windows .NET Framework validation
+name: Windows portable package and .NET Framework validation
 
 on:
   pull_request:
@@ -11,6 +11,13 @@ on:
       - "DXLoopback/**"
       - "tools/loopback/**"
       - "scripts/Build-DexLoopback.ps1"
+      - "scripts/Package-Release.ps1"
+      - "scripts/Get-VerifiedCompanion.ps1"
+      - "scripts/Windows-Portable-Common.ps1"
+      - "scripts/Verify-WindowsPackage.ps1"
+      - "scripts/Test-WindowsPackageGuards.ps1"
+      - "docs/**"
+      - "LICENSE"
       - "global.json"
   push:
     branches: [main]
@@ -23,8 +30,20 @@ on:
       - "DXLoopback/**"
       - "tools/loopback/**"
       - "scripts/Build-DexLoopback.ps1"
+      - "scripts/Package-Release.ps1"
+      - "scripts/Get-VerifiedCompanion.ps1"
+      - "scripts/Windows-Portable-Common.ps1"
+      - "scripts/Verify-WindowsPackage.ps1"
+      - "scripts/Test-WindowsPackageGuards.ps1"
+      - "docs/**"
+      - "LICENSE"
       - "global.json"
   workflow_dispatch:
+    inputs:
+      version:
+        description: Preview version used in the portable ZIP filename
+        required: true
+        default: "2.0.1-phone-preview"
 
 permissions:
   contents: read
@@ -32,7 +51,7 @@ permissions:
 jobs:
   windows-validation:
     runs-on: windows-2022
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -41,6 +60,16 @@ jobs:
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           global-json-file: global.json
+
+      - name: Resolve portable preview version
+        shell: pwsh
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          $version = $env:REQUESTED_VERSION
+          if ([string]::IsNullOrWhiteSpace($version)) { $version = '2.0.1-phone-preview' }
+          if ($version -notmatch '^[0-9A-Za-z][0-9A-Za-z._-]*$') { throw 'Invalid package version.' }
+          "DXM_PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
 
       - name: Prepare pinned .NET Framework 4.6.2 reference assemblies
         shell: pwsh
@@ -89,3 +118,31 @@ jobs:
           if ($pinned -ne $expected) { throw 'The runtime and bundled helper checksums do not match.' }
           $copy = '.\DexManager\bin\Release\tools\loopback\dxm-loopback.jar'
           if ((Get-FileHash $copy -Algorithm SHA256).Hash -ne $expected) { throw 'Build output helper checksum mismatch.' }
+
+      - name: Fetch the unchanged, verified official Companion APK
+        shell: pwsh
+        run: |
+          $apk = Join-Path $env:RUNNER_TEMP 'verified-companion/DX-Companion.apk'
+          .\scripts\Get-VerifiedCompanion.ps1 -OutputPath $apk
+          "DXM_COMPANION_APK=$apk" >> $env:GITHUB_ENV
+
+      - name: Package and smoke-test a cleanly extracted Windows portable ZIP
+        shell: pwsh
+        run: |
+          .\scripts\Package-Release.ps1 -SkipBuild -Version $env:DXM_PACKAGE_VERSION -CompanionApkSource $env:DXM_COMPANION_APK
+
+      - name: Verify packaging rejects private data and missing or modified helpers
+        shell: pwsh
+        run: |
+          .\scripts\Test-WindowsPackageGuards.ps1 -ArchivePath "dist/DX-Manager-v$env:DXM_PACKAGE_VERSION-win-x64.zip"
+
+      - name: Upload the prebuilt Windows portable preview
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: DX-Manager-v${{ env.DXM_PACKAGE_VERSION }}-win-x64
+          path: |
+            dist/DX-Manager-v${{ env.DXM_PACKAGE_VERSION }}-win-x64.zip
+            dist/DX-Manager-v${{ env.DXM_PACKAGE_VERSION }}-win-x64.zip.sha256
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30

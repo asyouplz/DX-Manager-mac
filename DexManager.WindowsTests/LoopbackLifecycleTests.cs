@@ -54,8 +54,8 @@ internal static class LoopbackLifecycleTests
         Require(!context.IsRunning("dxm-test-first"), "Stop must wait for the owned child process to exit.");
         Require(context.Lines.Any(line => line == "STOP|dxm-test-first|" + lease.LoopbackSessionId),
             "Stop must send the session-bound STOP command.");
-        Require(context.Lines.Any(line => line.EndsWith("rm -f " + LoopbackDexProtocol.CreateRemotePath(lease.LoopbackSessionId), StringComparison.Ordinal)),
-            "Cleanup must name only the owned helper file.");
+        Require(!context.Lines.Any(line => line.Contains("shell rm -f ", StringComparison.Ordinal)),
+            "The helper removes its own file; cleanup must not open a shell on a possibly reused endpoint.");
         context.RequireNoOverlayMutation();
         Require(display.Release(lease), "Duplicate stop must be safe.");
     }

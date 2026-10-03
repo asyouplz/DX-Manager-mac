@@ -9,7 +9,8 @@
     <Nullable>disable</Nullable>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
+    <InformationalVersion>2.0.1-phone-preview</InformationalVersion>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <CopyBundledMacTools Condition="'$(CopyBundledMacTools)' == ''">true</CopyBundledMacTools>
   </PropertyGroup>
@@ -19,8 +20,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\tools\**\*.*" Condition="'$(CopyBundledMacTools)' == 'true'">
+    <None Include="..\tools\**\*.*" Exclude="..\tools\loopback\**\*" Condition="'$(CopyBundledMacTools)' == 'true'">
       <Link>tools\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+    <!-- Architecture-independent helper is also needed when publishing without developer tools. -->
+    <None Include="..\tools\loopback\*">
+      <Link>tools\loopback\%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>

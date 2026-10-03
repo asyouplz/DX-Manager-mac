@@ -2,9 +2,14 @@
 
 ## 다음 작업
 
+- [x] 사용자 요청으로 Intel Mac 지원 제외 결정을 변경하고 macOS 14+ arm64/x64 문서화
+- [x] Mac 표시/숨김 선택 메뉴 및 CLI, 기기별 저장과 loopback 수명주기 연결
+- [ ] Windows x64·Mac arm64·Mac x64 네이티브 CI와 3종 ZIP 확보
+- [ ] S26에서 Windows·Mac 새 숨김 모드 및 종료/기존 모드 복원 실기 확인
+
 - [x] Windows DeX 휴대폰 미리보기 숨김 선택 UI와 기기별 설정 저장
 - [x] 기존 overlay 기본값 유지, loopback helper 세션별 시작/정리 분리
-- [ ] `PHONE_PREVIEW_MODE.md`의 S26/Windows 실기 검증 후 실험 표시 재검토
+- [ ] `PHONE_PREVIEW_MODE.md`의 S26/Windows·Mac 실기 검증 후 실험 표시 재검토
 - [ ] 연결 해제·다중 기기·절전 복귀·장시간 사용과 발열 실측
 - [x] PR의 Windows 원격 빌드/테스트 및 helper 재현 빌드 결과 확인
 
@@ -13,11 +18,11 @@
   - [x] 공식 scrcpy 4.1 arm64 아카이브 SHA-256 검증 및 번들
   - [x] ZIP 재압축 해제, 실행 권한, 아키텍처, 외부 경로, 제외 파일 검증
   - [x] Apple Silicon GitHub Actions, PR artifact와 검증된 Release 초안
-  - [ ] PR에서 첫 GitHub Actions arm64 원격 실행 결과 확인
+  - [x] 기존 arm64 PR의 GitHub Actions 원격 실행 결과 확인 (2026-10-03)
   - [x] `Q` 정상 종료의 DeX·단일창·전송·overlay cleanup 보강
   - [x] DeX 시작·정리 전 live identity 재검증과 identity별 보류 정리 분리
   - [x] CLI 시작·자연 종료 대기의 `Ctrl+C` 취소 및 종료 경합 보강
-  - [x] Intel Mac(x86_64) 지원 범위 제외 및 x64 패키지 미제공 명시
+  - [x] 당시 Intel 제외 정책 기록 보존; 현재는 2026-10-04 요청으로 x64 지원 복원
   - [ ] Apple Developer ID 서명·notarization 자격이 준비되면 공개 ZIP 서명
 
 - [x] v2.0.0 공개 후보 준비

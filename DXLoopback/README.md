@@ -2,7 +2,7 @@
 
 ## English
 
-This small Android `app_process` helper supports the Windows **Hide DeX on phone
+This small Android `app_process` helper supports the Windows/macOS **Hide DeX on phone
 (experimental)** mode. It requests a Samsung wireless DeX display connected to
 `127.0.0.1`, completes its WFD/RTSP negotiation and discards the dummy RTP traffic.
 DX Manager still uses its existing scrcpy process for the visible PC window,
