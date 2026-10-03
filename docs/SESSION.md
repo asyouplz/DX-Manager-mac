@@ -14,6 +14,12 @@
 - S26/Windows 실기, GUI 시각 검증, 장시간 사용은 미확인이다. PR은 이 경계를
   명시한 초안으로 제출하며 정식 릴리스나 병합은 별도로 승인받는다.
 - Mac 런타임과 기존 Companion APK/설치/권한 정책은 변경하지 않는다.
+- 우리 저장소 초안 PR: https://github.com/asyouplz/DX-Manager-mac/pull/1
+- 코드 커밋 `8f28c32`의 GitHub 검사 통과: Windows x64/.NET Framework 4.6.2
+  전체 빌드·Windows 원본 소스 회귀 26개·proxy 실행 검사, Linux/Windows helper
+  재현 빌드와 각각 16개 JVM 테스트, Apple Silicon 포터블 빌드·공통 테스트
+  98개·다중 기기 테스트 39개. Windows 서버 빌드 검증과 실제 사용자 PC/S26
+  동작은 구분하며, 아래 실기 미확인 항목은 그대로 남긴다.
 - 아래 macOS 및 과거 Windows 기록은 당시 작업 이력이며 이번 기능의 실기
   검증 결과를 뜻하지 않는다.
 
