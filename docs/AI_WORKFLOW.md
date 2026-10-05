@@ -1,4 +1,4 @@
-# AI Workflow
+﻿# AI Workflow
 
 ## 시작
 
@@ -59,22 +59,26 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Package-Release.ps
 `E:\vs\dex system\dist`에서 생성·확인한다. C 드라이브의 Codex 작업 폴더에서
 만든 `bin\Release`와 `dist`는 빌드·실기 검증용으로만 사용하며 정식 릴리스본으로
 안내하지 않는다.
-스크립트는 DX Manager 실행 여부를 확인하고 번들 Release ADB 서버를 정리한
-뒤 Debug/Release의 로그와 스크린샷 테스트 파일을 비운다.
+스크립트는 DX Manager 실행 여부와 번들 Release ADB 서버를 확인한다.
+개발 출력의 사용자 로그·캡처·설정은 보존하며, 명시한 배포 파일만 새 폴더로 복사한다.
 v2.0.1 패키지는 Scrcpy 4.1 런타임,
 `tools\adb-proxy\DXMAdbProxy.exe`와 서명이 검증된
 `tools\companion\DX-Companion.apk`를 반드시 포함해야 한다.
 
-Android 정리 앱은 다음 명령으로 단위 테스트, lint와 서명 Release 빌드를
-함께 실행한다.
+Android 소스 변경은 다음 명령으로 단위 테스트, lint와 Debug 빌드를 확인한다.
+사용자 승인으로 포터블 릴리스는 timeout 정리가 반영된 공식 서명 Companion 2.1.4 APK를 사용한다. `Package-Release.ps1`은 번들 APK의 SHA-256을 확인하며,
+`Package-AndroidCleanup.ps1`은 package·버전·필요 권한·서명·SHA-256을 모두
+검사한다.
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass `
-  -File .\scripts\Build-AndroidCleanup.ps1
+  -File .\scripts\Build-AndroidCleanup.ps1 -Debug
 ```
 
 Android 앱은 문서화된 복구 설정 이외의 설정이나 임의 shell 기능을 추가하지
-않고, 네트워크는 인증된 로컬 전송·guardian 세션으로 제한한다.
+않고, 네트워크는 인증된 로컬 전송·guardian 세션으로 제한한다. 번들 APK를
+교체하려면 새 공식 서명 APK와 해시를 확인한 뒤 버전 검증값과 패키징 스크립트를
+함께 갱신한다.
 `signing.properties`, keystore, 비밀번호와 Android
 빌드 산출물은 Git에 넣지 않는다. Release keystore는 Git 외부에 안전하게
 백업하고 공개 인증서 지문은 `DXDisplayCleanup/SIGNING.md`와 대조한다.
@@ -94,3 +98,15 @@ Android 앱은 문서화된 복구 설정 이외의 설정이나 임의 shell �
 - 큰 이정표는 `CHANGELOG.md`
 
 문서에 추측을 사실처럼 적지 않는다.
+
+
+## v2.5.0 final local packaging
+
+Use the verified Release output and preserve older distribution folders:
+
+```powershell
+.\scripts\Package-Release.ps1 -SkipBuild -Version 2.5.0 `
+  -OutputRoot 'E:\vs\dex system\dist' -PackageDirectoryName 'DX Manager v2.5.0'
+```
+
+The first-run review override is disabled. Existing config/onboarding.json remains valid. Companion remains the pinned signed2.1.4 APK. Commit only after verifying the package; do not push, tag, publish or upload scan files without the user's explicit follow-up.

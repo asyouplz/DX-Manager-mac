@@ -1,4 +1,4 @@
-# DX Manager User Guide
+﻿# DX Manager User Guide
 
 ## 1. Requirements
 
@@ -165,9 +165,15 @@ Each slot stores its own resolution, DPI, bitrate, FPS, app, and run options.
 Choose **None** at the top of the app list to start without automatically
 launching an app.
 
-Apps that were launched successfully are kept in a shared recent-app list.
-They can be selected in another slot or after restarting DX Manager without
-loading the complete device app list first.
+Each phone has its own app list. Switching phones restores that phone's last
+loaded list during the current DX Manager run. A brief message shows how many
+apps were loaded. A result arriving after a phone switch is kept for its source
+phone.
+
+Apps that were launched successfully are kept in that phone's recent-app list.
+They can be selected in another slot on the same phone or after restarting DX
+Manager. Older shared recent entries are preserved in settings but are not
+automatically assigned to a phone; its saved start-app selection is retained.
 
 ### App profiles
 
@@ -273,18 +279,23 @@ Wi-Fi details and enter it manually.
 1. Enable **Developer options > Wireless debugging** on the phone.
 2. Open **Pair device with pairing code**.
 3. Enter the phone IP address, pairing port, and six-digit code in DX Manager.
-4. Select **Pair**.
-5. After pairing, enter the separate **connection port** shown on the main
-   Wireless debugging screen.
-6. Select **Connect wirelessly**.
+4. Select **Pair**. DX Manager discovers the separate connect endpoint and
+   connects automatically when it can identify exactly one matching phone.
+5. If endpoint discovery is unavailable or ambiguous, enter the **connection
+   port** shown on the main Wireless debugging screen and select
+   **Connect wirelessly** as a fallback.
 
-The pairing port and connection port may be different. The pairing code is
-not stored in settings or written to the log.
+The pairing port and connection port are different; the connection port may
+change after Wireless debugging restarts. DX Manager updates the saved endpoint
+only after it verifies that the connection belongs to the paired phone. The
+pairing code is not stored in settings or written to the log.
 
 ### Wireless Troubleshooting
 
 - Devices using the same Wi-Fi name may still be unable to communicate.
 - Check guest Wi-Fi, AP/client isolation, VLAN rules, and corporate firewalls.
+- If automatic endpoint discovery is blocked, use the current connection port
+  from the phone's Wireless debugging screen, not the pairing port.
 - USB preparation may be required again after the phone restarts.
 - If the first connection fails on 5GHz, check the router configuration or
   initialize the connection on 2.4GHz before retrying.
@@ -449,12 +460,16 @@ selected app**, then try again.
 
 ## 12. DX Companion (Optional)
 
-**DX Companion 2.0.0** is an Android recovery and file-transfer utility. It can
+**DX Companion 2.1.4** is an Android recovery and file-transfer utility. It can
 remove a simulated secondary display left on the phone, turn off Developer
 options **Stay awake**, and send selected files or folders from the phone to DX
 Manager. Normally, keep the phone connected and use **Stop DeX**, `Left Alt+F8`,
 or the tray **Exit** command. Use the recovery actions when cleanup must be
 performed without reconnecting the PC.
+
+This bundled Companion requires Android 13 or newer. Its home screen shows the
+guardian connection duration and recent transfer activity, with separate
+history for each transfer direction.
 
 ### Installation and one-time permission grant
 

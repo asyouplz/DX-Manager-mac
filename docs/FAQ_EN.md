@@ -135,6 +135,8 @@ Check the following in order:
 - Check guest Wi-Fi, AP/client isolation, VLAN rules, and corporate firewalls.
 - Make sure the pairing port is not being confused with the connection port.
 - Check whether the phone's IP address has changed.
+- If automatic mDNS discovery is blocked, enter the current connection port
+  shown on the Wireless debugging screen; do not reuse the pairing port.
 - After restarting the phone, prepare wireless ADB over USB again.
 - Pair Android 11+ wireless debugging again when necessary.
 

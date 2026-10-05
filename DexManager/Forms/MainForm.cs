@@ -203,6 +203,7 @@ namespace DexManager.Forms
         {
             _settingsService = settingsService;
             _settings = settings;
+            _lastAutoStartEnabled = settings.Features.AutoStartDexOnDeviceConnected;
             _logService = logService;
             _adbService = adbService;
             _wirelessAdbService = wirelessAdbService;
@@ -249,8 +250,10 @@ namespace DexManager.Forms
             Icon = AppIconProvider.Current;
             StartPosition = FormStartPosition.CenterScreen;
             BackColor = _theme.WindowBackground;
-            Font = UiFonts.Create(9.5F);
-            UiWindowStyle.ApplyFixedStandardSize(this);
+            Font = UiFonts.Pixels(14F);
+            AutoScaleMode = AutoScaleMode.Dpi;
+            AutoScaleDimensions = new SizeF(96F, 96F);
+            UiWindowStyle.ApplyStoreSize(this, 1200, 800);
             AutoScroll = false;
 
             _pageTitle = new Label
@@ -385,7 +388,6 @@ namespace DexManager.Forms
             _startAppBox.SelectionChangeCommitted +=
                 StartAppBox_SelectionChangeCommitted;
             AddNoStartAppItem();
-            AddRememberedAppItems();
             _loadAppsButton = CreateThemedButton(
                 LocalizationService.Get("Main.LoadApps"),
                 false,
@@ -418,9 +420,10 @@ namespace DexManager.Forms
                 160);
             _appProfileButton.Size = new Size(160, 27);
             _appProfileButton.Visible = false;
-            _appProfileButton.Click += AppProfileButton_Click;
+            _appProfileButton.Click += SaveAppProfileButton_Click;
 
             _additionalArgumentsBox = CreateCustomText(32, 577, 440);
+            _additionalArgumentsBox.PlaceholderText = LocalizationService.IsKorean ? "예: --no-audio --video-codec=h264" : "e.g. --no-audio --video-codec=h264";
             _additionalArgumentsBox.Visible = false;
             _advancedToggle = new LinkLabel
             {
@@ -433,6 +436,7 @@ namespace DexManager.Forms
             _advancedToggle.LinkClicked += delegate
             {
                 _additionalArgumentsBox.Visible = !_additionalArgumentsBox.Visible;
+                LayoutDesktopContent();
                 _advancedToggle.Text = _additionalArgumentsBox.Visible
                     ? LocalizationService.Get("Main.AdvancedOpen")
                     : LocalizationService.Get("Main.AdvancedClosed");
@@ -536,6 +540,13 @@ namespace DexManager.Forms
 
         private async void MainForm_Shown(object sender, EventArgs e)
         {
+            var onboarding = new PortableOnboardingService(System.IO.Path.GetDirectoryName(_settingsService.SettingsFilePath));
+            if (onboarding.ShouldShowNoticeForLaunch())
+            {
+                if (!DesktopDialogs.ConfirmFirstRun(this)) { _allowExit = true; Close(); return; }
+                string error;
+                if (!onboarding.TryAccept(out error)) ShowDesktopNotice(StoreUiText.Get("FirstRunDialogSaveFailed", "The acknowledgement could not be saved; this notice may appear again.") + " " + error, DesktopNoticeKind.Warning);
+            }
             _logService.Info(
                 LocalizationService.Get("Log.Main.Shown"));
             try { _captureCoordinator.Start(); }

@@ -1,4 +1,4 @@
-# DX Manager v2.0.1 - Third-Party Notices
+﻿# DX Manager v2.5.0 - Third-Party Notices
 
 DX Manager is an independently developed utility. The third-party binaries
 listed below are distributed without modification and remain under their
@@ -78,6 +78,12 @@ MinGW-w64 runtime. Its MIT/BSD-style notices are provided in
 
 Official project and source: https://www.mingw-w64.org/source/
 
+## DX Companion / Pretendard
+
+The bundled DX Companion includes the unmodified Pretendard typeface under the
+SIL Open Font License 1.1. Its complete copyright and license text is distributed
+as `tools\companion\Pretendard-LICENSE.txt`.
+
 ## Samsung DeX trademark notice
 
 DX Manager works with features provided by Samsung DeX on compatible
@@ -94,3 +100,13 @@ Corresponding source code and build information are available from the
 official project links above. Recipients may replace the dynamically loaded
 compatible libraries in the portable distribution, subject to the relevant
 license terms.
+
+## Embedded portable UI font
+
+The Windows UI embeds static weight-400/600 instances derived from the Store Pretendard Variable font. Glyph outlines and metrics are retained. The derivatives use DX Store UI family names because Pretendard is an OFL reserved font name. See Pretendard-LICENSE.txt. No system font installation is performed.
+
+## Fluent UI System Icons
+
+DX Manager embeds Regular icon alpha masks derived from Microsoft's Fluent UI System Icons, source commit a563cf9166f4f91aa617557ed272612b7f0a2f72. Copyright (c)2020 Microsoft Corporation; MIT License. The complete notice is included in Fluent-System-Icons-LICENSE.txt.
+https://github.com/microsoft/fluentui-system-icons
+The mouse asset is modified from Keyboard Mouse20Regular by retaining its mouse component only. Other assets retain the official geometry and are converted to transparent masks for theme coloring. Original SVGs/provenance are retained in the source repository.

@@ -292,3 +292,10 @@
 - scan code 한영/Enter 보정
 - F8 캡처, 트레이 자동 숨김, 세션 로그
 - .NET Framework 4.6.2와 Windows 7 지원
+
+## 2026-10 — v2.5.0 local final
+
+- Fluent Regular UI, 기기별 설정·앱 목록·연결·진단·전송과 미니바 보강.
+- 공식 서명 Companion2.1.4 및 첫 실행 동의 기록 존중.
+- 메이님 실기 확인 후 최종본/2.5.0/로컬 커밋 요청. 공개 배포와 바이러스 검사는 별도 대기.
+- 상세 변경: RELEASE_NOTES_v2.5.0.md.

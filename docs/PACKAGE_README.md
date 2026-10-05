@@ -1,7 +1,7 @@
-# DX Manager
+﻿# DX Manager
 
 Portable Windows package for managing Samsung DeX and up to three independent
-scrcpy app windows per connected Galaxy phone. Version 2.0.1 supports multiple
+scrcpy app windows per connected Galaxy phone. Version 2.5.0 supports multiple
 physical phones simultaneously and bundles scrcpy 4.1.
 
 ## English
@@ -14,7 +14,8 @@ physical phones simultaneously and bundles scrcpy 4.1.
 - Android Developer options and USB debugging enabled
 - A data-capable USB cable for the initial authorization
 
-The currently verified phone baseline is Android 16 with One UI 8.x on a
+The user also confirmed Galaxy S26 Ultra / Android 17 / One UI 9.0 operation.
+The earlier verified phone baseline is Android 16 with One UI 8.x on a
 DeX-capable Galaxy device. One UI 7.x and earlier have not been confirmed to
 work reliably and may show a black DeX window.
 
@@ -52,8 +53,8 @@ language, and documentation files together.
 > displays**, select any resolution once, open the menu again, and select
 > **None**. Selecting **None** first may not clear a stale display.
 
-The signed **DX Companion** APK is included under `tools\companion` but is never
-installed automatically. Use **Settings > Diagnostics > DX Companion** to
+The signed **DX Companion 2.1.4** APK (Android 13 or newer) is included under `tools\companion` but is never
+installed automatically. Use **Settings > Companion** to
 install, update, grant permission to, or uninstall it on the currently selected
 phone. DX Manager verifies the exact bundled APK hash and official signing
 certificate before installation and rechecks the installed package afterward.
@@ -164,7 +165,7 @@ Project page: https://github.com/maze-mei/DX-Manager
 
 여러 Galaxy 휴대폰의 Samsung DeX 가상 디스플레이와 휴대폰별 scrcpy
 단일창을 최대 3개까지 동시에 관리하는 Windows용 포터블 프로그램입니다.
-버전 2.0.1은 scrcpy 4.1을 포함합니다.
+버전 2.5.0은 scrcpy 4.1을 포함합니다.
 
 ### 요구 사항
 
@@ -174,7 +175,8 @@ Project page: https://github.com/maze-mei/DX-Manager
 - Android 개발자 옵션과 USB 디버깅 활성화
 - 최초 인증을 위한 데이터 전송 가능 USB 케이블
 
-현재 정상 동작을 확인한 휴대폰 기준은 Android 16 / One UI 8.x의 DeX 지원
+Galaxy S26 Ultra / Android 17 / One UI 9.0도 사용자 정상 동작 확인이 있습니다.
+기존 정상 동작을 확인한 휴대폰 기준은 Android 16 / One UI 8.x의 DeX 지원
 Galaxy 기기입니다. One UI 7.x 이하에서는 원활한 동작을 확인하지 못했으며
 DeX 창이 검게 표시될 수 있습니다.
 
@@ -213,8 +215,8 @@ Windows 7 SP1에는 .NET Framework 4.6.2가 기본 포함되지 않습니다. �
 > 선택하십시오. 처음부터 **없음**만 선택하면 남은 화면이 지워지지 않을 수
 > 있습니다.
 
-서명된 **DX Companion** APK는 `tools\companion`에 포함되지만 자동으로 설치되지
-않습니다. **설정 > 진단 > DX Companion**에서 현재 선택된 휴대폰에 설치·업데이트,
+서명된 **DX Companion 2.1.4** APK(Android 13 이상)는 `tools\companion`에 포함되지만 자동으로 설치되지
+않습니다. **설정 > Companion**에서 현재 선택된 휴대폰에 설치·업데이트,
 권한 부여 또는 삭제할 수 있습니다. DX Manager는 설치 전 정확한 번들 APK 해시와
 공식 서명을 확인하고 설치 후 패키지를 다시 검증합니다. Companion은 복구 기능과
 휴대폰에서 PC로 파일·폴더 전송 기능을 제공합니다.
@@ -315,3 +317,9 @@ scrcpy 순정 방식을 사용하려면 **설정 > 경로 / ADB > 프로그램 �
 - [DX Manager MIT 라이선스](LICENSE)
 
 프로젝트 페이지: https://github.com/maze-mei/DX-Manager
+
+## Updating / 업데이트
+
+Exit the previous application and back up its `config` folder. To retain device settings and the first-run acknowledgement, copy your existing config into the new full portable folder. The ZIP contains no personal settings or acknowledgement. Consent appears once until accepted, and general settings reset does not delete the acknowledgement.
+
+이전 프로그램을 완전히 종료하고 config 폴더를 백업하세요. 기기별 설정과 첫 실행 동의 기록을 유지하려면 기존 config를 새 포터블 폴더로 옮깁니다. ZIP에는 개인 설정이나 동의 기록이 포함되지 않습니다. 동의창은 동의가 저장될 때까지 표시되며 이후 실행에서는 반복하지 않습니다. 일반 설정 초기화는 동의 기록을 삭제하지 않습니다.

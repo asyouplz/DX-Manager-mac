@@ -1,4 +1,4 @@
-# DX Manager 새 작업 인수인계
+﻿# DX Manager 새 작업 인수인계
 
 마지막 갱신: 2026-08-22
 
@@ -18,23 +18,25 @@
 6. 코드 변경 전 관련 서비스, 폼 partial, 모델과 문서의 기존 흐름을 함께 읽는다.
 7. 검증과 배포는 `AI_WORKFLOW.md`를 따른다.
 
-## 2. 현재 공식 기준점
+## 2. 기준점과 현재 작업
 
 - 제품 이름: **DX Manager**
-- 현재 공개 버전: **v2.0.0**
-- GitHub 업로드 준비 버전: **v2.0.1**
-- Windows 앱: Assembly/File/Informational version `2.0.1`
-- Android 앱 공개 이름: **DX Companion 2.0.0**, versionCode `6`
-- 공개 태그: `v2.0.0` (`cec74a9`)
+- 마지막 기록된 공개 릴리스 기준: **v2.0.0** (`cec74a9`)
+- 과거 GitHub 업로드 후보: **v2.0.1**
+- Windows 앱 기준 버전: Assembly/File/Informational version `2.5.0`
+- 현재 portable Companion: **DX Companion 2.1.4**, versionCode `11`, min SDK `33`
+- 현재 portable 작업 브랜치: `feature/portable-backport-v2.0.1-20260928`
+- 브랜치 기준: 로컬 `v2.0.1` 태그 `2a4aff2`
+- Store 제품 코드: 별도 `E:\vs\dex system-store` 작업 폴더, 읽기 전용 비교만 허용
 - 공개 태그 뒤 README 대표 이미지 갱신: `e8e47e6`
 - 원격 저장소: `https://github.com/maze-mei/DX-Manager`
 - 이 문서 작성 당시 작업 브랜치: `feature/v2-multi-device`
 - v2.0.1은 최초 물리 기기 결속 뒤 DeX 기기별 설정이 공통 기본값으로 표시되던
   UI 동기화 회귀만 수정한 유지보수 릴리스다.
 
-정확한 현재 HEAD는 이 문서 자체의 커밋 때문에 위 해시보다 앞설 수 있으므로 항상
-Git 명령으로 다시 확인한다. `main`이라는 로컬 브랜치 이름보다 `origin/main`, 태그와
-실제 HEAD를 기준으로 판단한다.
+이 포터블 역이식은 미완료 작업이며 아직 커밋·push·업로드하지 않았다. 실제 브랜치와
+파일 상태는 문서보다 `git status`와 `git log`로 확인한다. GitHub 원격의 상태는 로컬
+태그나 작업 브랜치와 별도로 취급한다.
 
 ## 3. 제품과 지원 범위
 
@@ -48,7 +50,7 @@ DX Manager는 Windows에서 Samsung DeX overlay 가상 디스플레이와 Scrcpy
 - IDE/빌드 기준: Visual Studio 2019 MSBuild
 - 외부 NuGet 패키지: 없음
 - 번들 Scrcpy: 4.1
-- Android companion: Java 17, min SDK 24, compile/target SDK 36
+- Android companion: Java 17, min SDK 33, compile/target SDK 36
 - DeX 모드 확인 기준: Android 16 / One UI 8.x의 New DeX 지원 Galaxy
 - One UI 7.x 이하 및 Classic DeX 계열: DeX 모드는 검은 화면 등 정상 동작을
   보장하지 않으며 단일창 모드를 사용한다.
@@ -272,3 +274,7 @@ powershell -NoProfile -ExecutionPolicy Bypass `
 > 관리한다. 기존 동작과 미커밋 변경을 보존하고, 바로 수정하지 말라는 요청이면
 > 원인과 수정 방향만 먼저 설명해줘. 정식 릴리스 위치는
 > E:\vs\dex system\dist야.
+
+## 2026-10-05 v2.5.0 final handoff
+
+현재 Windows 최종 준비본은2.5.0, Companion은2.1.4/code11이다. 사용자가 실기 정상 동작과 로컬 커밋을 승인했다. 매 실행 동의창 검토 설정은 해제했고 기존 동의 기록은 보존한다. 최종 ZIP은 E:\vs\dex system\dist\DX-Manager-v2.5.0-win-x64.zip이며 SHA256은 RELEASE_NOTES_v2.5.0.md를 따른다. 바이러스 검사 후 메이님이 올리자고 지시할 때까지 GitHub 업로드/push/tag/release를 실행하지 않는다.

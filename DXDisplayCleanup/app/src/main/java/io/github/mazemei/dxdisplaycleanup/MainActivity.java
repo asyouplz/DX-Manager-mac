@@ -2,28 +2,37 @@ package io.github.mazemei.dxdisplaycleanup;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.res.ColorStateList;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
+import android.text.format.DateUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowInsets;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.AdapterView;
+import android.widget.PopupMenu;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -37,6 +46,14 @@ public final class MainActivity extends Activity {
     private ImageView statusIcon;
     private TextView statusTitle;
     private TextView statusDetail;
+    private View homeConnectionCard;
+    private TextView homeDeviceName;
+    private TextView homeTransport;
+    private TextView homeCleanupSummary;
+    private TextView homeActivityTitle;
+    private TextView homeActivityElapsed;
+    private Button homeCleanupButton;
+    private Button homeTransferButton;
     private TextView overlayStatus;
     private TextView overlayValue;
     private TextView stayAwakeStatus;
@@ -48,14 +65,36 @@ public final class MainActivity extends Activity {
     private CheckBox tileWidgetStayAwake;
     private Spinner guardianCleanupDelay;
     private TextView pcTransferStatus;
+    private TextView transferTransportDetail;
+    private View transferStatusCard;
+    private View pcToPhoneHistoryEmpty;
+    private View phoneToPcHistoryEmpty;
+    private LinearLayout pcToPhoneHistoryList;
+    private LinearLayout phoneToPcHistoryList;
+    private Button clearPcToPhoneHistory;
+    private Button clearPhoneToPcHistory;
+    private View settingsPermissionCard;
+    private ImageView settingsPermissionIcon;
+    private TextView settingsPermissionTitle;
+    private TextView settingsPermissionDetail;
     private Button sendFilesButton;
     private Button sendFolderButton;
     private View pageHome;
     private View pageQuickSettings;
     private View pageFileTransfer;
-    private TextView navHome;
-    private TextView navQuickSettings;
-    private TextView navFileTransfer;
+    private View pageSettings;
+    private View navHome;
+    private View navQuickSettings;
+    private View navFileTransfer;
+    private View navSettings;
+    private ImageView navHomeIcon;
+    private ImageView navQuickSettingsIcon;
+    private ImageView navFileTransferIcon;
+    private ImageView navSettingsIcon;
+    private TextView navHomeLabel;
+    private TextView navQuickSettingsLabel;
+    private TextView navFileTransferLabel;
+    private TextView navSettingsLabel;
     private View pageContainer;
     private ContentObserver settingObserver;
     private boolean updatingPreferences;
@@ -72,6 +111,9 @@ public final class MainActivity extends Activity {
     private boolean transferStatusMonitoring;
     private boolean transferProbeRunning;
     private int transferProbeGeneration;
+    private boolean transferSessionReady;
+    private long connectionStartedAtMillis;
+    private long lastHistoryRevision = Long.MIN_VALUE;
     private final Runnable transferStatusPoll = new Runnable() {
         @Override
         public void run() {
@@ -81,6 +123,16 @@ public final class MainActivity extends Activity {
             requestTransferSessionProbe();
             transferStatusHandler.postDelayed(
                     this, TRANSFER_PROBE_INTERVAL_MS);
+        }
+    };
+    private final Runnable connectionElapsedTick = new Runnable() {
+        @Override
+        public void run() {
+            if (!transferStatusMonitoring) {
+                return;
+            }
+            updateConnectionElapsed();
+            transferStatusHandler.postDelayed(this, 1000L);
         }
     };
 
@@ -110,6 +162,12 @@ public final class MainActivity extends Activity {
         statusIcon = findViewById(R.id.status_icon);
         statusTitle = findViewById(R.id.status_title);
         statusDetail = findViewById(R.id.status_detail);
+        homeConnectionCard = findViewById(R.id.home_connection_card);
+        homeDeviceName = findViewById(R.id.home_device_name);
+        homeTransport = findViewById(R.id.home_transport);
+        homeCleanupSummary = findViewById(R.id.home_cleanup_summary);
+        homeActivityTitle = findViewById(R.id.home_activity_title);
+        homeActivityElapsed = findViewById(R.id.home_activity_elapsed);
         overlayStatus = findViewById(R.id.overlay_status);
         overlayValue = findViewById(R.id.overlay_value);
         stayAwakeStatus = findViewById(R.id.stay_awake_status);
@@ -121,16 +179,47 @@ public final class MainActivity extends Activity {
         tileWidgetStayAwake = findViewById(R.id.tile_widget_stay_awake);
         guardianCleanupDelay = findViewById(R.id.guardian_cleanup_delay);
         pcTransferStatus = findViewById(R.id.pc_transfer_status);
+        transferTransportDetail = findViewById(R.id.transfer_transport_detail);
+        transferStatusCard = findViewById(R.id.transfer_status_card);
+        pcToPhoneHistoryEmpty = findViewById(
+                R.id.pc_to_phone_history_empty);
+        phoneToPcHistoryEmpty = findViewById(
+                R.id.phone_to_pc_history_empty);
+        pcToPhoneHistoryList = findViewById(
+                R.id.pc_to_phone_history_list);
+        phoneToPcHistoryList = findViewById(
+                R.id.phone_to_pc_history_list);
+        clearPcToPhoneHistory = findViewById(
+                R.id.clear_pc_to_phone_history);
+        clearPhoneToPcHistory = findViewById(
+                R.id.clear_phone_to_pc_history);
+        settingsPermissionCard = findViewById(R.id.settings_permission_card);
+        settingsPermissionIcon = findViewById(R.id.settings_permission_icon);
+        settingsPermissionTitle = findViewById(R.id.settings_permission_title);
+        settingsPermissionDetail = findViewById(R.id.settings_permission_detail);
         sendFilesButton = findViewById(R.id.send_files_button);
         sendFolderButton = findViewById(R.id.send_folder_button);
         pageHome = findViewById(R.id.page_home);
         pageQuickSettings = findViewById(R.id.page_quick_settings);
         pageFileTransfer = findViewById(R.id.page_file_transfer);
+        pageSettings = findViewById(R.id.page_settings);
         navHome = findViewById(R.id.nav_home);
         navQuickSettings = findViewById(R.id.nav_quick_settings);
         navFileTransfer = findViewById(R.id.nav_file_transfer);
+        navSettings = findViewById(R.id.nav_settings);
+        navHomeIcon = findViewById(R.id.nav_home_icon);
+        navQuickSettingsIcon = findViewById(R.id.nav_quick_settings_icon);
+        navFileTransferIcon = findViewById(R.id.nav_file_transfer_icon);
+        navSettingsIcon = findViewById(R.id.nav_settings_icon);
+        navHomeLabel = findViewById(R.id.nav_home_label);
+        navQuickSettingsLabel = findViewById(R.id.nav_quick_settings_label);
+        navFileTransferLabel = findViewById(R.id.nav_file_transfer_label);
+        navSettingsLabel = findViewById(R.id.nav_settings_label);
         pageContainer = findViewById(R.id.page_container);
         Button refreshButton = findViewById(R.id.refresh_button);
+        homeCleanupButton = findViewById(R.id.home_cleanup_button);
+        homeTransferButton = findViewById(R.id.home_transfer_button);
+        View homeMoreButton = findViewById(R.id.home_more_button);
 
         cleanupOverlayButton.setOnClickListener(view -> cleanup(true, false));
         cleanupStayAwakeButton.setOnClickListener(view -> cleanup(false, true));
@@ -138,9 +227,19 @@ public final class MainActivity extends Activity {
         refreshButton.setOnClickListener(view -> refresh());
         sendFilesButton.setOnClickListener(view -> chooseFiles());
         sendFolderButton.setOnClickListener(view -> chooseFolder());
+        clearPcToPhoneHistory.setOnClickListener(view ->
+                clearTransferHistory(
+                        TransferHistoryStore.DIRECTION_PC_TO_PHONE));
+        clearPhoneToPcHistory.setOnClickListener(view ->
+                clearTransferHistory(
+                        TransferHistoryStore.DIRECTION_PHONE_TO_PC));
+        homeCleanupButton.setOnClickListener(view -> cleanup(true, true));
+        homeTransferButton.setOnClickListener(view -> chooseFiles());
+        homeMoreButton.setOnClickListener(view -> showHomeMenu(homeMoreButton));
         navHome.setOnClickListener(view -> selectPage(Page.HOME));
         navQuickSettings.setOnClickListener(view -> selectPage(Page.QUICK_SETTINGS));
         navFileTransfer.setOnClickListener(view -> selectPage(Page.FILE_TRANSFER));
+        navSettings.setOnClickListener(view -> selectPage(Page.SETTINGS));
         selectPage(Page.HOME);
 
         CleanupPreferences.Targets targets = CleanupPreferences.load(this);
@@ -182,6 +281,8 @@ public final class MainActivity extends Activity {
         refresh();
         transferStatusHandler.removeCallbacks(transferStatusPoll);
         transferStatusHandler.post(transferStatusPoll);
+        transferStatusHandler.removeCallbacks(connectionElapsedTick);
+        transferStatusHandler.post(connectionElapsedTick);
     }
 
     private void configureGuardianCleanupDelay() {
@@ -222,6 +323,7 @@ public final class MainActivity extends Activity {
         transferStatusMonitoring = false;
         transferProbeGeneration++;
         transferStatusHandler.removeCallbacks(transferStatusPoll);
+        transferStatusHandler.removeCallbacks(connectionElapsedTick);
         getContentResolver().unregisterContentObserver(settingObserver);
         super.onStop();
     }
@@ -299,14 +401,80 @@ public final class MainActivity extends Activity {
     }
 
     private void setTransferSessionReady(boolean ready) {
+        transferSessionReady = ready;
         pcTransferStatus.setText(ready
                 ? R.string.transfer_pc_ready
                 : R.string.transfer_pc_not_ready_short);
-        pcTransferStatus.setBackgroundResource(ready
-                ? R.drawable.bg_connection_status
+        transferStatusCard.setBackgroundResource(ready
+                ? R.drawable.bg_status_card
                 : R.drawable.bg_connection_pending);
         sendFilesButton.setEnabled(ready);
         sendFolderButton.setEnabled(ready);
+        homeTransferButton.setEnabled(ready);
+        homeConnectionCard.setBackgroundResource(ready
+                ? R.drawable.bg_status_card
+                : R.drawable.bg_connection_pending);
+        statusIcon.setImageResource(ready
+                ? R.drawable.dx_manager_icon
+                : R.drawable.dx_manager_icon_mono);
+        statusIcon.clearColorFilter();
+        statusTitle.setText(ready
+                ? R.string.home_connection_title_ready
+                : R.string.home_connection_title_waiting);
+        statusTitle.setTextColor(getColor(ready
+                ? R.color.success : R.color.text_secondary));
+        statusDetail.setText(ready
+                ? R.string.home_connection_detail_ready
+                : R.string.home_connection_detail_waiting);
+        String deviceName = Settings.Global.getString(
+                getContentResolver(), "device_name");
+        if (deviceName == null || deviceName.trim().isEmpty()) {
+            deviceName = Build.MODEL;
+        }
+        homeDeviceName.setText(deviceName);
+
+        GuardianSessionStore.Session guardian = GuardianSessionStore.load(this);
+        int transportLabel = GuardianSessionStore.TRANSPORT_WIRELESS.equals(
+                guardian.transport)
+                ? R.string.transport_wifi
+                : GuardianSessionStore.TRANSPORT_USB.equals(guardian.transport)
+                ? R.string.transport_usb
+                : R.string.transport_unknown;
+        String transport = getString(transportLabel);
+        homeTransport.setText(ready
+                ? getString(R.string.home_transport_connected, transport)
+                : getString(R.string.home_transport_waiting));
+        transferTransportDetail.setText(ready
+                ? getString(R.string.transfer_transport_connected, transport)
+                : getString(R.string.transfer_transport_waiting));
+        homeActivityTitle.setText(ready
+                ? getString(R.string.home_activity_connected_transport,
+                transport)
+                : getString(R.string.home_activity_disconnected));
+        connectionStartedAtMillis = ready
+                ? guardian.connectedAtMillis
+                : 0L;
+        updateConnectionElapsed();
+        renderTransferHistory();
+    }
+
+    private void updateConnectionElapsed() {
+        if (!transferSessionReady || connectionStartedAtMillis <= 0L) {
+            homeActivityElapsed.setText("");
+            return;
+        }
+
+        long elapsedSeconds = Math.max(0L,
+                (System.currentTimeMillis() - connectionStartedAtMillis)
+                        / 1000L);
+        long hours = elapsedSeconds / 3600L;
+        long minutes = (elapsedSeconds % 3600L) / 60L;
+        long seconds = elapsedSeconds % 60L;
+        homeActivityElapsed.setText(hours > 0L
+                ? getString(R.string.home_activity_elapsed_hours,
+                hours, minutes, seconds)
+                : getString(R.string.home_activity_elapsed_minutes,
+                minutes, seconds));
     }
 
     private void selectPage(Page selectedPage) {
@@ -317,23 +485,34 @@ public final class MainActivity extends Activity {
                 selectedPage == Page.QUICK_SETTINGS ? View.VISIBLE : View.GONE);
         pageFileTransfer.setVisibility(
                 selectedPage == Page.FILE_TRANSFER ? View.VISIBLE : View.GONE);
+        pageSettings.setVisibility(
+                selectedPage == Page.SETTINGS ? View.VISIBLE : View.GONE);
 
-        updateNavigationItem(navHome, selectedPage == Page.HOME);
-        updateNavigationItem(navQuickSettings,
+        updateNavigationItem(navHome, navHomeIcon, navHomeLabel,
+                selectedPage == Page.HOME);
+        updateNavigationItem(navQuickSettings, navQuickSettingsIcon,
+                navQuickSettingsLabel,
                 selectedPage == Page.QUICK_SETTINGS);
-        updateNavigationItem(navFileTransfer,
+        updateNavigationItem(navFileTransfer, navFileTransferIcon,
+                navFileTransferLabel,
                 selectedPage == Page.FILE_TRANSFER);
+        updateNavigationItem(navSettings, navSettingsIcon, navSettingsLabel,
+                selectedPage == Page.SETTINGS);
+        if (selectedPage == Page.FILE_TRANSFER) {
+            renderTransferHistory();
+        }
     }
 
-    private void updateNavigationItem(TextView view, boolean selected) {
-        view.setBackgroundResource(selected
+    private void updateNavigationItem(View container, ImageView icon,
+            TextView label, boolean selected) {
+        container.setBackgroundResource(selected
                 ? R.drawable.bg_nav_selected
                 : android.R.color.transparent);
-        view.setTextColor(getColor(selected
-                ? R.color.accent
-                : R.color.text_secondary));
-        view.setTypeface(null, selected ? Typeface.BOLD : Typeface.NORMAL);
-        view.setSelected(selected);
+        int color = getColor(selected ? R.color.accent : R.color.text_secondary);
+        icon.setImageTintList(ColorStateList.valueOf(color));
+        label.setTextColor(color);
+        label.setTypeface(null, selected ? Typeface.BOLD : Typeface.NORMAL);
+        container.setSelected(selected);
     }
 
     @Override
@@ -475,10 +654,16 @@ public final class MainActivity extends Activity {
         if (page == Page.QUICK_SETTINGS) {
             return Page.FILE_TRANSFER;
         }
+        if (page == Page.FILE_TRANSFER) {
+            return Page.SETTINGS;
+        }
         return null;
     }
 
     private Page previousPage(Page page) {
+        if (page == Page.SETTINGS) {
+            return Page.FILE_TRANSFER;
+        }
         if (page == Page.FILE_TRANSFER) {
             return Page.QUICK_SETTINGS;
         }
@@ -498,11 +683,14 @@ public final class MainActivity extends Activity {
         if (page == Page.QUICK_SETTINGS) {
             return pageQuickSettings;
         }
-        return pageFileTransfer;
+        if (page == Page.FILE_TRANSFER) {
+            return pageFileTransfer;
+        }
+        return pageSettings;
     }
 
     private void resetPageTransforms() {
-        View[] pages = {pageHome, pageQuickSettings, pageFileTransfer};
+        View[] pages = {pageHome, pageQuickSettings, pageFileTransfer, pageSettings};
         for (View page : pages) {
             page.animate().cancel();
             page.setTranslationX(0f);
@@ -563,9 +751,12 @@ public final class MainActivity extends Activity {
             }
         }
         if (PhoneTransferService.start(this, uris)) {
+            lastHistoryRevision = Long.MIN_VALUE;
+            renderTransferHistory();
             Toast.makeText(this, R.string.transfer_queued,
                     Toast.LENGTH_SHORT).show();
         } else {
+            PhoneTransferService.releasePersistedUriPermissions(this, uris);
             Toast.makeText(this, R.string.transfer_queue_failed,
                     Toast.LENGTH_LONG).show();
         }
@@ -593,41 +784,174 @@ public final class MainActivity extends Activity {
 
         boolean permissionGranted = !snapshot.permissionRequired();
         boolean valid = permissionGranted && !snapshot.hasError();
+        settingsPermissionCard.setBackgroundResource(valid
+                ? R.drawable.bg_status_card
+                : R.drawable.bg_connection_pending);
         cleanupOverlayButton.setEnabled(valid && snapshot.overlay.overlayActive);
         cleanupStayAwakeButton.setEnabled(valid && snapshot.stayAwake.stayAwakeActive);
         cleanupBothButton.setEnabled(valid && snapshot.anyActive());
+        homeCleanupButton.setEnabled(valid && snapshot.anyActive());
+        int activeCount = (snapshot.overlay.overlayActive ? 1 : 0)
+                + (snapshot.stayAwake.stayAwakeActive ? 1 : 0);
+        if (activeCount == 0) {
+            homeCleanupSummary.setText(R.string.home_cleanup_none);
+        } else {
+            homeCleanupSummary.setText(
+                    getString(R.string.home_cleanup_count, activeCount));
+        }
 
         if (snapshot.permissionRequired()) {
-            statusIcon.setImageResource(R.drawable.ic_warning);
-            statusIcon.setColorFilter(Color.rgb(245, 158, 11));
-            statusTitle.setText(R.string.status_permission_required);
-            statusDetail.setText(R.string.status_permission_required_detail);
+            settingsPermissionIcon.setImageResource(R.drawable.ic_warning);
+            settingsPermissionIcon.setColorFilter(Color.rgb(245, 158, 11));
+            settingsPermissionTitle.setText(R.string.status_permission_required);
+            settingsPermissionDetail.setText(R.string.status_permission_required_detail);
         } else if (snapshot.hasError()) {
-            statusIcon.setImageResource(R.drawable.ic_warning);
-            statusIcon.setColorFilter(Color.rgb(220, 38, 38));
-            statusTitle.setText(R.string.status_error);
+            settingsPermissionIcon.setImageResource(R.drawable.ic_warning);
+            settingsPermissionIcon.setColorFilter(Color.rgb(220, 38, 38));
+            settingsPermissionTitle.setText(R.string.status_error);
             String error = snapshot.overlay.error != null
                     ? snapshot.overlay.error
                     : snapshot.stayAwake.error;
-            statusDetail.setText(error == null
+            settingsPermissionDetail.setText(error == null
                     ? getString(R.string.status_error_detail)
                     : error);
-        } else if (snapshot.anyActive()) {
-            statusIcon.setImageResource(R.drawable.dx_manager_icon);
-            statusIcon.clearColorFilter();
-            statusTitle.setText(R.string.status_cleanup_needed);
-            if (snapshot.overlay.overlayActive && snapshot.stayAwake.stayAwakeActive) {
-                statusDetail.setText(R.string.status_both_active_detail);
-            } else if (snapshot.overlay.overlayActive) {
-                statusDetail.setText(R.string.status_overlay_active_detail);
-            } else {
-                statusDetail.setText(R.string.status_stay_awake_active_detail);
-            }
         } else {
-            statusIcon.setImageResource(R.drawable.dx_manager_icon_mono);
-            statusIcon.clearColorFilter();
-            statusTitle.setText(R.string.status_clean);
-            statusDetail.setText(R.string.status_clean_detail);
+            settingsPermissionIcon.setImageResource(R.drawable.ic_settings);
+            settingsPermissionIcon.clearColorFilter();
+            settingsPermissionTitle.setText(R.string.permission_granted_title);
+            settingsPermissionDetail.setText(R.string.permission_granted_detail);
+        }
+    }
+
+    private void renderTransferHistory() {
+        long revision = TransferHistoryStore.revision(this);
+        if (revision == lastHistoryRevision) {
+            return;
+        }
+        lastHistoryRevision = revision;
+        List<TransferHistoryStore.Entry> entries =
+                TransferHistoryStore.load(this);
+        pcToPhoneHistoryList.removeAllViews();
+        phoneToPcHistoryList.removeAllViews();
+        int pcToPhoneCount = 0;
+        int phoneToPcCount = 0;
+        for (TransferHistoryStore.Entry entry : entries) {
+            boolean phoneToPc = TransferHistoryStore
+                    .DIRECTION_PHONE_TO_PC.equals(entry.direction);
+            LinearLayout targetList = phoneToPc
+                    ? phoneToPcHistoryList : pcToPhoneHistoryList;
+            View row = getLayoutInflater().inflate(
+                    R.layout.item_transfer_history,
+                    targetList, false);
+            ImageView icon = row.findViewById(R.id.history_direction_icon);
+            TextView name = row.findViewById(R.id.history_name);
+            TextView time = row.findViewById(R.id.history_time);
+            TextView status = row.findViewById(R.id.history_status);
+
+            icon.setImageResource(phoneToPc
+                    ? R.drawable.ic_upload : R.drawable.ic_download);
+            name.setText(historyName(entry));
+            status.setText(historyStatus(entry.status));
+            int dateFlags = DateUtils.FORMAT_SHOW_TIME;
+            if (!DateUtils.isToday(entry.timestamp)) {
+                dateFlags |= DateUtils.FORMAT_SHOW_DATE
+                        | DateUtils.FORMAT_NUMERIC_DATE;
+            }
+            time.setText(DateUtils.formatDateTime(this, entry.timestamp,
+                    dateFlags));
+            targetList.addView(row);
+            if (phoneToPc) {
+                phoneToPcCount++;
+            } else {
+                pcToPhoneCount++;
+            }
+        }
+        updateHistorySection(pcToPhoneHistoryList,
+                pcToPhoneHistoryEmpty, clearPcToPhoneHistory,
+                pcToPhoneCount);
+        updateHistorySection(phoneToPcHistoryList,
+                phoneToPcHistoryEmpty, clearPhoneToPcHistory,
+                phoneToPcCount);
+    }
+
+    private void updateHistorySection(LinearLayout list, View empty,
+            Button clearButton, int count) {
+        boolean hasEntries = count > 0;
+        list.setVisibility(hasEntries ? View.VISIBLE : View.GONE);
+        empty.setVisibility(hasEntries ? View.GONE : View.VISIBLE);
+        clearButton.setEnabled(hasEntries);
+    }
+
+    private void clearTransferHistory(String direction) {
+        TransferHistoryStore.clear(this, direction);
+        lastHistoryRevision = Long.MIN_VALUE;
+        renderTransferHistory();
+    }
+
+    private String historyName(TransferHistoryStore.Entry entry) {
+        if (entry.folder && !entry.name.isEmpty()) {
+            return entry.itemCount > 1
+                    ? getString(R.string.recent_transfer_folder_count,
+                    entry.name, entry.itemCount)
+                    : entry.name;
+        }
+        if (entry.itemCount > 1) {
+            return getString(R.string.recent_transfer_files_count,
+                    entry.itemCount);
+        }
+        return entry.name.isEmpty()
+                ? getString(R.string.recent_transfer_file) : entry.name;
+    }
+
+    private int historyStatus(String status) {
+        if (TransferHistoryStore.STATUS_TRANSFERRING.equals(status)) {
+            return R.string.recent_transfer_status_transferring;
+        }
+        if (TransferHistoryStore.STATUS_COMPLETED.equals(status)) {
+            return R.string.recent_transfer_status_completed;
+        }
+        if (TransferHistoryStore.STATUS_FAILED.equals(status)) {
+            return R.string.recent_transfer_status_failed;
+        }
+        if (TransferHistoryStore.STATUS_CANCELED.equals(status)) {
+            return R.string.recent_transfer_status_canceled;
+        }
+        return R.string.recent_transfer_status_queued;
+    }
+
+    private void showHomeMenu(View anchor) {
+        PopupMenu menu = new PopupMenu(this, anchor);
+        menu.getMenu().add(R.string.about_menu_item);
+        menu.setOnMenuItemClickListener(item -> {
+            showAboutDialog();
+            return true;
+        });
+        menu.show();
+    }
+
+    private void showAboutDialog() {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_about);
+        TextView version = dialog.findViewById(R.id.about_version);
+        String versionName = "2.1.0";
+        try {
+            versionName = getPackageManager().getPackageInfo(
+                    getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException ignored) {
+        }
+        version.setText(getString(R.string.about_version_format,
+                versionName));
+        dialog.findViewById(R.id.about_close_button)
+                .setOnClickListener(view -> dialog.dismiss());
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawable(new ColorDrawable(
+                    Color.TRANSPARENT));
+            window.setLayout((int) (getResources().getDisplayMetrics()
+                            .widthPixels * 0.88f),
+                    WindowManager.LayoutParams.WRAP_CONTENT);
         }
     }
 
@@ -665,6 +989,7 @@ public final class MainActivity extends Activity {
     private enum Page {
         HOME,
         QUICK_SETTINGS,
-        FILE_TRANSFER
+        FILE_TRANSFER,
+        SETTINGS
     }
 }

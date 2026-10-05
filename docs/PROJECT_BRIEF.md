@@ -1,4 +1,4 @@
-# Project Brief
+﻿# Project Brief
 
 ## 개요
 
@@ -15,7 +15,7 @@ Windows WinForms 프로그램이다. 연결된 여러 물리 휴대폰마다 DeX
 - .NET Framework 4.6.2
 - 외부 NuGet 패키지 없음
 - 번들 Scrcpy 4.1
-- 번들 선택형 Android companion: `DXDisplayCleanup` (Java 17, min SDK 24,
+- 번들 선택형 Android companion: `DXDisplayCleanup` (Java 17, min SDK 33,
   compile/target SDK 36)
 - 지원 목표: 64비트 Windows 7 SP1부터 Windows 11(32비트 Windows 제외)
 - 현재 휴대폰 확인 기준: Android 16 / One UI 8.x의 DeX 지원 Galaxy 기기
@@ -37,7 +37,7 @@ GitHub 메인 README와 별도로 HTML이 없는 `docs\PACKAGE_README.md`를 배
 - 슬롯별 해상도, DPI, 비트레이트, FPS, 앱과 옵션 저장
 - Android 패키지별 단일창 프로필 저장·자동 적용·삭제
 - 앱 목록, 표시 이름/패키지 저장, 자동 실행
-- 성공적으로 자동 실행한 앱의 공통 최근 목록 보존
+- 성공적으로 자동 실행한 앱의 기기별 최근 목록 보존
 - Scrcpy 4.0 이상 `--flex-display`
 - Scrcpy 3.3.4/4.x 실행 옵션 자동 호환
 - USB 및 TCP/IP 무선 ADB, IP 자동 감지, Android 11 페어링
@@ -72,28 +72,34 @@ GitHub 메인 README와 별도로 HTML이 없는 `docs\PACKAGE_README.md`를 배
 - 휴대폰의 공유 메뉴와 Companion 폴더 선택으로 파일·폴더를 PC에 전송
 - 선택 기기별 DX Companion 설치·업데이트·재설치·권한 부여·삭제
 
-`DXDisplayCleanup` 프로젝트의 공개 이름은 **DX Companion 2.0.0**이다.
+`DXDisplayCleanup` 프로젝트의 현재 portable Companion은 **DX Companion 2.1.4**다
+(versionCode `11`, Android 13 이상).
 휴대폰에 남은 `overlay_display_devices`를 제거하고 개발자 옵션의 절전모드
 해제를 끄는 제한된 복구 도구다. 앱 본체의 개별·동시 정리, 빠른 설정 타일과
-2 × 1 홈 위젯, 휴대폰에서 PC로 파일·폴더 전송을 제공한다. 네트워크는 인증된
-로컬 연결에만 사용하며 분석 수집·클라우드 전송·임의 shell 기능은 포함하지
-않는다. 서명된 APK는 공개 ZIP의 `tools\companion`에
+2 × 1 홈 위젯, 휴대폰에서 PC로 파일·폴더 전송과 전송 이력을 제공한다.
+포터블판은 사용자 승인으로 대기 전송 종료 수정이 반영된 새 공식 서명 APK를 번들링한다. 네트워크는 인증된 로컬 연결에만 사용하고 분석 수집·클라우드 전송·
+임의 shell 기능은 포함하지 않는다. 서명된 APK는 공개 ZIP의 `tools\companion`에
 포함하지만 자동 설치하지 않는다. DX Manager는 설치 전 APK 해시·공식 서명,
 설치 후 package·버전·서명과 권한을 검증한다.
 
 ## 현재 상태
 
-v2.0.1은 첫 물리 휴대폰 identity가 확정된 뒤에도 DeX 화면에 공통 기본값이
-남아 있던 UI 동기화 회귀를 수정한 GitHub 업로드 후보이다. DX Companion은
-변경 없이 2.0.0(versionCode 6)을 유지한다.
+현재 포터블 최종 준비 버전은 **2.5.0**이다. 로컬 v2.0.1 태그 2a4aff2에서 분기한
+feature/portable-backport-v2.0.1-20260928에서 작업했고 Store 제품 개발선은 분리했다.
+Windows7 SP1~11 x64/.NET4.6.2 호환 UI와 Fluent Regular31종, 도움말·기기별
+연결/전송/설정 보강을 포함한다. Companion은 공식 서명2.1.4/versionCode11/minSdk33이다.
+사용자가 실기 검증 후 잘 작동한다고 보고했고 최종본/2.5.0 및 로컬 커밋을 요청했다.
+이 보고를 모든 OS/희귀 오류를 독립 재현한 것으로 확대하지 않는다. Windows Release62개,
+Android20개와 UI/연결 프리뷰 검증 기록이 있다. 매 실행 동의창 검토 설정은 해제하고
+기존 최초 동의 기록을 존중한다. GitHub 업로드는 바이러스 검사 후 사용자의 별도 지시를 기다린다.
 
-v2.0.0과 DX Companion 2.0.0을 공개 배포했다. Windows 11에서
-휴대폰 두 대의 USB·무선 조합, 독립 DeX·단일창, 설정, Companion과 양방향
-전송을 확인했다. 64비트 Windows 7 SP1/.NET 4.6.2에서는 USB 복수 기기와
-핵심 기능을 확인했다. 공개 v2.0.0은 물리 기기별 런타임·설정·연결 정책과
-Companion 2.0.0 종료 보호를 포함한다. 설정의 진단 페이지에는 현재 선택된
-휴대폰의 Android·SDK·One UI·보안 패치와 연결 방식을 표시하고, 민감 정보를
-가린 진단 보고서를 텍스트 파일로 저장하는 기능도 포함한다.
+공개 v2.0.0과 DX Companion 2.0.0의 기존 실기 검증·릴리스 기록은 과거
+기준점이다. Windows 11에서 휴대폰 두 대의 USB·무선 조합, 독립 DeX·단일창,
+설정, Companion과 양방향 전송을 확인했고, 64비트 Windows 7 SP1/.NET 4.6.2에서
+USB 복수 기기와 핵심 기능을 확인했다. 공개 v2.0.0은 물리 기기별 런타임·설정·
+연결 정책과 Companion 2.0.0 종료 보호를 포함했다. 설정의 진단 페이지에는 현재
+선택된 휴대폰의 Android·SDK·One UI·보안 패치와 연결 방식을 표시하고, 민감
+정보를 가린 진단 보고서를 텍스트 파일로 저장하는 기능도 포함했다.
 
 휴대폰의 현재 정상 동작 확인 기준은 Android 16 / One UI 8.x다. One UI 7.x
 이하에서는 원활한 동작을 확인하지 못했으며 검은 DeX 창이 나타날 수 있다.

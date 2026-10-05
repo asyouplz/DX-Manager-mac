@@ -88,7 +88,9 @@ namespace DexManager.Forms
                         ApplyThemeSelection,
                         ApplyGeneralSettingsChanges,
                         DetachSelectedPhoneTransferAsync,
-                        ConfigurePhoneTransferReceiver);
+                        ConfigurePhoneTransferReceiver,
+                        SetHotkeyEditorActive,
+                        delegate { return new EnvironmentCheckService(_adbService, _scrcpyService, _pathService, _logService, _settingsService, _settings, delegate { return _settingsForm == null ? GetSelectedDeviceSerial() : _settingsForm.GetSettingsSelectedSerial(); }).Run(); });
                     _settingsForm.FormClosed += delegate { _settingsForm = null; };
                 }
                 if (!_settingsForm.Visible) _settingsForm.Show();
@@ -98,8 +100,20 @@ namespace DexManager.Forms
             });
         }
 
+        private void SetHotkeyEditorActive(bool active)
+        {
+            if (_exitInProgress || IsDisposed || !_interactiveServicesStarted) return;
+            if (active) _captureCoordinator.Stop();
+            else
+            {
+                try { _captureCoordinator.Start(); }
+                catch (Exception ex) { _logService.Error("Could not resume capture hotkeys.", ex); }
+            }
+        }
         private void ApplyGeneralSettingsChanges(bool defaultsRestored)
         {
+            if (_lastAutoStartEnabled && !_settings.Features.AutoStartDexOnDeviceConnected) System.Threading.Interlocked.Increment(ref _autoStartSettingsGeneration);
+            _lastAutoStartEnabled = _settings.Features.AutoStartDexOnDeviceConnected;
             if (defaultsRestored)
             {
                 LoadRunSettings();
@@ -203,6 +217,7 @@ namespace DexManager.Forms
 
         private void HideApplicationForIdle()
         {
+            if (_helpForm != null && !_helpForm.IsDisposed) _helpForm.Hide();
             if (_logForm != null && !_logForm.IsDisposed) _logForm.Hide();
             if (_settingsForm != null && !_settingsForm.IsDisposed) _settingsForm.Hide();
             if (_environmentCheckForm != null && !_environmentCheckForm.IsDisposed) _environmentCheckForm.Hide();

@@ -1,7 +1,9 @@
-param(
+﻿param(
     [string]$Version = "",
     [switch]$SkipBuild,
-    [string]$TargetFrameworkRootPath = ""
+    [string]$TargetFrameworkRootPath = "",
+    [string]$OutputRoot = "",
+    [ValidateNotNullOrEmpty()][string]$PackageDirectoryName = "DX Manager"
 )
 
 $ErrorActionPreference = "Stop"
@@ -9,12 +11,18 @@ $ErrorActionPreference = "Stop"
 $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
 $solutionPath = Join-Path $repoRoot "DexManager.sln"
 $releaseRoot = Join-Path $repoRoot "DexManager\bin\Release"
-$distRoot = Join-Path $repoRoot "dist"
-$packageRoot = Join-Path $distRoot "DX Manager"
+$distRoot = if ([string]::IsNullOrWhiteSpace($OutputRoot)) {
+    Join-Path $repoRoot "dist"
+} else { [IO.Path]::GetFullPath($OutputRoot) }
+if ($PackageDirectoryName.IndexOfAny([IO.Path]::GetInvalidFileNameChars()) -ge 0) {
+    throw "The package directory must be a single valid folder name."
+}
+$packageRoot = Join-Path $distRoot $PackageDirectoryName
 $companionApkSource = Join-Path $repoRoot `
-    "DXDisplayCleanup\app\build\outputs\apk\release\app-release.apk"
+    "DXDisplayCleanup\bundled\DX-Companion-v2.1.4.apk"
 $companionApkSha256 = `
-    "7CD40017789E22440DCA0291AB0C45ADB564A19D8A623E669F373395536B880F"
+    "95DAF4E734FD36FE07AD8388FE8E4C98D96D1EFA0A8E359D8C8E3E27383B6536"
+$companionFontLicense = Join-Path $repoRoot "DXDisplayCleanup\Pretendard-LICENSE.txt"
 
 function Assert-ChildPath([string]$Parent, [string]$Child) {
     $parentPath = [IO.Path]::GetFullPath($Parent).TrimEnd('\') + '\'
@@ -80,20 +88,8 @@ if ($releaseAdbProcesses -and (Test-Path -LiteralPath $releaseAdbPath)) {
     }
 }
 
-foreach ($runtimeDirectory in @(
-    (Join-Path $repoRoot "DexManager\bin\Debug\logs"),
-    (Join-Path $repoRoot "DexManager\bin\Debug\screenshot"),
-    (Join-Path $repoRoot "DexManager\bin\Debug\screenshots"),
-    (Join-Path $repoRoot "DexManager\bin\Release\logs"),
-    (Join-Path $repoRoot "DexManager\bin\Release\screenshot"),
-    (Join-Path $repoRoot "DexManager\bin\Release\screenshots")
-)) {
-    Assert-ChildPath $repoRoot $runtimeDirectory
-    if (Test-Path -LiteralPath $runtimeDirectory) {
-        Get-ChildItem -LiteralPath $runtimeDirectory -File -Recurse |
-            Remove-Item -Force
-    }
-}
+# Preserve user logs/captures in development outputs. Only the explicit release
+# payload below is copied; private configuration and runtime data are excluded.
 
 if (!$SkipBuild) {
     $msbuild = Find-MSBuild
@@ -164,7 +160,9 @@ $requiredFiles = @(
     "licenses\MinGW-w64-winpthreads-LICENSE.txt",
     "licenses\SDL3-LICENSE.txt",
     "licenses\zlib-LICENSE.txt",
-    "licenses\dav1d-LICENSE.txt"
+    "licenses\dav1d-LICENSE.txt",
+    "licenses\Fluent-System-Icons-LICENSE.txt",
+    "licenses\Pretendard-LICENSE.txt"
 )
 foreach ($item in $requiredFiles) {
     $path = Join-Path $releaseRoot $item
@@ -183,9 +181,12 @@ if (![string]::Equals(
     $actualCompanionHash,
     $companionApkSha256,
     [StringComparison]::OrdinalIgnoreCase)) {
-    throw "The signed DX Companion APK hash does not match the verified 2.0.0 build."
+    throw "The signed DX Companion APK hash does not match the verified 2.1.4 APK."
 }
 
+if (!(Test-Path -LiteralPath $companionFontLicense -PathType Leaf)) {
+    throw "The Companion font license is missing."
+}
 if ([string]::IsNullOrWhiteSpace($Version)) {
     $assemblyInfo = Get-Content -LiteralPath (Join-Path $repoRoot "DexManager\Properties\AssemblyInfo.cs")
     $versionLine = $assemblyInfo | Where-Object {
@@ -227,6 +228,9 @@ New-Item -ItemType Directory -Path $packageCompanionDirectory -Force |
     Out-Null
 Copy-Item -LiteralPath $companionApkSource `
     -Destination (Join-Path $packageCompanionDirectory "DX-Companion.apk")
+
+# Include the license for the font embedded in the unchanged Companion APK.
+Copy-Item -LiteralPath $companionFontLicense -Destination $packageCompanionDirectory
 
 # Release builds create a PDB for the managed ADB helper under tools. Keep
 # debugging symbols out of the public portable package.

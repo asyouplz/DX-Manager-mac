@@ -36,7 +36,6 @@ namespace DexManager.Forms
                     "Main.StopDex");
                 _flexDisplayBox.Visible = false;
                 _flexDisplayBox.Enabled = false;
-                _stayAwakeBox.Top = 84;
                 LayoutStartAppControls(false);
                 SetAppProfileControlsVisible(false);
             }
@@ -55,11 +54,11 @@ namespace DexManager.Forms
                     "Main.StopSingle");
                 _flexDisplayBox.Visible = true;
                 _flexDisplayBox.Enabled = true;
-                _stayAwakeBox.Top = 119;
                 LayoutStartAppControls(true);
                 SetAppProfileControlsVisible(true);
             }
             LoadRunSettings();
+            LayoutDesktopContent();
             UpdateRunningState();
         }
 
@@ -104,7 +103,7 @@ namespace DexManager.Forms
         private bool IsCustomResolutionSelected()
         {
             var preset = _resolutionBox.SelectedItem as ResolutionPreset;
-            return preset == null || preset.Width == 0;
+            return preset == null || !AppSettings.IsPresetResolution(preset.Width,preset.Height);
         }
 
         private int GetCurrentCustomWidth()
@@ -244,7 +243,7 @@ namespace DexManager.Forms
             var settings = GetSingleWindowSettings(slot);
             SetConnectionIndicator(
                 _theme.Accent,
-                LocalizationService.Format("Main.SingleReady", slot),
+                LocalizationService.Format(IsSingleWindowAppMissing(slot)?"Main.SingleWaiting":"Main.SingleReady", slot),
                 string.IsNullOrWhiteSpace(settings.StartAppPackage)
                     ? LocalizationService.Get("Main.SelectApp")
                     : LocalizationService.Get("Main.PressStart"));

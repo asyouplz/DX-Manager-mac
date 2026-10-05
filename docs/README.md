@@ -14,6 +14,8 @@
 - `DECISIONS.md`: 현재 구조를 선택한 이유
 - `KNOWN_ISSUES.md`: 알려진 제약
 - `TODO.md`: 남은 작업
+- `STORE_UI_BACKPORT_2026-10-01.md`: Store UI 원본 대조·연결·검증 기록
+- `PORTABLE_BACKPORT_AUDIT_2026-09-30.md`: 이번 포터블 역이식 변경분 감사와 검증 한계
 - `SESSION.md`: 다음 채팅을 위한 현재 상태
 - `AI_WORKFLOW.md`: Codex 작업 및 Git 규칙
 - `CHANGELOG.md`: 사용자 관점의 큰 이정표
@@ -27,3 +29,11 @@
 `docs/USER_GUIDE_EN.md`, `docs/USER_GUIDE_KO.md`를 사용한다. 자주 묻는
 질문은 독립 문서인 `docs/FAQ_EN.md`, `docs/FAQ_KO.md`에서 관리하고 각
 사용 설명서와 README에서 링크한다.
+
+## 2026-10-05 Store 후속 업데이트 인계
+
+- [STORE_UPDATE_HANDOFF_2026-10-05.md](STORE_UPDATE_HANDOFF_2026-10-05.md): Companion2.1.4·Fluent 아이콘/마우스·미니바 연결 표시, 최종 실행 정책과 Store 적용 위치·검증 체크리스트.
+
+## v2.5.0 최종본
+
+- [RELEASE_NOTES_v2.5.0.md](RELEASE_NOTES_v2.5.0.md): 사용자 검증 완료를 바탕으로 준비한2.5.0의 변경·번들·검증·배포 대기 상태.

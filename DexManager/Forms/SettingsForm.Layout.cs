@@ -16,14 +16,17 @@ namespace DexManager.Forms
     {
         private Control CreatePage()
         {
-            return new FlowLayoutPanel
+            var page = new BufferedFlowPanel
             {
                 AutoScroll = true,
-                BackColor = _theme.WindowBackground,
+                BackColor = Color.Transparent,
                 FlowDirection = FlowDirection.TopDown,
                 WrapContents = false,
-                Padding = new Padding(0, 0, 8, 16)
+                Padding = new Padding(0, 0, 16, 16)
             };
+            ThemedScrollBar.Attach(page);
+            page.ClientSizeChanged += delegate { ResizeStorePageCards(page); };
+            return page;
         }
 
         private Control AddCard(
@@ -53,8 +56,8 @@ namespace DexManager.Forms
                     0,
                     CardContentBottom),
                 Margin = new Padding(0, 0, 0, 14),
-                Radius = 14,
-                BackColor = _theme.WindowBackground,
+                Radius = 18,
+                BackColor = Color.Transparent,
                 FillColor = _theme.CardBackground,
                 BorderColor = _theme.CardBorder
             };

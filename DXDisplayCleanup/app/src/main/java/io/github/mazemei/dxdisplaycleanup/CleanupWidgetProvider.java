@@ -34,6 +34,8 @@ public final class CleanupWidgetProvider extends AppWidgetProvider {
             updateAll(context);
         } else if (ACTION_REFRESH.equals(action)) {
             updateAll(context);
+        } else if (Intent.ACTION_CONFIGURATION_CHANGED.equals(action)) {
+            updateAll(context);
         }
     }
 

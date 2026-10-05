@@ -1,4 +1,4 @@
-<p align="center">
+﻿<p align="center">
   <img src="DexManager/Resources/DXManager_256.png" width="112" alt="DX Manager icon">
 </p>
 
@@ -19,7 +19,7 @@
   <a href="docs/USER_GUIDE_KO.md">한국어 사용 설명서</a> ·
   <a href="docs/FAQ_EN.md">FAQ</a> ·
   <a href="docs/FAQ_KO.md">Q&amp;A</a> ·
-  <a href="docs/RELEASE_NOTES_v2.0.1.md">v2.0.1 release notes</a> ·
+  <a href="docs/RELEASE_NOTES_v2.5.0.md">v2.5.0 release notes</a> ·
   <a href="DexManager/licenses/THIRD_PARTY_NOTICES.md">Third-party notices</a>
 </p>
 
@@ -251,18 +251,19 @@ DeX mode settings are not affected.
 
 ## Device Diagnostics and Optional DX Companion
 
-In **Settings > Diagnostics**, DX Manager shows the currently selected phone's
-model, Android version, SDK level, One UI version, security patch, transport,
+In **Settings > Diagnostics**, DX Manager shows every connected phone's
+name, model, Android version, SDK level, One UI version, security patch, transport,
 and an informational compatibility assessment. **Save diagnostic report**
 creates a privacy-redacted text report containing the environment, selected
 device state, connected-device summary, and recent warnings/errors.
 
-The signed **DX Companion 2.0.0** APK is included as an external file under
+The signed **DX Companion 2.1.2** APK is included as an external file under
 `tools\companion`, but it is never installed automatically. In **Settings >
 Diagnostics > DX Companion**, the user can install, update, reinstall, grant
 the required permission, or uninstall it on the currently selected phone.
 
-DX Manager verifies the exact bundled APK hash and official signing certificate
+The bundled Companion requires Android 13 or newer. DX Manager verifies the
+exact bundled APK hash and official signing certificate
 before installation. It then verifies the installed package ID, version and
 certificate before granting `WRITE_SECURE_SETTINGS`. A copied APK cannot obtain
 this protected permission by itself. Uninstall first stops that phone's file
@@ -578,17 +579,18 @@ Windows 환경에서 비ASCII 파일명을 보존하지 못할 수 있습니다.
 
 ## 기기 진단과 선택형 DX Companion
 
-**설정 > 진단**에는 현재 선택된 휴대폰의 모델, Android 버전, SDK 수준, One UI,
+**설정 > 진단**에는 연결된 모든 휴대폰의 이름, 모델, Android 버전, SDK 수준, One UI,
 보안 패치, 연결 방식과 참고용 호환성 판정이 표시됩니다. **진단 보고서 저장**은
 환경·선택 기기 상태·연결 기기 요약·최근 경고와 오류를 개인정보를 가린 텍스트
 파일로 저장합니다.
 
-서명된 **DX Companion 2.0.0** APK는 공개 ZIP의 `tools\companion`에 외부 파일
+서명된 **DX Companion 2.1.2** APK는 공개 ZIP의 `tools\companion`에 외부 파일
 형태로 포함되지만 자동으로 설치되지 않습니다. **설정 > 진단 > DX Companion**에서
 사용자가 현재 선택된 휴대폰에 설치·업데이트·재설치하거나 권한을 부여하고 삭제할
 수 있습니다.
 
-DX Manager는 설치 전 정확한 번들 APK 해시와 공식 서명을 확인합니다. 설치 후에도
+번들 Companion은 Android 13 이상이 필요합니다. DX Manager는 설치 전 정확한 번들
+APK 해시와 공식 서명을 확인합니다. 설치 후에도
 패키지명·버전·서명을 확인한 경우에만 `WRITE_SECURE_SETTINGS` 권한을 부여합니다.
 APK만 다른 휴대폰으로 복사해 설치해도 이 보호 권한은 저절로 생기지 않습니다.
 삭제할 때는 해당 휴대폰의 파일 수신과 ADB reverse 연결부터 정리합니다.

@@ -21,6 +21,8 @@ namespace DexManager.Models
             get;
             set;
         }
+        [DataMember(Order = 7)]
+        public List<RememberedAppSettings> RememberedApps { get; set; }
 
         public static DeviceRunSettingsProfile Create(
             string deviceIdentity,
@@ -40,7 +42,8 @@ namespace DexManager.Models
                 SingleWindowSlots = AppSettings.CloneSingleWindowSlots(
                     slots),
                 SingleWindowAppProfiles =
-                    AppSettings.CloneSingleWindowAppProfiles(appProfiles)
+                    AppSettings.CloneSingleWindowAppProfiles(appProfiles),
+                RememberedApps = new List<RememberedAppSettings>()
             };
         }
 
@@ -67,6 +70,13 @@ namespace DexManager.Models
     {
         [DataMember(Order = 1)] public string Name { get; set; }
         [DataMember(Order = 2)] public string PackageName { get; set; }
+    }
+
+    [DataContract]
+    public sealed class RecentCustomResolutionSettings
+    {
+        [DataMember(Order = 1)] public int Width { get; set; }
+        [DataMember(Order = 2)] public int Height { get; set; }
     }
 
     [DataContract]

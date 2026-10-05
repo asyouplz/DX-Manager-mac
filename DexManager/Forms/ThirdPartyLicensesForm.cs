@@ -122,6 +122,7 @@ namespace DexManager.Forms
                 TabStop = false
             };
             _contentCard.Controls.Add(_contentBox);
+            ThemedScrollBar.Attach(_contentBox);
             _contentCard.Controls.Add(_tabPanel);
             _contentHost.Controls.Add(_contentCard);
 

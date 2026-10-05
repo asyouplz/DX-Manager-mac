@@ -14,10 +14,10 @@ android {
 
     defaultConfig {
         applicationId "io.github.mazemei.dxdisplaycleanup"
-        minSdk 24
+        minSdk 33
         targetSdk 36
-        versionCode 6
-        versionName "2.0.0"
+        versionCode 11
+        versionName "2.1.4"
     }
 
     signingConfigs {

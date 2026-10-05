@@ -85,9 +85,17 @@ final class PhoneTransferPlanner {
         }
 
         List<DocumentChild> children = listChildren(context, uri, info.documentId);
+        List<String> names = new ArrayList<>();
+        List<Boolean> directories = new ArrayList<>();
         for (DocumentChild child : children) {
+            names.add(child.info.name);
+            directories.add(child.info.directory);
+        }
+        List<String> segments = TransferSiblingNames.allocate(names, directories);
+        for (int index = 0; index < children.size(); index++) {
+            DocumentChild child = children.get(index);
             add(context, child.uri, child.info, rootId,
-                    relativePath + "/" + sanitizeSegment(child.info.name),
+                    relativePath + "/" + segments.get(index),
                     entries, visited, depth + 1);
         }
     }
@@ -217,12 +225,7 @@ final class PhoneTransferPlanner {
     }
 
     private static String sanitizeSegment(String value) {
-        String result = value == null ? "unnamed" : value.trim()
-                .replace('/', '_').replace('\\', '_');
-        if (result.isEmpty() || ".".equals(result) || "..".equals(result)) {
-            return "unnamed";
-        }
-        return result;
+        return TransferSiblingNames.sanitize(value);
     }
 
     private static String fallbackName(Uri uri, String value) {

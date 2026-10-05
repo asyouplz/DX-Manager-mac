@@ -69,6 +69,15 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".TransferHistoryReceiver"
+            android:exported="true"
+            android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="io.github.mazemei.dxdisplaycleanup.RECORD_TRANSFER_HISTORY" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".CleanupTileService"
             android:exported="true"
@@ -88,6 +97,7 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.CONFIGURATION_CHANGED" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

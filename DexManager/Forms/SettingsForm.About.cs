@@ -124,7 +124,7 @@ namespace DexManager.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                DesktopDialogs.Show(
                     string.Format(
                         LocalizationService.Get("Settings.OpenProjectFailed"),
                         ex.Message),

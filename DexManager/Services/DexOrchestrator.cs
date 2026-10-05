@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -88,6 +88,19 @@ namespace DexManager.Services
             return Task.Run(delegate
             {
                 lock (_operationGate) StopCore();
+            });
+        }
+
+        public Task StopForSerialAsync(string serial)
+        {
+            return Task.Run(delegate
+            {
+                lock (_operationGate)
+                {
+                    var captured = _currentSession == null ? _scrcpyService.RunningSerial : _currentSession.Serial;
+                    if (!string.IsNullOrWhiteSpace(serial) && string.Equals(
+                        captured, serial, StringComparison.OrdinalIgnoreCase)) StopCore();
+                }
             });
         }
 

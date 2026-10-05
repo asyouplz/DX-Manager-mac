@@ -39,8 +39,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
+    <Compile Include="..\DexManager\Models\DeviceAppCatalog.cs"><Link>Models\DeviceAppCatalog.cs</Link></Compile>
+    <Compile Include="..\DexManager\Models\ScrcpyAppInfo.cs"><Link>Models\ScrcpyAppInfo.cs</Link></Compile>
     <Compile Include="..\DexManager\Models\AdbDeviceInfo.cs">
       <Link>Models\AdbDeviceInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\DexManager\Models\AdbMdnsServiceRecord.cs">
+      <Link>Models\AdbMdnsServiceRecord.cs</Link>
     </Compile>
     <Compile Include="..\DexManager\Models\AppSettings.cs">
       <Link>Models\AppSettings.cs</Link>
@@ -87,11 +92,20 @@
     <Compile Include="..\DexManager\Services\AdbCommandBuilder.cs">
       <Link>Services\AdbCommandBuilder.cs</Link>
     </Compile>
+    <Compile Include="..\DexManager\Services\AdbMdnsOutputParser.cs">
+      <Link>Services\AdbMdnsOutputParser.cs</Link>
+    </Compile>
     <Compile Include="..\DexManager\Services\BundledProcessCleanupService.cs">
       <Link>Services\BundledProcessCleanupService.cs</Link>
     </Compile>
     <Compile Include="..\DexManager\Services\CompanionGuardianProtocol.cs">
       <Link>Services\CompanionGuardianProtocol.cs</Link>
+    </Compile>
+    <Compile Include="..\DexManager\Services\DiagnosticDeviceTargetResolver.cs">
+      <Link>Services\DiagnosticDeviceTargetResolver.cs</Link>
+    </Compile>
+    <Compile Include="..\DexManager\Services\WirelessMdnsResolver.cs">
+      <Link>Services\WirelessMdnsResolver.cs</Link>
     </Compile>
     <Compile Include="..\DexManager\Services\DeviceSerialScope.cs">
       <Link>Services\DeviceSerialScope.cs</Link>
@@ -114,4 +128,5 @@
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup><Compile Include="..\DexManager\Services\PortableOnboardingService.cs"><Link>Services\PortableOnboardingService.cs</Link></Compile></ItemGroup>
 </Project>

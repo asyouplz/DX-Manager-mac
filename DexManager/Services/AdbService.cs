@@ -13,6 +13,7 @@ namespace DexManager.Services
     public sealed class AdbService
     {
         private const int PackageInstallTimeoutMs = 120000;
+        private const int MdnsQueryTimeoutMs = 8000;
         private readonly string _adbPath;
         private readonly int _defaultTimeoutMs;
         private readonly ProcessRunner _processRunner;
@@ -114,6 +115,27 @@ namespace DexManager.Services
         public ProcessResult GetVersion()
         {
             return Run("version");
+        }
+
+        public IList<AdbMdnsServiceRecord> GetMdnsServices(bool writeLog)
+        {
+            return GetMdnsServices(writeLog, MdnsQueryTimeoutMs);
+        }
+
+        public IList<AdbMdnsServiceRecord> GetMdnsServices(
+            bool writeLog,
+            int timeoutMs)
+        {
+            var result = Run(
+                "mdns services",
+                writeLog,
+                Math.Max(1000, timeoutMs));
+            if (result == null || !result.IsSuccess)
+                return new List<AdbMdnsServiceRecord>();
+
+            return AdbMdnsOutputParser.Parse(
+                (result.StandardOutput ?? string.Empty) + "\n" +
+                (result.StandardError ?? string.Empty));
         }
 
         public void LogStartupDiagnostics()
@@ -505,7 +527,7 @@ namespace DexManager.Services
             var normalizedTarget = string.IsNullOrWhiteSpace(targetSerial)
                 ? string.Empty
                 : targetSerial.Trim();
-            if (!IsTcpIpSerial(normalizedTarget))
+            if (!IsWirelessSerial(normalizedTarget))
                 KillServer();
             StartServer();
 
@@ -636,6 +658,20 @@ namespace DexManager.Services
             return int.TryParse(value.Substring(separator + 1), out port) &&
                 port > 0 &&
                 port <= 65535;
+        }
+
+        public static bool IsMdnsConnectSerial(string serial)
+        {
+            if (string.IsNullOrWhiteSpace(serial)) return false;
+            var value = serial.Trim().TrimEnd('.');
+            return value.EndsWith(
+                "._adb-tls-connect._tcp",
+                StringComparison.OrdinalIgnoreCase);
+        }
+
+        public static bool IsWirelessSerial(string serial)
+        {
+            return IsTcpIpSerial(serial) || IsMdnsConnectSerial(serial);
         }
 
         private static bool ContainsAuthorizedDevice(

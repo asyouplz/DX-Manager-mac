@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Log;
@@ -30,8 +32,6 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public final class PhoneTransferService extends Service {
     private static final String TAG = "DXPhoneTransfer";
@@ -40,6 +40,7 @@ public final class PhoneTransferService extends Service {
     private static final String ACTION_CANCEL =
             "io.github.mazemei.dxdisplaycleanup.CANCEL_PC_TRANSFER";
     private static final String EXTRA_URIS = "uris";
+    private static final String EXTRA_HISTORY_ID = "history_id";
     private static final String CHANNEL_ID = "phone_to_pc_transfer";
     private static final int NOTIFICATION_ID = 1301;
     private static final int MAGIC = 0x44584D52;
@@ -48,16 +49,20 @@ public final class PhoneTransferService extends Service {
 
     private final ExecutorService executor =
             Executors.newSingleThreadExecutor();
-    private final AtomicBoolean canceled = new AtomicBoolean();
-    private final AtomicInteger pendingTransfers = new AtomicInteger();
+    private final TransferRequestTracker<Uri> requests = new TransferRequestTracker<>();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private volatile TransferRequestTracker.Request<Uri> currentRequest;
+    private int lastStartId;
     private volatile Socket currentSocket;
     private long lastNotificationAt;
     private int lastNotifiedCompleted = -1;
 
     static boolean start(Context context, ArrayList<Uri> uris) {
+        String historyId = TransferHistoryStore.queuePhoneToPc(context);
         Intent intent = new Intent(context, PhoneTransferService.class)
                 .setAction(ACTION_SEND)
                 .putParcelableArrayListExtra(EXTRA_URIS, uris)
+                .putExtra(EXTRA_HISTORY_ID, historyId)
                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         if (uris != null && !uris.isEmpty()) {
             ClipData clipData = ClipData.newRawUri(
@@ -75,6 +80,8 @@ public final class PhoneTransferService extends Service {
             }
             return true;
         } catch (SecurityException | IllegalStateException ex) {
+            TransferHistoryStore.updatePhoneToPc(context, historyId,
+                    TransferHistoryStore.STATUS_FAILED, null);
             Log.e(TAG, "Could not queue the selected content.", ex);
             return false;
         }
@@ -88,21 +95,38 @@ public final class PhoneTransferService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        lastStartId = startId;
         if (intent != null && ACTION_CANCEL.equals(intent.getAction())) {
             cancelTransfer();
             return START_NOT_STICKY;
         }
         ArrayList<Uri> uris = intent == null ? null :
                 intent.getParcelableArrayListExtra(EXTRA_URIS);
+        String historyId = intent == null ? null :
+                intent.getStringExtra(EXTRA_HISTORY_ID);
         if (uris == null || uris.isEmpty()) {
             stopSelf(startId);
             return START_NOT_STICKY;
         }
 
-        pendingTransfers.incrementAndGet();
-        startForeground(NOTIFICATION_ID, buildNotification(
-                getString(R.string.transfer_preparing), 0, 0, true, false));
-        executor.execute(() -> runTransfer(uris, startId));
+        synchronized (requests) {
+            TransferRequestTracker.Request<Uri> request = requests.register(historyId, uris);
+            if (request == null) {
+                recordHistory(historyId, TransferHistoryStore.STATUS_CANCELED, null);
+                releasePersistedUriPermissions(this, uris);
+                stopSelf();
+                return START_NOT_STICKY;
+            }
+            try {
+                startForeground(NOTIFICATION_ID, buildNotification(
+                        getString(R.string.transfer_preparing), 0, 0, true, false));
+                executor.execute(() -> runTransfer(request));
+            } catch (RuntimeException exception) {
+                Log.e(TAG, "Could not start foreground transfer.", exception);
+                finishTransfer(request, TransferHistoryStore.STATUS_FAILED, null,
+                        getString(R.string.transfer_queue_failed), true);
+            }
+        }
         return START_NOT_STICKY;
     }
 
@@ -113,15 +137,28 @@ public final class PhoneTransferService extends Service {
 
     @Override
     public void onDestroy() {
-        cancelTransfer();
-        executor.shutdownNow();
+        terminateTransfers();
         super.onDestroy();
     }
 
-    private void runTransfer(ArrayList<Uri> uris, int startId) {
+    @Override
+    public void onTimeout(int startId, int foregroundServiceType) {
+        Log.w(TAG, "dataSync foreground-service timeout; canceling transfer.");
+        terminateTransfers();
+        stopForeground(STOP_FOREGROUND_REMOVE);
+        // All dataSync work is over its budget, including newer queued starts.
+        stopSelf();
+    }
+
+    private void runTransfer(TransferRequestTracker.Request<Uri> request) {
         PowerManager.WakeLock wakeLock = null;
+        PhoneTransferPlanner.Plan plan = null;
+        String status = TransferHistoryStore.STATUS_FAILED;
+        String message = getString(R.string.transfer_canceled);
+        boolean failed = true;
         try {
-            canceled.set(false);
+            currentRequest = request;
+            throwIfCanceled();
             lastNotificationAt = 0;
             lastNotifiedCompleted = -1;
             PowerManager powerManager =
@@ -137,35 +174,87 @@ public final class PhoneTransferService extends Service {
                 throw new IOException(getString(
                         R.string.transfer_pc_not_ready));
             }
-            PhoneTransferPlanner.Plan plan =
-                    PhoneTransferPlanner.create(this, uris);
+            plan = PhoneTransferPlanner.create(this, new ArrayList<>(request.uris));
+            synchronized (requests) {
+                throwIfCanceled();
+                recordHistory(request.historyId, TransferHistoryStore.STATUS_TRANSFERRING, plan);
+            }
             send(session, plan);
-            showTerminalNotification(
-                    getString(R.string.transfer_complete), false);
+            status = TransferHistoryStore.STATUS_COMPLETED;
+            message = getString(R.string.transfer_complete);
+            failed = false;
         } catch (Exception exception) {
             Log.e(TAG, "Phone-to-PC transfer failed.", exception);
-            String message = canceled.get()
+            boolean canceled = request.isCanceled() || requests.isStopped();
+            message = canceled
                     ? getString(R.string.transfer_canceled)
                     : getString(R.string.transfer_failed,
                     readableMessage(exception));
-            showTerminalNotification(message, true);
+            status = canceled ? TransferHistoryStore.STATUS_CANCELED
+                    : TransferHistoryStore.STATUS_FAILED;
         } finally {
             if (wakeLock != null && wakeLock.isHeld()) {
                 wakeLock.release();
             }
-            currentSocket = null;
-            if (pendingTransfers.decrementAndGet() <= 0) {
-                pendingTransfers.set(0);
-                stopForeground(false);
-                stopSelfResult(startId);
+            synchronized (requests) {
+                currentSocket = null;
+                finishTransfer(request, status, plan, message, failed);
+                currentRequest = null;
             }
+        }
+    }
+
+    private void finishTransfer(TransferRequestTracker.Request<Uri> request,
+            String status, PhoneTransferPlanner.Plan plan, String message, boolean failed) {
+        synchronized (requests) {
+            TransferRequestTracker.Completion<Uri> completion = requests.complete(request);
+            if (completion == null) return;
+            recordHistory(request.historyId, status, plan);
+            releasePersistedUriPermissions(this, completion.releaseUris);
+            try {
+                if (!requests.isStopped()) showTerminalNotification(message, failed);
+            } finally {
+                if (requests.isEmpty()) {
+                    mainHandler.post(() -> {
+                        synchronized (requests) {
+                            if (requests.isEmpty() && !requests.isStopped()) {
+                                stopForeground(false);
+                                stopSelfResult(lastStartId);
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    private void terminateTransfers() {
+        synchronized (requests) {
+            for (TransferRequestTracker.Completion<Uri> completion : requests.stop()) {
+                recordHistory(completion.request.historyId, TransferHistoryStore.STATUS_CANCELED, null);
+                releasePersistedUriPermissions(this, completion.releaseUris);
+            }
+            closeCurrentSocket();
+        }
+        executor.shutdownNow();
+    }
+
+    private void recordHistory(String historyId, String status, PhoneTransferPlanner.Plan plan) {
+        try {
+            TransferHistoryStore.updatePhoneToPc(this, historyId, status, plan);
+        } catch (RuntimeException exception) {
+            // Optional history must not prevent socket/URI/service cleanup.
+            Log.w(TAG, "Could not record transfer history.", exception);
         }
     }
 
     private void send(TransferSessionStore.Session session,
             PhoneTransferPlanner.Plan plan) throws Exception {
         try (Socket socket = new Socket()) {
-            currentSocket = socket;
+            synchronized (requests) {
+                throwIfCanceled();
+                currentSocket = socket;
+            }
             socket.connect(new InetSocketAddress(
                     InetAddress.getLoopbackAddress(), session.port), 10000);
             socket.setTcpNoDelay(true);
@@ -252,10 +341,13 @@ public final class PhoneTransferService extends Service {
         boolean indeterminate = totalBytes < 0;
         String text = getString(R.string.transfer_progress,
                 completed, total, name);
-        getSystemService(NotificationManager.class).notify(
-                NOTIFICATION_ID,
-                buildNotification(text, maximum, progress,
-                        indeterminate, false));
+        synchronized (requests) {
+            if (requests.isStopped() || currentRequest == null || currentRequest.isFinished()) return;
+            getSystemService(NotificationManager.class).notify(
+                    NOTIFICATION_ID,
+                    buildNotification(text, maximum, progress,
+                            indeterminate, false));
+        }
     }
 
     private void showTerminalNotification(String text, boolean failed) {
@@ -308,7 +400,13 @@ public final class PhoneTransferService extends Service {
     }
 
     private void cancelTransfer() {
-        canceled.set(true);
+        synchronized (requests) {
+            if (currentRequest != null) currentRequest.cancel();
+            closeCurrentSocket();
+        }
+    }
+
+    private void closeCurrentSocket() {
         Socket socket = currentSocket;
         if (socket != null) {
             try {
@@ -319,7 +417,9 @@ public final class PhoneTransferService extends Service {
     }
 
     private void throwIfCanceled() throws IOException {
-        if (canceled.get() || Thread.currentThread().isInterrupted()) {
+        if (requests.isStopped() || currentRequest == null ||
+                currentRequest.isCanceled() || currentRequest.isFinished() ||
+                Thread.currentThread().isInterrupted()) {
             throw new IOException(getString(R.string.transfer_canceled));
         }
     }
@@ -353,5 +453,23 @@ public final class PhoneTransferService extends Service {
         String message = exception.getMessage();
         return message == null || message.trim().isEmpty()
                 ? exception.getClass().getSimpleName() : message;
+    }
+
+    static void releasePersistedUriPermissions(Context context,
+            Iterable<Uri> uris) {
+        if (context == null || uris == null) {
+            return;
+        }
+        for (Uri uri : uris) {
+            if (uri == null) {
+                continue;
+            }
+            try {
+                context.getContentResolver().releasePersistableUriPermission(
+                        uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            } catch (SecurityException ignored) {
+                // The source may have supplied only a one-shot grant.
+            }
+        }
     }
 }

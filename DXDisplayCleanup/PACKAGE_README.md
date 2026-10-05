@@ -1,8 +1,10 @@
-# DX Companion 2.0.0
+﻿# DX Companion 2.1.4
 
 DX Companion is the optional Android companion bundled with DX Manager. It
 provides recovery actions, authenticated Windows-shutdown protection, and
 phone-to-PC file and folder transfer.
+
+This release requires Android 13 or newer.
 
 ## Install and grant permission
 
@@ -35,14 +37,17 @@ Developer options. Uninstalling the app removes its protected permission.
 The app uses local-network permissions only for its authenticated connection
 to DX Manager and does not contain analytics, cloud transfer, or an arbitrary
 shell feature. Verify the official signing fingerprint in `SIGNING.md`.
+The embedded Pretendard font is covered by the included `Pretendard-LICENSE.txt`.
 
 ---
 
-# DX Companion 2.0.0
+# DX Companion 2.1.4
 
 DX Companion은 DX Manager에 포함되는 선택형 Android 보조 앱입니다. 남은
 가상화면·절전모드 해제 복구, 인증된 Windows 종료 보호와 휴대폰에서 PC로
 파일·폴더 전송을 제공합니다.
+
+이 버전은 Android 13 이상이 필요합니다.
 
 ## 설치 및 권한 부여
 
@@ -72,3 +77,7 @@ One UI 공유 메뉴는 폴더를 전달하지 않으므로 폴더는 DX Compani
 로컬 네트워크 권한은 DX Manager와 인증된 연결에만 사용하며 분석 수집, 클라우드
 전송과 임의 shell 기능은 없습니다. 공식 서명 지문은 `SIGNING.md`에서 확인할 수
 있습니다.
+
+## Transfer names (2.1.4)
+
+Sibling names that become equal after trimming edge whitespace or replacing path separators receive unique numbered suffixes before traversal. Existing suffix names, extensions, and renamed folder subtrees remain distinct; spaces before a file extension are preserved. DXMR v1 and Android 13+ support are unchanged. Real document-provider transfer confirmation remains pending.

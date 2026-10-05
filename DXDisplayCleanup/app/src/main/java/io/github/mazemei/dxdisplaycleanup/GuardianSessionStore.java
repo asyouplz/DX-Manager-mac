@@ -14,12 +14,15 @@ final class GuardianSessionStore {
         final int port;
         final String token;
         final String transport;
+        final long connectedAtMillis;
 
-        Session(boolean enabled, int port, String token, String transport) {
+        Session(boolean enabled, int port, String token, String transport,
+                long connectedAtMillis) {
             this.enabled = enabled;
             this.port = port;
             this.token = token == null ? "" : token;
             this.transport = normalizeTransport(transport);
+            this.connectedAtMillis = connectedAtMillis;
         }
 
         boolean isReady() {
@@ -38,6 +41,7 @@ final class GuardianSessionStore {
     private static final String KEY_PORT = "port";
     private static final String KEY_TOKEN = "token";
     private static final String KEY_TRANSPORT = "transport";
+    private static final String KEY_CONNECTED_AT = "connected_at";
 
     private GuardianSessionStore() {
     }
@@ -49,17 +53,35 @@ final class GuardianSessionStore {
                 preferences.getBoolean(KEY_ENABLED, false),
                 preferences.getInt(KEY_PORT, DEFAULT_PORT),
                 preferences.getString(KEY_TOKEN, ""),
-                preferences.getString(KEY_TRANSPORT, TRANSPORT_UNKNOWN));
+                preferences.getString(KEY_TRANSPORT, TRANSPORT_UNKNOWN),
+                preferences.getLong(KEY_CONNECTED_AT, 0L));
     }
 
     static void save(Context context, int port, String token,
                      String transport) {
-        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        SharedPreferences preferences = context.getSharedPreferences(
+                PREFS, Context.MODE_PRIVATE);
+        String normalizedToken = token == null ? "" : token;
+        String normalizedTransport = normalizeTransport(transport);
+        boolean sameSession = preferences.getBoolean(KEY_ENABLED, false)
+                && preferences.getInt(KEY_PORT, DEFAULT_PORT) == port
+                && normalizedToken.equals(
+                preferences.getString(KEY_TOKEN, ""))
+                && normalizedTransport.equals(
+                preferences.getString(KEY_TRANSPORT, TRANSPORT_UNKNOWN));
+        long connectedAtMillis = sameSession
+                ? preferences.getLong(KEY_CONNECTED_AT, 0L)
+                : System.currentTimeMillis();
+        if (connectedAtMillis <= 0L) {
+            connectedAtMillis = System.currentTimeMillis();
+        }
+        preferences
                 .edit()
                 .putBoolean(KEY_ENABLED, true)
                 .putInt(KEY_PORT, port)
-                .putString(KEY_TOKEN, token == null ? "" : token)
-                .putString(KEY_TRANSPORT, normalizeTransport(transport))
+                .putString(KEY_TOKEN, normalizedToken)
+                .putString(KEY_TRANSPORT, normalizedTransport)
+                .putLong(KEY_CONNECTED_AT, connectedAtMillis)
                 .apply();
     }
 

@@ -96,7 +96,7 @@ namespace DexManager.Services
                 _logService.Info(DeviceLogFormatter.ForSerial(
                     serial,
                     "Companion shutdown protection is unavailable. " +
-                    "DX Companion 2.0.0 or later with cleanup permission is required."));
+                    "DX Companion 2.1.2 with cleanup permission is required."));
                 return;
             }
 

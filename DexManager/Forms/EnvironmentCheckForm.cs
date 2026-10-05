@@ -136,6 +136,7 @@ namespace DexManager.Forms
                 ResizeResultRows();
             };
             _resultCard.Controls.Add(_resultPanel);
+            ThemedScrollBar.Attach(_resultPanel);
             _resultCard.Controls.Add(_headerPanel);
             _cardHost.Controls.Add(_resultCard);
 

@@ -56,4 +56,69 @@ final class CleanupCoordinator {
         CleanupPreferences.Targets targets = CleanupPreferences.load(context);
         return cleanup(context, targets.overlay, targets.stayAwake);
     }
+
+    static boolean isCleanupComplete(
+            Snapshot snapshot, boolean overlay, boolean stayAwake) {
+        if (snapshot == null) {
+            return false;
+        }
+        if (overlay && (snapshot.overlay.status
+                != OverlayDisplayRepository.Status.INACTIVE
+                || snapshot.overlay.overlayActive)) {
+            return false;
+        }
+        return !stayAwake || (snapshot.stayAwake.status
+                == StayAwakeRepository.Status.INACTIVE
+                && !snapshot.stayAwake.stayAwakeActive);
+    }
+
+    static boolean isWindowsShutdownCleanupComplete(
+            Snapshot snapshot,
+            boolean removeOverlay,
+            boolean restoreStayAwake,
+            String originalStayAwake) {
+        if (snapshot == null) {
+            return false;
+        }
+        if (removeOverlay && (snapshot.overlay.status
+                != OverlayDisplayRepository.Status.INACTIVE
+                || snapshot.overlay.overlayActive)) {
+            return false;
+        }
+        if (!restoreStayAwake) {
+            return true;
+        }
+        if (snapshot.stayAwake.status
+                == StayAwakeRepository.Status.ERROR
+                || snapshot.stayAwake.status
+                == StayAwakeRepository.Status.PERMISSION_REQUIRED) {
+            return false;
+        }
+        return originalStayAwakeMatches(
+                snapshot.stayAwake.rawValue, originalStayAwake);
+    }
+
+    private static boolean originalStayAwakeMatches(
+            String actual, String expected) {
+        String normalizedActual = normalizeStoredValue(actual);
+        String normalizedExpected = normalizeStoredValue(expected);
+        if (normalizedActual == null || normalizedExpected == null) {
+            return normalizedActual == null && normalizedExpected == null;
+        }
+        try {
+            return Long.parseLong(normalizedActual)
+                    == Long.parseLong(normalizedExpected);
+        } catch (NumberFormatException ignored) {
+            return normalizedActual.equals(normalizedExpected);
+        }
+    }
+
+    private static String normalizeStoredValue(String value) {
+        if (value == null) {
+            return null;
+        }
+        String normalized = value.trim();
+        return normalized.isEmpty() || "null".equalsIgnoreCase(normalized)
+                ? null : normalized;
+    }
 }

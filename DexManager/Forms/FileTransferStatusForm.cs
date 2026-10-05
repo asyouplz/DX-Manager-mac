@@ -28,6 +28,16 @@ namespace DexManager.Forms
         private DateTime _hideAtUtc;
         private bool _cancelRequested;
         private int _animationFrame;
+        public event EventHandler PositionUpdateRequested;
+
+        public string SessionId
+        {
+            get { return _progress == null ? string.Empty : _progress.SessionId; }
+        }
+
+        public int TargetProcessId { get; private set; }
+        public IntPtr TargetWindowHandle { get; private set; }
+        public bool HasResolvedTargetWindow { get; private set; }
 
         public FileTransferStatusForm(
             FileTransferCoordinator coordinator,
@@ -169,6 +179,21 @@ namespace DexManager.Forms
                 progress.Stage == FileTransferStage.Completed ||
                 progress.Stage == FileTransferStage.Failed ||
                 progress.Stage == FileTransferStage.Canceled);
+        }
+
+        public void SetScrcpyTarget(int processId, IntPtr windowHandle)
+        {
+            if (processId != TargetProcessId)
+            {
+                TargetProcessId = processId;
+                TargetWindowHandle = IntPtr.Zero;
+                HasResolvedTargetWindow = false;
+            }
+            if (windowHandle != IntPtr.Zero)
+            {
+                TargetWindowHandle = windowHandle;
+                HasResolvedTargetWindow = true;
+            }
         }
 
         private void ApplyCompactLayout(bool compact)
@@ -344,6 +369,9 @@ namespace DexManager.Forms
 
         private void AnimationTimer_Tick(object sender, EventArgs e)
         {
+            var positionHandler = PositionUpdateRequested;
+            if (Visible && positionHandler != null)
+                positionHandler(this, EventArgs.Empty);
             if (_hideAtUtc != DateTime.MinValue &&
                 DateTime.UtcNow >= _hideAtUtc)
             {

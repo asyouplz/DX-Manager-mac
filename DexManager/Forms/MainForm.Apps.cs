@@ -11,6 +11,116 @@ namespace DexManager.Forms
 {
     public sealed partial class MainForm : Form
     {
+        private readonly DeviceAppCatalog _deviceAppCatalog = new DeviceAppCatalog();
+        private RoundedPanel _appNotice;
+        private Label _appNoticeLabel;
+        private Timer _appNoticeTimer;
+        private DesktopNoticeKind _noticeKind;
+        private bool _missingStartAppNotice;
+        private int _missingStartAppNoticeSlot;
+        private string _missingStartAppNoticeDevice;
+
+        private void RefreshAppItems(string packageName, string appName)
+        {
+            var recent = string.IsNullOrWhiteSpace(_selectedDeviceIdentity)
+                ? new List<RememberedAppSettings>()
+                : GetSelectedDeviceRunSettings().RememberedApps;
+            var items = _deviceAppCatalog.CreateItems(
+                _selectedDeviceIdentity, GetSelectedDeviceSerial(), recent,
+                packageName, appName, NoStartAppText);
+            _startAppBox.SelectedIndex = -1;
+            _startAppBox.Items.Clear();
+            foreach (var item in items) _startAppBox.Items.Add(item);
+            SetSelectedAppPackage(packageName, appName);
+        }
+
+        private void ShowAppsLoadedNotice(int count, string sourceDevice)
+        {
+            ShowDesktopNotice(string.IsNullOrWhiteSpace(sourceDevice) ? LocalizationService.Format("Main.AppsLoaded", count) : LocalizationService.Format("Main.DeviceAppsLoaded", sourceDevice, count), DesktopNoticeKind.Success);
+        }
+        private enum DesktopNoticeKind { Information, Success, Warning, Error }
+        private bool IsSingleWindowAppMissing(int slot)
+        {
+            if(slot<=0)return false;
+            return string.IsNullOrWhiteSpace(slot==_selectedMode ? GetSelectedAppPackage() : GetSingleWindowSettings(slot).StartAppPackage);
+        }
+        private void UpdateStartAppAvailability()
+        {
+            var button=_startButton as ThemedButton;
+            if(button!=null){button.ExecutionBlocked=IsSingleWindowAppMissing(_selectedMode);button.Invalidate();}
+            if(_missingStartAppNotice && _selectedMode==_missingStartAppNoticeSlot && string.Equals(_selectedDeviceIdentity,_missingStartAppNoticeDevice,StringComparison.OrdinalIgnoreCase) && !IsSingleWindowAppMissing(_selectedMode))DismissDesktopNotice();
+        }
+        private void ShowDesktopNotice(string message, DesktopNoticeKind kind)
+        {
+            if (_exitInProgress || IsDisposed || Disposing) return;
+            _noticeKind = kind;
+            _missingStartAppNotice=false;
+            if (_appNotice == null)
+            {
+                _appNoticeLabel = new Label { Dock = DockStyle.Fill,
+                    TextAlign = ContentAlignment.MiddleCenter, TabStop = false };
+                _appNotice = new RoundedPanel { Visible = false,
+                    Padding = new Padding(12, 8, 38, 8), TabStop = false, BackdropSource=_appCard };
+                _appNotice.Controls.Add(_appNoticeLabel);
+                var dismiss = new ThemedButton { Text = "×", Size = new Size(28, 28), TabStop = false, Anchor = AnchorStyles.Top | AnchorStyles.Right, AccessibleName = LocalizationService.Get("Common.Close") };
+                dismiss.Click += delegate { DismissDesktopNotice(); };
+                _appNotice.Controls.Add(dismiss);
+                _appNotice.SizeChanged += delegate { dismiss.Location = new Point(_appNotice.Width - 32, (_appNotice.Height - 28) / 2); dismiss.BringToFront(); };
+                Controls.Add(_appNotice);
+                _appNoticeTimer = new Timer { Interval = 5000 };
+                _appNoticeTimer.Tick += delegate { DismissDesktopNotice(); };
+                Resize += delegate { PositionAppNotice(); };
+                Disposed += delegate { _appNoticeTimer.Dispose(); };
+            }
+            _appNoticeTimer.Stop();
+            _appNoticeLabel.Text = (kind == DesktopNoticeKind.Success ? "✓  " : kind == DesktopNoticeKind.Error ? "×  " : kind == DesktopNoticeKind.Warning ? "⚠  " : "ⓘ  ") + message;
+            _appNoticeLabel.Font = UiFonts.Pixels(14F);
+            ApplyDesktopNoticeTheme();
+            PositionAppNotice();
+            _appNotice.Visible = true;
+            _appNotice.BringToFront();
+            if (kind == DesktopNoticeKind.Information || kind == DesktopNoticeKind.Success) _appNoticeTimer.Start();
+        }
+
+        private void ShowMissingStartAppNotice(int slot)
+        {
+            ShowDesktopNotice(LocalizationService.Get("Error.SingleWindow.AppRequired"),DesktopNoticeKind.Error);
+            _missingStartAppNotice=true;_missingStartAppNoticeSlot=slot;_missingStartAppNoticeDevice=_selectedDeviceIdentity;
+        }
+        private void DismissDesktopNotice()
+        {
+            if(_appNoticeTimer!=null)_appNoticeTimer.Stop();
+            if(_appNotice!=null)_appNotice.Visible=false;
+            _missingStartAppNotice=false;
+        }
+        private void ApplyDesktopNoticeTheme()
+        {
+            if(_appNotice==null)return;
+            _appNoticeLabel.ForeColor = _theme.TextPrimary;
+            _appNoticeLabel.BackColor = Color.Transparent;
+            _appNotice.SurfaceOpacity = 230;
+            _appNotice.FillColor = _noticeKind == DesktopNoticeKind.Error
+                ? (_theme.IsDark ? Color.FromArgb(49,42,55) : Color.FromArgb(255,235,239))
+                : _noticeKind == DesktopNoticeKind.Warning ? (_theme.IsDark ? Color.FromArgb(60,53,42) : Color.FromArgb(255,247,221))
+                : _noticeKind == DesktopNoticeKind.Success ? (_theme.IsDark ? Color.FromArgb(38,57,48) : Color.FromArgb(230,248,234)) : _theme.CardSoft;
+            _appNotice.BorderColor = _noticeKind == DesktopNoticeKind.Error
+                ? (_theme.IsDark ? Color.FromArgb(174,100,119) : Color.FromArgb(226,151,169))
+                : _noticeKind == DesktopNoticeKind.Warning ? Color.FromArgb(177,149,88)
+                : _noticeKind == DesktopNoticeKind.Success ? Color.FromArgb(115,161,126) : _theme.CardBorder;
+        }
+
+        private void PositionAppNotice()
+        {
+            if (_appNotice == null) return;
+            var width = Math.Max(120, Math.Min(ClientSize.Width - 32, DesktopPixels(620)));
+            var textSize = TextRenderer.MeasureText(_appNoticeLabel.Text, Font,
+                new Size(width - 60, 0), TextFormatFlags.WordBreak);
+            width = Math.Max(260, Math.Min(width, TextRenderer.MeasureText(_appNoticeLabel.Text, _appNoticeLabel.Font).Width + 76));
+            _appNotice.Size = new Size(width, Math.Max(48, textSize.Height + 24));
+            _appNotice.Location = new Point(ClientSize.Width - width - DesktopPixels(32),
+                Math.Max(16, ClientSize.Height - _appNotice.Height - DesktopPixels(28)));
+        }
+
         private void SetSelectedAppPackage(
             string packageName,
             string appName)
@@ -61,14 +171,17 @@ namespace DexManager.Forms
             object sender,
             EventArgs e)
         {
+            UpdateStartAppAvailability();
             if (_selectedMode > 0 &&
                 ApplySelectedAppProfileIfAvailable())
             {
+                UpdateRunningState();
                 return;
             }
 
             SaveSelectedAppIdentity();
             UpdateAppProfileControls();
+            UpdateRunningState();
         }
 
         private void SaveSelectedAppIdentity()
@@ -109,11 +222,12 @@ namespace DexManager.Forms
         }
 
         private void RememberStartedApp(
+            string deviceIdentity,
             string packageName,
             string appName)
         {
             packageName = (packageName ?? string.Empty).Trim();
-            if (packageName.Length == 0) return;
+            if (packageName.Length == 0 || string.IsNullOrWhiteSpace(deviceIdentity)) return;
 
             appName = string.IsNullOrWhiteSpace(appName)
                 ? packageName
@@ -123,17 +237,13 @@ namespace DexManager.Forms
                 _settingsService.UpdateAndSave(_settings, delegate(
                     AppSettings candidate)
                 {
-                    if (candidate.RememberedApps == null)
-                    {
-                        candidate.RememberedApps =
-                            new List<RememberedAppSettings>();
-                    }
+                    var rememberedApps = candidate.GetOrCreateDeviceRunSettings(deviceIdentity).RememberedApps;
 
-                    for (var index = candidate.RememberedApps.Count - 1;
+                    for (var index = rememberedApps.Count - 1;
                         index >= 0;
                         index--)
                     {
-                        var remembered = candidate.RememberedApps[index];
+                        var remembered = rememberedApps[index];
                         if (remembered == null ||
                             string.IsNullOrWhiteSpace(
                                 remembered.PackageName) ||
@@ -142,22 +252,21 @@ namespace DexManager.Forms
                                 packageName,
                                 StringComparison.OrdinalIgnoreCase))
                         {
-                            candidate.RememberedApps.RemoveAt(index);
+                            rememberedApps.RemoveAt(index);
                         }
                     }
 
-                    candidate.RememberedApps.Insert(
+                    rememberedApps.Insert(
                         0,
                         new RememberedAppSettings
                         {
                             Name = appName,
                             PackageName = packageName
                         });
-                    while (candidate.RememberedApps.Count >
+                    while (rememberedApps.Count >
                         MaxRememberedApps)
                     {
-                        candidate.RememberedApps.RemoveAt(
-                            candidate.RememberedApps.Count - 1);
+                        rememberedApps.RemoveAt(rememberedApps.Count - 1);
                     }
                 });
             }
@@ -170,48 +279,8 @@ namespace DexManager.Forms
                 return;
             }
 
-            AddRememberedAppItems();
-        }
-
-        private void AddRememberedAppItems()
-        {
-            if (_settings.RememberedApps == null) return;
-
-            foreach (var remembered in _settings.RememberedApps)
-            {
-                if (remembered == null ||
-                    string.IsNullOrWhiteSpace(
-                        remembered.PackageName) ||
-                    ContainsAppPackage(remembered.PackageName))
-                {
-                    continue;
-                }
-
-                _startAppBox.Items.Add(new ScrcpyAppInfo
-                {
-                    Name = string.IsNullOrWhiteSpace(remembered.Name)
-                        ? remembered.PackageName
-                        : remembered.Name,
-                    PackageName = remembered.PackageName
-                });
-            }
-        }
-
-        private bool ContainsAppPackage(string packageName)
-        {
-            foreach (var item in _startAppBox.Items)
-            {
-                var app = item as ScrcpyAppInfo;
-                if (app != null &&
-                    string.Equals(
-                        app.PackageName,
-                        packageName,
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-            return false;
+            if (string.Equals(deviceIdentity, _selectedDeviceIdentity, StringComparison.OrdinalIgnoreCase))
+                RefreshAppItems(GetSelectedAppPackage(), GetSelectedAppName(GetSelectedAppPackage()));
         }
 
         private void AddNoStartAppItem()

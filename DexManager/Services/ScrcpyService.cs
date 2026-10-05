@@ -170,6 +170,7 @@ namespace DexManager.Services
                 's', 'S', 'd', 'e', 'w', 'x'
             };
         private readonly object _syncRoot = new object();
+        private readonly object _processStartSync = new object();
         private readonly string _scrcpyPath;
         private readonly int _processTimeoutMs;
         private readonly ProcessRunner _processRunner;
@@ -225,7 +226,8 @@ namespace DexManager.Services
 
         public void RequestShutdown()
         {
-            Interlocked.Exchange(ref _shutdownRequested, 1);
+            lock (_processStartSync)
+                Interlocked.Exchange(ref _shutdownRequested, 1);
         }
 
         public bool IsRunning
@@ -266,6 +268,38 @@ namespace DexManager.Services
                     {
                         return 0;
                     }
+                }
+            }
+        }
+
+        public bool TryGetWindowTarget(
+            IntPtr windowHandle,
+            out string serial,
+            out int processId)
+        {
+            serial = string.Empty;
+            processId = 0;
+            if (windowHandle == IntPtr.Zero) return false;
+            lock (_syncRoot)
+            {
+                if (_mainWindowHandle != windowHandle ||
+                    !IsProcessRunning(_process) ||
+                    string.IsNullOrWhiteSpace(_targetSerial))
+                {
+                    return false;
+                }
+
+                try
+                {
+                    processId = _process.Id;
+                    serial = _targetSerial;
+                    return processId > 0;
+                }
+                catch (InvalidOperationException)
+                {
+                    serial = string.Empty;
+                    processId = 0;
+                    return false;
                 }
             }
         }
@@ -617,7 +651,19 @@ namespace DexManager.Services
                             arguments));
                     }
 
-                    process.Start();
+                    lock (_processStartSync)
+                    {
+                        if (Interlocked.CompareExchange(
+                                ref _shutdownRequested, 0, 0) != 0 ||
+                            Interlocked.CompareExchange(
+                                ref _disposed, 0, 0) != 0)
+                        {
+                            throw new InvalidOperationException(
+                                LocalizationService.Get(
+                                    "Error.Scrcpy.ShutdownRequested"));
+                        }
+                        process.Start();
+                    }
                     _fileTransferCoordinator.BindProcess(
                         transferSessionId,
                         process.Id);
@@ -718,7 +764,17 @@ namespace DexManager.Services
             {
                 try
                 {
-                    process.Start();
+                    lock (_processStartSync)
+                    {
+                        if (Interlocked.CompareExchange(
+                                ref _shutdownRequested, 0, 0) != 0 ||
+                            Interlocked.CompareExchange(
+                                ref _disposed, 0, 0) != 0)
+                        {
+                            return false;
+                        }
+                        process.Start();
+                    }
                     var waitMilliseconds = Math.Max(delayMs, 500);
                     var stopwatch = Stopwatch.StartNew();
                     while (stopwatch.ElapsedMilliseconds < waitMilliseconds)

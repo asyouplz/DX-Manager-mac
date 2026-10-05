@@ -62,22 +62,34 @@ namespace DexManager.Forms
                 if (e.Progress.Sequence <= _lastFileTransferProgressSequence)
                     return;
                 _lastFileTransferProgressSequence = e.Progress.Sequence;
+                if (_fileTransferStatusForm != null &&
+                    !_fileTransferStatusForm.IsDisposed &&
+                    !string.Equals(
+                        _fileTransferStatusForm.SessionId,
+                        e.Progress.SessionId,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    _fileTransferStatusForm.Dispose();
+                    _fileTransferStatusForm = null;
+                }
                 if (_fileTransferStatusForm == null ||
                     _fileTransferStatusForm.IsDisposed)
                 {
                     _fileTransferStatusForm = new FileTransferStatusForm(
                         coordinator,
                         _settings.Theme);
+                    _fileTransferStatusForm.PositionUpdateRequested +=
+                        FileTransferStatusForm_PositionUpdateRequested;
                 }
                 var shouldShow = !_fileTransferStatusForm.Visible;
                 _fileTransferStatusForm.UpdateProgress(e.Progress);
+                var target = PositionTransferStatusWindow(
+                    _fileTransferStatusForm,
+                    _phoneTransferStatusForm,
+                    coordinator,
+                    e.Progress.SessionId);
                 if (shouldShow)
                 {
-                    var target = PositionTransferStatusWindow(
-                        _fileTransferStatusForm,
-                        _phoneTransferStatusForm,
-                        coordinator.GetWindowHandle(
-                            e.Progress.SessionId));
                     ShowTransferStatusWindow(
                         _fileTransferStatusForm,
                         target);
@@ -448,7 +460,8 @@ namespace DexManager.Forms
             _dexStatusValue.Text = running
                 ? LocalizationService.Get("Status.Running")
                 : LocalizationService.Get("Status.Idle");
-            _startButton.Enabled = !running;
+            UpdateStartAppAvailability();
+            _startButton.Enabled = !running && GetContextTransport(_selectedDeviceContext) != null && GetContextTransport(_selectedDeviceContext).IsAuthorized;
             _stopButton.Enabled = running;
             _startButton.Visible = !running;
             _stopButton.Visible = running;
@@ -484,7 +497,8 @@ namespace DexManager.Forms
             var running = IsSelectedModeRunning();
             _startButton.Visible = !running;
             _stopButton.Visible = running;
-            _startButton.Enabled = !operationRunning && !running;
+            UpdateStartAppAvailability();
+            _startButton.Enabled = !operationRunning && !running && GetContextTransport(_selectedDeviceContext) != null && GetContextTransport(_selectedDeviceContext).IsAuthorized;
             _stopButton.Enabled = !operationRunning && running;
             _applySettingsLink.Enabled = !operationRunning;
             _dexStatusValue.Text = status;
@@ -538,6 +552,7 @@ namespace DexManager.Forms
                 argb == Color.ForestGreen.ToArgb() ||
                 argb == Color.Green.ToArgb() ||
                 argb == Color.DarkGreen.ToArgb();
+            if (_indicatorDot.Complete && !IsSelectedModeRunning()) { status = _selectedMode==0 ? LocalizationService.Get("Main.DexReady") : LocalizationService.Format(IsSingleWindowAppMissing(_selectedMode)?"Main.SingleWaiting":"Main.SingleReady",_selectedMode); _indicatorDot.StatusColor = _theme.Accent; }
             _indicatorStatus.Text = status;
             var device = _lastDeviceState;
             _indicatorDetail.Text =
@@ -557,13 +572,7 @@ namespace DexManager.Forms
                 Color.Firebrick,
                 LocalizationService.Get("Status.Error"),
                 _connectionError);
-            MessageBox.Show(
-                this,
-                message + Environment.NewLine +
-                    Environment.NewLine + exception.Message,
-                LocalizationService.Get("App.Name"),
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Error);
+            ShowDesktopNotice(message + Environment.NewLine + exception.Message, DesktopNoticeKind.Error);
         }
     }
 }

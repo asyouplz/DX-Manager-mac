@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
@@ -128,7 +128,8 @@ namespace DexManager.Forms
                 LocalizationService.Get("Main.DexPreparing"));
             try
             {
-                var serial = GetSelectedDeviceSerial();
+                var serial = GetSelectedLaunchSerial();
+                var appDeviceIdentity = _selectedDeviceIdentity;
                 if (string.IsNullOrWhiteSpace(serial))
                 {
                     throw new InvalidOperationException(
@@ -140,9 +141,18 @@ namespace DexManager.Forms
                     GetSelectedDeviceRunSettings().Scrcpy;
                 if (scrcpySettings.TurnScreenOff)
                     RememberManagedSerial(serial);
-                await _orchestrator.StartAsync(serial);
+                var launchContext = _selectedDeviceContext;
+                if (launchContext != null)
+                {
+                    launchContext.RequireManualStartAfterTransportLoss = false;
+                    launchContext.AutoStartBlockedSerial = string.Empty;
+                    launchContext.PendingSessionStarts++;
+                }
+                try { await _orchestrator.StartAsync(serial); }
+                finally { if (launchContext != null) launchContext.PendingSessionStarts--; }
                 if (_exitInProgress || !_orchestrator.IsRunning) return;
                 RememberStartedApp(
+                    appDeviceIdentity,
                     scrcpySettings.StartAppPackage,
                     scrcpySettings.StartAppName);
                 _modeSettingsDirty[0] = false;
@@ -189,6 +199,12 @@ namespace DexManager.Forms
         private async Task StartSingleWindowAsync(int slot)
         {
             if (_exitInProgress) return;
+            if (IsSingleWindowAppMissing(slot))
+            {
+                ShowMissingStartAppNotice(slot);
+                UpdateStartAppAvailability();
+                return;
+            }
             try { ApplyRunSettings(false); }
             catch (Exception ex)
             {
@@ -212,7 +228,8 @@ namespace DexManager.Forms
             try
             {
                 var settings = GetSingleWindowSettings(slot);
-                var serial = GetSelectedDeviceSerial();
+                var serial = GetSelectedLaunchSerial();
+                var appDeviceIdentity = _selectedDeviceIdentity;
                 if (string.IsNullOrWhiteSpace(serial))
                 {
                     throw new InvalidOperationException(
@@ -222,13 +239,20 @@ namespace DexManager.Forms
                 if (!await WaitForDeviceStartDelayAsync(serial)) return;
                 if (settings.TurnScreenOff)
                     RememberManagedSerial(serial);
-                await Task.Run(delegate
+                var launchContext = _selectedDeviceContext;
+                var service = _singleWindowService;
+                if (launchContext != null)
                 {
-                    _singleWindowService.Start(slot, settings, serial);
-                });
+                    launchContext.RequireManualStartAfterTransportLoss = false;
+                    launchContext.AutoStartBlockedSerial = string.Empty;
+                    launchContext.PendingSessionStarts++;
+                }
+                try { await Task.Run(delegate { service.Start(slot, settings, serial); }); }
+                finally { if (launchContext != null) launchContext.PendingSessionStarts--; }
                 if (_exitInProgress ||
                     !_singleWindowService.IsRunning(slot)) return;
                 RememberStartedApp(
+                    appDeviceIdentity,
                     settings.StartAppPackage,
                     settings.StartAppName);
                 _modeSettingsDirty[slot] = false;
@@ -301,13 +325,13 @@ namespace DexManager.Forms
                     ? (string.IsNullOrWhiteSpace(e.Current.DisplayName)
                         ? LocalizationService.Format(
                             "Main.ConnectedDeviceFallback",
-                            AdbService.IsTcpIpSerial(e.Current.Serial)
+                            AdbService.IsWirelessSerial(e.Current.Serial)
                                 ? "Wi-Fi"
                                 : "USB")
                         : LocalizationService.Format(
                             "Main.ConnectedDevice",
                             e.Current.DisplayName,
-                            AdbService.IsTcpIpSerial(e.Current.Serial)
+                            AdbService.IsWirelessSerial(e.Current.Serial)
                                 ? "Wi-Fi"
                                 : "USB"))
                     : LocalizationService.Get("Main.WaitingPhone");

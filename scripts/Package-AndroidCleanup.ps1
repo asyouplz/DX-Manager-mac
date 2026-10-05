@@ -1,18 +1,16 @@
-param(
-    [switch]$SkipBuild
-)
-
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 
 $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
 $projectRoot = Join-Path $repoRoot "DXDisplayCleanup"
 $distRoot = Join-Path $repoRoot "dist"
 $packageRoot = Join-Path $distRoot "DX Companion"
-$zipPath = Join-Path $distRoot "DX-Companion-v2.0.0.zip"
-$sourceApk = Join-Path $projectRoot "app\build\outputs\apk\release\app-release.apk"
+$zipPath = Join-Path $distRoot "DX-Companion-v2.1.4.zip"
+$sourceApk = Join-Path $projectRoot "bundled\DX-Companion-v2.1.4.apk"
+$fontLicense = Join-Path $projectRoot "Pretendard-LICENSE.txt"
 $expectedPackage = "io.github.mazemei.dxdisplaycleanup"
-$expectedVersionCode = "6"
-$expectedVersionName = "2.0.0"
+$expectedVersionCode = "11"
+$expectedVersionName = "2.1.4"
+$expectedApkSha256 = "95DAF4E734FD36FE07AD8388FE8E4C98D96D1EFA0A8E359D8C8E3E27383B6536"
 $expectedPermissions = @(
     "android.permission.WRITE_SECURE_SETTINGS",
     "android.permission.FOREGROUND_SERVICE",
@@ -36,18 +34,21 @@ function Assert-ChildPath([string]$Parent, [string]$Child) {
     }
 }
 
-if (!$SkipBuild) {
-    & (Join-Path $PSScriptRoot "Build-AndroidCleanup.ps1")
-    if ($LASTEXITCODE -ne 0) {
-        throw "Android build helper failed with exit code $LASTEXITCODE."
-    }
-}
-
 if (!(Test-Path -LiteralPath $sourceApk -PathType Leaf)) {
-    throw "Release APK is missing: $sourceApk"
+    throw "The approved signed DX Companion 2.1.4 APK is missing: $sourceApk"
+}
+$actualApkSha256 = (Get-FileHash -LiteralPath $sourceApk -Algorithm SHA256).Hash
+if (![string]::Equals(
+    $actualApkSha256,
+    $expectedApkSha256,
+    [StringComparison]::OrdinalIgnoreCase)) {
+    throw "The bundled DX Companion APK hash does not match the approved 2.1.4 APK."
 }
 
 $androidHome = $env:ANDROID_HOME
+if (!(Test-Path -LiteralPath $fontLicense -PathType Leaf)) {
+    throw "The Companion font license is missing."
+}
 if (!$androidHome) {
     $androidHome = Join-Path $repoRoot ".build-tools\android\sdk"
 }
@@ -130,11 +131,12 @@ if (Test-Path -LiteralPath $zipPath) {
 }
 New-Item -ItemType Directory -Path $packageRoot -Force | Out-Null
 Copy-Item -LiteralPath $sourceApk `
-    -Destination (Join-Path $packageRoot "DX-Companion-v2.0.0.apk")
+    -Destination (Join-Path $packageRoot "DX-Companion-v2.1.4.apk")
 Copy-Item -LiteralPath (Join-Path $projectRoot "PACKAGE_README.md") `
     -Destination (Join-Path $packageRoot "README.md")
 Copy-Item -LiteralPath (Join-Path $projectRoot "SIGNING.md") `
     -Destination $packageRoot
+Copy-Item -LiteralPath $fontLicense -Destination $packageRoot
 Compress-Archive -LiteralPath $packageRoot -DestinationPath $zipPath `
     -CompressionLevel Optimal
 

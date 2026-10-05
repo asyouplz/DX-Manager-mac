@@ -1,4 +1,108 @@
-# TODO
+﻿# TODO
+
+## 2026-10-01 사용자 UI 오류 수정
+
+- [x] 중앙 배치, 연결 해제 선택기/시작 보호, 폰 이름만 표시.
+- [x] 일반 글자 +2 DIP, USB/Wi-Fi 정렬, 메뉴 위치, 버튼/펼침/고급 입력 배치.
+- [x] 둥근 Region, 패널용 테마 스크롤 및 고급 접기 범위 초기화.
+- [x] 페이지 전환 redraw 묶기, 문서별 스크롤/포터블 본문, 진단 테마/폰 카드.
+- [x] Debug/Release 59/59 및 격리 UI 검사.
+- [ ] 실제 폰의 연결 해제/설정, 체감 깜빡임, 문서 본문과 마우스휠/막대 조작, Win7/DPI 확인.
+
+## 2026-10-01 Store 원본 기준 UI
+
+- [x] 소스의 Pretendard 400/600, DIP 치수 및 색상·카드·컨트롤 재현.
+- [x] 실제 라벨 겹침에 의한 시작 버튼 깨짐, 새로고침 아이콘, 숫자 중심 수정.
+- [x] 설정 전체 49개 카드·펼침 항목, 범위별 저장과 입력 방식·대상 선택 연결.
+- [x] 도움말 카드와 원본 기사·설명서, 오버레이와 첫 실행 확인 이식.
+- [x] Debug/Release 59개 및 명령 없는 UI/저장 검증.
+- [ ] Windows 7·다른 DPI·실제 폰의 새 UI 실기 확인.
+
+## 2026-09-30 승인된 밝음·다크 UI
+
+- [x] Windows 7/.NET 4.6.2 WinForms·GDI+로 승인된 메인·설정 시안 구현.
+- [x] 상단 물리 기기 선택, 분리된 시작 앱 카드, 닫을 수 있는 오른쪽 아래 알림.
+- [x] Companion 별도 메뉴, 기존 저장·권한·진단 동작 보존.
+- [x] 기본 도움말 화면·로그 테마 및 작은 창 스크롤 배치.
+- [x] Release 빌드·회귀 57개 및 명령 없는 UI 렌더링 확인.
+- [ ] Windows 7·다른 DPI와 실제 두 휴대폰의 선택/모드 전환 UI 확인.
+- [x] Store 기준 첫 실행 경고·확인 저장 기능을 별도 onboarding.json으로 이식.
+
+## 2026-09-30 변경분 감사 및 앱 목록 수정
+
+- [x] Store판을 참고해 물리 identity별 앱 목록 캐시·기기 전환 복원·늦은 응답의 원래 기기 저장.
+- [x] 기기별 최근 앱 저장(schema 27), 저장된 시작 앱·프로필 선택 보존.
+- [x] 앱 불러오기 완료 개수 오버레이, 5초 후 숨김과 연속 완료 메시지 교체.
+- [x] 이번 변경·추가 코드 감사: stale 무선 스냅샷, 새 연결 정책 보존,
+  진단 IPv6·이름 마스킹, 진단 카드·비동기 폼 수명, 글꼴 라이선스 보강.
+- [x] Companion 종료 시 실행·대기 요청의 취소·이력·URI grant 정리를 소스에 보강.
+- [x] 사용자 승인으로 Companion 2.1.3/versionCode 10 서명 APK에 반영하고 PC version/hash 검증값 갱신.
+- [x] .NET 4.6.2 x64 Debug/Release·회귀 57개, Android 소스 테스트 13개·lintDebug·assembleDebug 검증.
+- [ ] 수정 후 실제 A/B 휴대폰 목록 전환·완료 개수 메시지·늦은 A 응답의 B 화면 격리 확인.
+- 메이님 실기 확인: Windows 11에서 일반 Release DeX, 파일 전송과 공유 저장소
+  최상위 경로, 캡처 및 휴대폰별 미니바 독립 동작 정상. 취소·긴 이름·종료 경합까지
+  확인된 것으로 확대하지 않는다.
+- 감사 근거와 미완료 항목: `PORTABLE_BACKPORT_AUDIT_2026-09-30.md`.
+
+## 2026-09-29 GitHub 포터블판 역이식
+
+- 기준: 로컬 `v2.0.1` 태그 `2a4aff2`에서 분기한
+  `feature/portable-backport-v2.0.1-20260928`. Store 제품 코드는 별도
+  `store/winui3` 작업 폴더에 둔다.
+- 순서: 포터블에서도 확인한 공통 버그 → 실행 설정·전송 상태 → Android 13+
+  Companion → 다중 기기 진단 → 무선 mDNS·transport → WinForms UI 개편.
+- [x] 공유 저장소 루트 `/sdcard`·`/storage/emulated/0` 전송 대상 보존.
+- [x] 휴대폰→PC 폴더 내부의 Windows 금지문자 치환 충돌과 긴 이름의
+  임시 파일 경로 보강.
+- [x] 미니바 단축키와 전체 창 캡처의 live Scrcpy PID/HWND 소유권 확인.
+- [x] 일반 명령과 관리형 전송 ADB의 종료 후 출력 대기를 유한 시간으로 제한.
+- [x] DeX·단일창·wake-up Scrcpy와 직접 전송 ADB의 시작 시점에 종료 상태를
+  다시 확인하고, 짧은 시작 잠금으로 Windows 종료 요청과 직렬화.
+- [x] 단일창 시작 앱이 이미 선택된 상태로 설정을 불러올 때, 기기·모드 전환과
+  앱 목록 갱신 뒤 저장 앱 프로필을 적용.
+- [x] 사용자 지정 해상도 최근 5개 저장 및 목록 밖 활성 프로필 해상도 임시 표시.
+- [x] PC→휴대폰 상태창의 transfer session PID/HWND를 사용하고 같은 PID에서
+  늦게 생성된 HWND를 찾으며, 표시 중 창 위치를 따라간다.
+- [x] .NET Framework 4.6.2 x64 Debug/Release 빌드와 다중 기기·전송 회귀
+  52개 통과.
+- [ ] Windows 7/11 실제 기기에서 루트 전송, 형제 이름 충돌, 긴 이름,
+  최근 해상도 목록·프로필 복원, 미니바·전송 상태창 위치, Scrcpy 종료 직후 캡처를
+  확인한다.
+- [ ] 취소·종료 중 `Kill()` 뒤에도 직접 전송 ADB가 종료되지 않을 때의
+  유한 대기와 프로세스 추적은 전용 재현·수명주기 검증을 더한 뒤 보강한다.
+  Store 작업방 대조에서는 실기 재현이 없었고, 살아 있는 프로세스가 확인될 때까지
+  단일 FIFO를 막고 임시 파일을 terminal/cleanup 처리하지 말라는 제약을 확인했다.
+- [ ] 실제 Windows 7/11 종료·종료 취소 중 DeX·단일창·관리형 전송의
+  새 프로세스 차단과 기존 세션 정리를 확인한다.
+- [x] DX Companion 기준을 Android 13+ (`minSdk 33`), 2.1.2/versionCode 9로
+  올리고 Store에서 사용한 서명 APK를 그대로 번들링한다.
+- [x] 기존 Store APK의 일반 큐 완료 후 URI 해제와 DXMR v1 계약을 가져온다.
+  다중 대기 요청 종료 보강은 위의 소스 수정·APK 미반영 항목을 따른다.
+- [x] Android 15+ `dataSync` 서비스 제한 callback에서 진행 중 소켓을 닫고
+  전송을 취소한 뒤 foreground service를 종료한다.
+- [x] Store APK의 package·Android API·버전·서명·SHA-256을 검증하고, 복사본을
+  `DXDisplayCleanup/bundled`에 보관하며 PC 런타임 검증값과 두 패키징 스크립트를 갱신한다.
+- [x] Android 소스의 단위 테스트, Debug lint와 Debug APK assemble 검증.
+- [ ] Android 13/15+ 실제 기기에서 파일·폴더 전송의 성공·실패·취소와 FGS
+  timeout 정리를 확인한다.
+- [x] 포터블 PC→휴대폰 완료·실패·취소를 선택 serial로 ADB broadcast하고,
+  기존 Store APK의 `RECORD_TRANSFER_HISTORY`에 기록한다. 소켓 프로토콜은 유지한다.
+- [x] 진단 화면을 선택 기기 하나에서 연결된 모든 기기로 확장하고, 기기별
+  현재 runtime serial만 조회한다. 보고서에 모든 기기의 Android/One UI 정보를 포함하며
+  기기 이름·identity·serial·IP·경로 마스킹 회귀 테스트를 추가한다.
+- [x] 앱 목록 응답이 도착하기 전에 선택 기기가 바뀌면 이전 기기의 결과를 버리고,
+  같은 물리 기기의 USB/Wi-Fi transport 전환은 허용한다.
+- [ ] 두 휴대폰에서 A의 앱 목록을 늦게 받은 뒤 B로 전환해도 B의 목록·시작 앱·프로필이
+  바뀌지 않는지 실기에서 확인한다.
+- [x] Companion Android 소스를 Store 2.1.2의 로컬 전송 이력, 연결 경과시간,
+  Light/Dark 화면·위젯과 Guardian cleanup 재시도 동작에 맞춘다. 배포 APK는 기존 검증 바이너리다.
+- [x] Android 문서 제공자의 trim·slash 치환 후 형제 이름 충돌을 번호로 분리하고
+  공식 서명 APK 2.1.4/versionCode 11 및 PC 버전·해시 검증값에 반영한다. 실기 확인은 다음 항목을 따른다.
+- [ ] Android 13+ 실제 문서 제공자에서 trim·slash·대소문자 충돌 파일과 폴더 전송을 확인한다.
+- [x] Android 11+ mDNS connect/pairing 파싱, wireless alias 분류, stable identity
+  검증 뒤 동적 endpoint 갱신·재연결과 페어링 후 자동 발견/수동 폴백을 구현한다.
+- [ ] Android 11+ 실제 단일·복수 기기에서 mDNS port 변경, 같은 모델, USB+Wi-Fi,
+  alias 연결과 multicast 차단 시 수동 폴백을 확인한다.
 
 ## 다음 작업
 
@@ -28,7 +132,13 @@
   - 대용량 전송·중단·재연결 테스트를 먼저 보강한 뒤 진행한다.
 - [ ] `WirelessAdbService`의 기기별 연결 명령과 자동 재연결 snapshot 계산을 분리
   - USB·무선 동시 연결과 여러 무선 기기의 격리 테스트를 유지한다.
-- [ ] Android 11+ 무선 ADB의 현재 연결 endpoint를 mDNS로 자동 발견
+- [x] Android 11+ 무선 ADB의 현재 연결 endpoint를 mDNS로 자동 발견하는 코드
+  - [x] parser/resolver 회귀 테스트와 C# 7.3/.NET 4.6.2 x64 Release 확인
+  - [x] `_adb-tls-connect._tcp`와 pairing service를 분리하는 parser, IPv4/IPv6 endpoint 지원
+  - [x] stable serial identity를 기준으로 후보를 고르고 모호하면 수동 경로 사용
+  - [x] 연결 뒤 identity 재검증 후 dynamic host/port를 저장하고 wireless alias를 Wi-Fi로 분류
+  - [x] 페어링 직후 endpoint 자동 검색, 검색 실패 시 수동 connect port 입력 제공
+  - [ ] Windows 11 실제 Android 11+ 기기에서 아래 재연결·복수 기기·fallback 테스트
   - 번들 ADB의 `adb mdns services`에서 `_adb-tls-connect._tcp` 서비스를 조회하고,
     페어링용 `_adb-tls-pairing._tcp` 포트와 실제 연결 포트를 명확히 구분한다.
   - 검색 결과의 첫 항목을 임의로 선택하지 않는다. 물리 기기 identity, 기존 USB
@@ -52,6 +162,8 @@
     설명하고, 수동 IP·포트 입력은 폴백으로 안내한다. 페어링 포트와 연결 포트가
     서로 다르며 연결 포트는 바뀔 수 있다는 설명, legacy 5555 방식, 관련 스크린샷과
     캡션도 함께 수정한다.
+  - [ ] 실제 기기에서 한 대, 같은 모델 두 대, USB+Wi-Fi, 무선 두 대, 포트 변경,
+    stale service, mDNS 차단과 수동 폴백을 확인한다.
 - [ ] `AppSettings.EnsureDefaults`를 설정 범주별 정규화 helper로 축소
   - 기존 스키마 설정 파일 마이그레이션 표본을 만든 뒤 진행한다.
 - [x] v2 1단계 물리 기기·ADB transport 기반
@@ -217,3 +329,82 @@
 22. HID 마우스 사용 중 포인터가 scrcpy 창에 잡히는 동작
 23. DX Companion 설치·서명 검증과 권한 버튼 비활성화
 24. DX Companion 휴대폰→PC 파일·폴더 전송 준비와 사용 방법
+
+## 2026-10-01 후속 확인
+
+- [x] 일반 글자 확대 +1 DIP로 축소, 사용 라벨/카드 폭/하단 여백 수정.
+- [x] 기기 정보 새로고침 오른쪽 이동 및 요약 여백 축소.
+- [x] 로그 버튼-설명 겹침 제거, 네이티브 로그 스크롤 테마, 배경 캐시/패널 버퍼.
+- [x] 고급 옵션 표시 전용 예시 및 문서별 스크롤 위치 보존.
+- [ ] 실제 설정/고급 옵션 스크롤의 체감 부드러움과 흰 줄, 로그 스크롤 테마 재확인.
+
+## 2026-10-02 설정 배치 회귀
+
+- [x] 임시 좁은 배치에서 입력 폭을 영구 변경하던 오류 수정·복원 검사.
+- [x] 휠/막대/로그 공통 얇은 스크롤, 다크 배경, 네이티브 범위 사용.
+- [x] 최하단 카드 도달, 로그 정렬, 도움말 중앙 정렬, 즉시 예시 표시 수정.
+- [x] 실제 데스크톱 검증 사본의 기본 설정 배치/다크 스크롤 캡처 확인.
+- [ ] 실제 폰 연결 상태 갱신 및 직접 휠 조작·Win7/DPI 최종 확인.
+
+## 2026-10-02 후속 UI/시작 경로
+
+- [x] 단일창 앱 미선택 초기 차단 및 회색 안내 버튼, DeX 앱 선택 사항 유지.
+- [x] 공통 모서리/스크롤 배경/반투명 오류 팔레트 수정.
+- [x] 경로 시작선, 동적 진단/환경 결과, Companion 중복 행, 정보 링크 수정.
+- [x] Release 연동 프리뷰·행동 검증, Debug/Release 회귀 59개.
+- [ ] 실제 연결 폰의 클릭·비동기 갱신 및 Win7/DPI 검증.
+
+## 2026-10-02 해상도/오른쪽 정렬
+
+- [x] 사용자 해상도 순서·구분선, 숫자 즉시 표시와 모드 왕복 유지.
+- [x] 드롭다운 닫은 뒤 모달 열기, 가로 입력 초기/클릭 선택.
+- [x] 스크롤 유무와 무관한 카드 폭, 닫기 버튼 오른쪽 정렬.
+- [ ] 실제 데스크톱 포커스·Win7/DPI 최종 확인.
+
+- [x] 사용자 지정 해상도 구분 제목과 맨 아래 사용자 지정... 메뉴 분리, 제목 선택 차단.
+
+## 2026-10-03 요청 반영
+
+- [x] 테마 갱신 시 알림 사각 배경 재발, 실제 카드 배경으로 모서리 복원.
+- [x] 앱 미선택 안내만 앱 선택 시 자동 닫기, 다른 오류 유지.
+- [x] DeX 준비/단일창 준비·대기 문구, 설명 제거 및 제목 중앙 정렬.
+- [x] 매 실행 동의창 반복(사용자가 종료 요청할 때까지 유지), 동의 기록 보존.
+- [x] 사용자 확인 S26 Ultra·SDK37·OneUI9.0 안내만 정상 동작 확인으로 분류.
+- [x] Debug/Release 60개 및 알림·준비 문구·레이아웃 검증.
+- [ ] 실제 화면/폰 비동기 갱신 및 Win7/DPI 확인.
+
+
+## 2026-10-05 connection / Companion follow-up
+
+- [x] USB/Wi-Fi/both observed connection badge, vector icons and label width; light/dark fixture verification.
+- [x] New DeX/single-window USB-first launch without migrating existing Wi-Fi sessions.
+- [x] USB disconnect stops captured USB sessions; no automatic Wi-Fi restart, even with AutoStart enabled.
+- [x] Reconnected USB is available for another manual launch while a Wi-Fi session remains running.
+- [x] Companion2.1.4 signed APK, PC exact version/hash checks and packaging scripts.
+- [x] Store later-update note written; Store package/submission remains unchanged.
+- [ ] Actual phones: both-connected launch log uses USB; unplug USB stops its DeX/single sessions; no automatic Wi-Fi start; manual start uses remaining Wi-Fi.
+- [ ] Actual document providers: colliding file/folder names and nested contents remain distinct on transfer.
+
+## 2026-10-05 reconnect regression correction
+
+- [x] Restrict USB-loss auto-start suppression to the current fallback connection episode; clear when original transport returns or the physical device connects anew.
+- [x] Preserve automatic-start OFF and USB-first automatic launches while another Wi-Fi session remains running.
+- [x] Widen Wi-Fi icon and label spacing; verify light/dark badges and62 regressions plus reconnect fixture.
+- [ ] Physical USB-only: auto-start at program startup, unplug during DeX, reconnect USB -> automatic DeX again when setting ON.
+- [ ] Physical USB+Wi-Fi: unplug USB -> no immediate Wi-Fi auto-start; reconnect USB -> automatic USB DeX when setting ON; confirm OFF does not auto-start.
+## 2026-10-05 Fluent icon trial
+
+- [x] Preserve manual renderer/source snapshots and original large phone illustration; apply31 licensed Microsoft Regular assets to small icons.
+- [x] Extract official mouse component from Keyboard Mouse20Regular and document provenance.
+- [x] Mini-bar observed USB/Wi-Fi/both status, live per-device snapshot updates, new-bar initial state and themed Fluent command icons.
+- [x] Release build,62 regressions, transparency/tint, light/dark control renders and mini-bar isolation/collapse/status fixtures.
+- [x] User accepted the Fluent appearance and reported successful physical validation before final2.5.0.
+- [ ] Store icon/APK changes: acceptance and implementation handoff are documented; Store product changes remain separate.
+## 2026-10-05 v2.5.0 final acceptance
+
+- [x] User-reported physical validation and final2.5.0 decision recorded; older per-scenario lists are historical validation boundaries, not automatically all independently retested.
+- [x] Consent once until acknowledgement; accepted profiles do not repeat and settings reset preserves the state.
+- [x] Release62 tests, pinned Companion2.1.4, final package/ZIP/required files/privacy exclusion and SHA256 verification.
+- [x] Final release notes, checksums and packaging paths prepared for user virus inspection.
+- [ ] GitHub push/tag/release only after virus checking and the user's explicit upload instruction.
+- [ ] Rare ADB Kill-survival scenario remains an unreproduced follow-up candidate; no optional fix added to the frozen final.

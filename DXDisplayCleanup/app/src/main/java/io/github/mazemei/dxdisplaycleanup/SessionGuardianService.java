@@ -43,6 +43,8 @@ public final class SessionGuardianService extends Service {
     private static final int COMMAND_WINDOWS_SHUTDOWN = 2;
     private static final int COMMAND_STOP_MONITORING = 3;
     private static final long RECONNECT_DELAY_MS = 2000L;
+    private static final long FAILED_CLEANUP_RETRY_DELAY_MS = 5000L;
+    private static final int MAX_WINDOWS_SHUTDOWN_CLEANUP_RETRIES = 3;
     private static final int MAX_STRING_BYTES = 64 * 1024;
     private static final String ACTION_USB_STATE =
             "android.hardware.usb.action.USB_STATE";
@@ -57,6 +59,7 @@ public final class SessionGuardianService extends Service {
     private volatile boolean connected;
     private volatile boolean stopRequested;
     private volatile Runnable pendingCleanup;
+    private volatile Runnable pendingWindowsShutdownCleanup;
 
     @Override
     public void onCreate() {
@@ -243,15 +246,17 @@ public final class SessionGuardianService extends Service {
                     GuardianSessionStore.load(this))) {
                 return;
             }
-            CleanupCoordinator.cleanup(this, true, true);
+            CleanupCoordinator.Snapshot snapshot =
+                    CleanupCoordinator.cleanup(this, true, true);
             CleanupWidgetProvider.updateAll(this);
             CleanupTileService.requestRefresh(this);
-            GuardianSessionStore.clear(this);
-            stopRequested = true;
-            generation.incrementAndGet();
-            closeCurrentSocket();
-            stopForeground(true);
-            stopSelf();
+            if (CleanupCoordinator.isCleanupComplete(
+                    snapshot, true, true)) {
+                completeAndStop();
+            } else {
+                Log.w(TAG, "Guardian disconnect cleanup failed; retrying.");
+                scheduleDisconnectCleanupRetry(scheduledSession);
+            }
         };
         mainHandler.postDelayed(
                 pendingCleanup, delaySeconds * 1000L);
@@ -295,20 +300,54 @@ public final class SessionGuardianService extends Service {
             boolean removeOverlay,
             boolean restoreStayAwake,
             String originalStayAwake) {
-        stopRequested = true;
-        generation.incrementAndGet();
         cancelPendingCleanup();
+        attemptWindowsShutdownCleanup(
+                removeOverlay,
+                restoreStayAwake,
+                originalStayAwake,
+                0);
+    }
+
+    private void attemptWindowsShutdownCleanup(
+            boolean removeOverlay,
+            boolean restoreStayAwake,
+            String originalStayAwake,
+            int attempt) {
+        if (stopRequested) {
+            return;
+        }
         if (removeOverlay) {
             OverlayDisplayRepository.cleanup(this);
         }
         if (restoreStayAwake) {
             StayAwakeRepository.restore(this, originalStayAwake);
         }
+        CleanupCoordinator.Snapshot snapshot = CleanupCoordinator.inspect(this);
         CleanupWidgetProvider.updateAll(this);
         CleanupTileService.requestRefresh(this);
-        GuardianSessionStore.clear(this);
-        stopForeground(true);
-        stopSelf();
+        if (CleanupCoordinator.isWindowsShutdownCleanupComplete(
+                snapshot,
+                removeOverlay,
+                restoreStayAwake,
+                originalStayAwake)) {
+            completeAndStop();
+            return;
+        }
+
+        if (attempt < MAX_WINDOWS_SHUTDOWN_CLEANUP_RETRIES) {
+            scheduleWindowsShutdownCleanupRetry(
+                    removeOverlay,
+                    restoreStayAwake,
+                    originalStayAwake,
+                    attempt + 1);
+            return;
+        }
+
+        Log.w(TAG, "Guardian Windows shutdown cleanup could not be verified; retaining the session.");
+        GuardianSessionStore.Session session = GuardianSessionStore.load(this);
+        if (session.isReady()) {
+            restartConnectionLoop(session);
+        }
     }
 
     private void stopMonitoring() {
@@ -326,6 +365,63 @@ public final class SessionGuardianService extends Service {
         if (cleanup != null) {
             mainHandler.removeCallbacks(cleanup);
         }
+        Runnable windowsCleanup = pendingWindowsShutdownCleanup;
+        pendingWindowsShutdownCleanup = null;
+        if (windowsCleanup != null) {
+            mainHandler.removeCallbacks(windowsCleanup);
+        }
+    }
+
+    private void scheduleDisconnectCleanupRetry(
+            GuardianSessionStore.Session session) {
+        pendingCleanup = () -> {
+            pendingCleanup = null;
+            if (connected || stopRequested
+                    || isConfiguredTransportConnected(session)
+                    || !session.matches(GuardianSessionStore.load(this))) {
+                return;
+            }
+            CleanupCoordinator.Snapshot snapshot =
+                    CleanupCoordinator.cleanup(this, true, true);
+            CleanupWidgetProvider.updateAll(this);
+            CleanupTileService.requestRefresh(this);
+            if (CleanupCoordinator.isCleanupComplete(
+                    snapshot, true, true)) {
+                completeAndStop();
+            } else {
+                Log.w(TAG, "Guardian disconnect cleanup retry failed; keeping the session.");
+            }
+        };
+        mainHandler.postDelayed(
+                pendingCleanup, FAILED_CLEANUP_RETRY_DELAY_MS);
+    }
+
+    private void scheduleWindowsShutdownCleanupRetry(
+            boolean removeOverlay,
+            boolean restoreStayAwake,
+            String originalStayAwake,
+            int attempt) {
+        pendingWindowsShutdownCleanup = () -> {
+            pendingWindowsShutdownCleanup = null;
+            attemptWindowsShutdownCleanup(
+                    removeOverlay,
+                    restoreStayAwake,
+                    originalStayAwake,
+                    attempt);
+        };
+        mainHandler.postDelayed(
+                pendingWindowsShutdownCleanup,
+                FAILED_CLEANUP_RETRY_DELAY_MS);
+    }
+
+    private void completeAndStop() {
+        stopRequested = true;
+        generation.incrementAndGet();
+        cancelPendingCleanup();
+        GuardianSessionStore.clear(this);
+        closeCurrentSocket();
+        stopForeground(true);
+        stopSelf();
     }
 
     private void closeCurrentSocket() {

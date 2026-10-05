@@ -1,4 +1,4 @@
-# DX Manager Source and Build Notes
+﻿# DX Manager Source and Build Notes
 
 [Repository overview](../README.md) ·
 [English user guide](../docs/USER_GUIDE_EN.md) ·
@@ -31,7 +31,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Package-Release.ps
 ```
 
 The script rebuilds Release and writes `dist/DX Manager` and
-`dist/DX-Manager-v2.0.1-win-x64.zip`. Use `-SkipBuild` only when the current
+`dist/DX-Manager-v2.5.0-win-x64.zip`. Use `-SkipBuild` only when the current
 Release output has already been verified. `ExecutionPolicy Bypass` applies
 only to this process and does not change the system policy.
 
