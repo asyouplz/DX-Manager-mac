@@ -2,6 +2,26 @@
 
 세부 변경은 Git 이력을 사용하고 여기에는 큰 이정표만 적는다.
 
+## 2026-10-12 - macos-v2.0.1 community distribution
+
+- Published a separate macOS release on `asyouplz/DX-Manager-mac`, preserving the
+  original project's credits and attribution to macOS porter `kimdongup`.
+- Selected the unchanged arm64/x64 ZIPs and SHA-256 files from upstream CI run
+  `35304622556`; the tag points to its exact build source `fcbcaa124e6f`.
+- Added direct downloads and first-launch guidance in English and Korean.
+  All four public downloads were verified without authentication and matched
+  their original SHA-256 values. See `SESSION.md` for the verification scope.
+
+### 한국어
+
+- 원본 제작자와 macOS 포팅 기여자 `kimdongup`의 출처를 유지하며
+  `asyouplz/DX-Manager-mac`의 별도 macOS 커뮤니티 릴리스를 게시했다.
+- 원본 CI run `35304622556`의 arm64/x64 ZIP과 SHA-256 파일을 변경 없이
+  사용하고 실제 빌드 소스 `fcbcaa124e6f`에 태그를 고정했다.
+- 영어·한국어 직접 다운로드와 최초 실행 안내를 추가했다. 네 공개 파일 모두
+  로그인 없이 내려받아 원본 SHA-256과 일치함을 확인했다. 검증 범위는
+  `SESSION.md`에서 관리한다.
+
 ## 2026-08 - macOS Cross-Platform / Portable Integration
 
 - Apple Silicon arm64와 Intel x64용 self-contained 포터블 ZIP 패키징 추가

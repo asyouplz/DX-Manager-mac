@@ -2,6 +2,14 @@
 
 ## 다음 작업
 
+- [x] `asyouplz/DX-Manager-mac`의 커뮤니티 macOS `macos-v2.0.1` 배포
+  - [x] 실제 CI 빌드 소스 `fcbcaa124e6f978e2ffc4283854d4d3489a1dc1c` 확인
+  - [x] 원본 CI run `35304622556`의 두 아키텍처 빌드·106개 xUnit·39개 다중 기기 테스트 성공 확인
+  - [x] README 다운로드 링크, 원본·macOS 포팅 출처와 별도 배포 관계 안내 준비
+  - [x] 두 ZIP과 `.zip.sha256`의 다운로드 후 재검증
+  - [x] 소스에 맞는 태그와 Release 게시 후 네 첨부파일의 로그인 없는 다운로드·해시 일치 확인
+- [ ] macOS 배포본을 실제 Galaxy에서 DeX 시작·중지와 정상 종료 cleanup 확인
+
 - [x] v2.0.1 DeX 기기별 설정 표시 회귀 수정
   - [x] 첫 물리 identity 결속 뒤 기기별 DeX 설정 UI 재동기화
   - [x] 최초 다중 기기 선택에서 공통 기본값의 기기별 설정 덮어쓰기 차단
@@ -13,7 +21,7 @@
   - [x] 공식 scrcpy 4.1 arm64/x86_64 아카이브 SHA-256 검증 및 번들
   - [x] ZIP 재압축 해제, 실행 권한, 아키텍처, 외부 경로, 제외 파일 검증
   - [x] Apple Silicon/x64 GitHub Actions matrix, PR artifact와 검증된 Release 초안
-  - [ ] PR에서 첫 GitHub Actions arm64/x64 원격 실행 결과 확인
+  - [x] PR의 GitHub Actions arm64/x64 원격 실행 결과 확인 (`35304622556`)
   - [x] `Q` 정상 종료의 DeX·단일창·전송·overlay cleanup 보강
   - [x] DeX 시작·정리 전 live identity 재검증과 identity별 보류 정리 분리
   - [x] CLI 시작·자연 종료 대기의 `Ctrl+C` 취소 및 종료 경합 보강

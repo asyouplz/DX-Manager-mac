@@ -1,10 +1,38 @@
 # Session Handoff
 
-마지막 갱신: 2026-08-31
+마지막 갱신: 2026-10-12
 
-## macOS 포터블 배포 작업
+## 2026-10-12 커뮤니티 macOS 릴리스 게시 완료
 
-- 현재 통합 브랜치: `dev-mac-integrated` (upstream v2.0.1 merge commit 전)
+- 배포 저장소는 `asyouplz/DX-Manager-mac`이며 원본 `maze-mei/DX-Manager`의
+  공식 릴리스와 구분한다. 원본 제작자와 `kimdongup`님의 macOS 포팅 표기를 유지한다.
+- 릴리스 태그는 `macos-v2.0.1`, 앱 표시 버전은 `2.0.1`이다. 태그 대상은 실제
+  CI 빌드 소스 `fcbcaa124e6f978e2ffc4283854d4d3489a1dc1c`로 고정했고 원격 태그를 재확인했다.
+- [원본 CI run 35304622556](https://github.com/maze-mei/DX-Manager/actions/runs/35304622556)의
+  arm64/x64 ZIP과 `.zip.sha256` 파일을 변경 없이 재배포했다.
+  이 run은 원본 PR #5의 merge ref를 빌드했으며 소스 tree는 `cc7dc401`과 같다.
+  확인 시점에 PR #5는 열려 있으므로 원본에 병합 완료됐다고 표현하지 않는다.
+- 원본 CI는 두 아키텍처에서 각각 xUnit 106개, 다중 기기 회귀 테스트 39개와
+  패키지 검증을 통과했고 빌드는 경고 0·오류 0이다. 이번에 두 ZIP의 CRC·SHA-256,
+  실행 권한·아키텍처·필수 라이선스와 사용자 데이터·서명 비밀 제외를 다시 확인했다.
+- [공개 릴리스](https://github.com/asyouplz/DX-Manager-mac/releases/tag/macos-v2.0.1)는
+  2026-10-12 08:49 KST에 게시됐다. 첨부파일은 ZIP 2개와 체크섬 2개이며, 네 파일
+  모두 인증 헤더·쿠키 없이 HTTP 200으로 다시 받아 원본 SHA-256과 일치함을 확인했다.
+- Apple Silicon에서 패키지의 `--version`·`--help`와 `adb version`이 모두 종료 코드
+  0으로 완료됐다. 기기 제어 명령은 실행하지 않았으며 Galaxy 실기는 별도 확인 대상이다.
+- README 상단에 두 아키텍처의 ZIP·체크섬 링크, macOS 14 이상·별도 런타임 설치
+  불필요·실행기 안내와 커뮤니티 배포 관계를 영어 다음 한국어 순서로 추가했다.
+- Apple Developer ID 서명·notarization은 없으며, 이번 준비에서 실제 Galaxy DeX
+  동작은 확인하지 않았다. 자동 검사와 실기 검증을 구분한다.
+- 기존 휴대폰 미리보기 실험 PR #1의 브랜치는 이번 배포 범위에서 제외한다.
+- 릴리스 상세 설명: [RELEASE_NOTES_macos-v2.0.1.md](RELEASE_NOTES_macos-v2.0.1.md).
+
+아래 항목은 각 작성 시점의 과거 기록이다. 현재 배포 기준은 위 항목과 실제 Git
+태그·Release를 함께 확인한다.
+
+## 2026-08-31 macOS 포터블 배포 작업 (과거 기록)
+
+- 당시 통합 브랜치: `dev-mac-integrated` (upstream v2.0.1 merge commit 전)
 - 원 PR #3 작업 브랜치: `codex/macos-portable-release` (역사적 기록)
 - `scripts/Package-Mac-Release.sh`가 `osx-arm64`와 `osx-x64`용 DX Manager와
   ADB proxy를 self-contained single-file로 publish한다.

@@ -2,6 +2,11 @@
 
 마지막 전체 정리: 2026-08-22
 
+macOS 커뮤니티 배포 기준 갱신: 2026-10-12. 현재 포크의 배포 상태와 소스는
+`SESSION.md`의 최신 항목 및 `RELEASE_NOTES_macos-v2.0.1.md`를 확인한다.
+`HANDOFF.md` 등 2026-08 문서의 공개 버전·지원 빌드 표기는 당시 Windows 중심의
+기록이므로 현재 macOS 릴리스 상태와 구분한다.
+
 새 작업에서는 `HANDOFF.md`, `PROJECT_BRIEF.md`, `SESSION.md`, `TODO.md`,
 `AI_WORKFLOW.md` 순서로 읽는다. 작업 성격에 따라 `TECH_NOTES.md`,
 `DECISIONS.md`, `KNOWN_ISSUES.md`를 추가로 확인한다.
@@ -17,6 +22,7 @@
 - `SESSION.md`: 다음 채팅을 위한 현재 상태
 - `AI_WORKFLOW.md`: Codex 작업 및 Git 규칙
 - `CHANGELOG.md`: 사용자 관점의 큰 이정표
+- `RELEASE_NOTES_macos-v2.0.1.md`: Community macOS release notes / 포크의 macOS 커뮤니티 릴리스 설명
 - `RELEASE_NOTES_v2.0.1.md`: v2.0.1 GitHub Release용 영어·한국어 설명
 - `RELEASE_NOTES_v2.0.0.md`: 이전 v2.0.0 GitHub Release 기록
 - `RELEASE_NOTES_v1.3.0.md`: 이전 v1.3.0 GitHub Release 기록
