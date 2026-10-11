@@ -137,6 +137,7 @@ namespace DexManager.Forms
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            UiText.Configure(e.Graphics);
             var colors = ThemeColors.Current;
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             DrawFieldBackground(e.Graphics, ClientRectangle, Focused, Enabled);
@@ -144,7 +145,7 @@ namespace DexManager.Forms
             var text = SelectedItem == null
                 ? string.Empty
                 : SelectedItem.ToString();
-            TextRenderer.DrawText(
+            UiText.DrawText(
                 e.Graphics,
                 text,
                 Font,
@@ -416,6 +417,7 @@ namespace DexManager.Forms
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            UiText.Configure(e.Graphics);
             ApplyTheme();
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             ThemedSelectControl.DrawFieldBackground(
@@ -516,6 +518,7 @@ namespace DexManager.Forms
 
             protected override void OnPaint(PaintEventArgs e)
             {
+                UiText.Configure(e.Graphics);
                 base.OnPaint(e);
                 var value = DisplayText ?? string.Empty;
                 var placeholder = value.Length == 0 && !string.IsNullOrEmpty(PlaceholderText);
@@ -530,7 +533,7 @@ namespace DexManager.Forms
                     (UseMiddleEllipsis
                         ? TextFormatFlags.PathEllipsis
                         : TextFormatFlags.EndEllipsis);
-                TextRenderer.DrawText(
+                UiText.DrawText(
                     e.Graphics,
                     value,
                     Font,
@@ -719,6 +722,7 @@ namespace DexManager.Forms
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            UiText.Configure(e.Graphics);
             var colors = ThemeColors.Current;
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             ThemedSelectControl.DrawFieldBackground(
@@ -980,6 +984,7 @@ namespace DexManager.Forms
             StringFormat format)
         {
             if (string.IsNullOrEmpty(value)) return 0F;
+            UiText.Configure(graphics);
             return graphics.MeasureString(
                 value,
                 Font,
@@ -995,6 +1000,7 @@ namespace DexManager.Forms
             Color color,
             StringFormat format)
         {
+            UiText.Configure(graphics);
             using (var brush = new SolidBrush(color))
                 graphics.DrawString(
                     value ?? string.Empty,

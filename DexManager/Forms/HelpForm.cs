@@ -41,8 +41,8 @@ namespace DexManager.Forms
    using(var stream=Resource("help.json")) _document=(HelpDocument)new DataContractJsonSerializer(typeof(HelpDocument)).ReadObject(stream);
    _navigation=new RoundedPanel {Radius=20,BackColor=Color.Transparent};
    _content=new RoundedPanel {Radius=20,BackColor=Color.Transparent};
-   _title=new Label {Text=StoreUiText.Get("HelpCenterHeading.Text","Help · Troubleshooting"),Font=UiFonts.Pixels(18,true),BackColor=Color.Transparent,Tag="primary"};
-   _subtitle=new Label {Text=StoreUiText.Get("HelpCenterSubtitle.Text","Important usage and recovery steps"),Font=UiFonts.Pixels(13),BackColor=Color.Transparent};
+   _title=new UiLabel {Text=StoreUiText.Get("HelpCenterHeading.Text","Help · Troubleshooting"),Font=UiFonts.Pixels(18,true),BackColor=Color.Transparent,Tag="primary"};
+   _subtitle=new UiLabel {Text=StoreUiText.Get("HelpCenterSubtitle.Text","Important usage and recovery steps"),Font=UiFonts.Pixels(13),BackColor=Color.Transparent};
    _menu=new BufferedFlowPanel {AutoScroll=true,FlowDirection=FlowDirection.TopDown,WrapContents=false,BackColor=Color.Transparent};
    _article=new BufferedFlowPanel {AutoScroll=true,FlowDirection=FlowDirection.TopDown,WrapContents=false,BackColor=Color.Transparent,Padding=new Padding(0,0,8,16)};
    _navigation.Controls.AddRange(new Control[]{_title,_subtitle,_menu}); _content.Controls.Add(_article);
@@ -76,7 +76,7 @@ namespace DexManager.Forms
    if(_document!=null && _article.Controls.Count>0) ShowTopic(_selected);
   }
   private Label BlockText(string text,float size,bool semi,int bottom=14) {
-   return new Label {Text=text??"",AutoSize=true,MaximumSize=new Size(Math.Max(120,_article.Width-24),0),Font=UiFonts.Pixels(size,semi),BackColor=Color.Transparent,Tag=semi?"primary":null,Margin=new Padding(0,0,0,bottom)};
+   return new UiLabel {Text=text??"",AutoSize=true,MaximumSize=new Size(Math.Max(120,_article.Width-24),0),Font=UiFonts.Pixels(size,semi),BackColor=Color.Transparent,Tag=semi?"primary":null,Margin=new Padding(0,0,0,bottom)};
   }
   private void ShowTopic(int index) {
    using(UiRendering.Freeze(_content)) {
@@ -87,7 +87,8 @@ namespace DexManager.Forms
    foreach(var block in topic.Blocks) {
     if(block.Type=="warning") {
      var warning=new RoundedPanel {Radius=12,Width=Math.Max(120,_article.Width-24),FillColor=ThemeColors.Current.AccentSoft,BorderColor=ThemeColors.Current.Accent,Margin=new Padding(0,0,0,14),Padding=new Padding(14,12,14,12),AutoSize=true,AutoSizeMode=AutoSizeMode.GrowAndShrink,Tag="warning"};
-     var stack=new BufferedFlowPanel {Location=new Point(14,12),Width=warning.Width-28,AutoSize=true,FlowDirection=FlowDirection.TopDown,WrapContents=false,BackColor=Color.Transparent};
+     warning.MinimumSize=new Size(warning.Width,0); warning.MaximumSize=new Size(warning.Width,0);
+     var stack=new BufferedFlowPanel {Location=new Point(14,12),Size=new Size(warning.Width-28,1),MinimumSize=new Size(warning.Width-28,0),MaximumSize=new Size(warning.Width-28,0),Margin=Padding.Empty,AutoSize=true,AutoSizeMode=AutoSizeMode.GrowAndShrink,FlowDirection=FlowDirection.TopDown,WrapContents=false,BackColor=Color.Transparent};
      var heading=BlockText("⚠  "+block.Heading,15,true,6); heading.MaximumSize=new Size(stack.Width,0);
      var text=BlockText(block.Text,15,false,0); text.MaximumSize=new Size(stack.Width,0);
      stack.Controls.AddRange(new Control[]{heading,text}); warning.Controls.Add(stack); _article.Controls.Add(warning); continue;
@@ -97,7 +98,7 @@ namespace DexManager.Forms
      int n=0; foreach(var item in block.Items) {
       var row=new Panel {Width=Math.Max(120,_article.Width-24),BackColor=Color.Transparent,Margin=new Padding(0,0,0,10)};
       var badge=new RoundedPanel {Radius=13,Size=new Size(26,26),FillColor=ThemeColors.Current.AccentSoft,BorderColor=ThemeColors.Current.AccentSoft};
-      badge.Controls.Add(new Label {Text=(++n).ToString(),Font=UiFonts.Pixels(15,true),ForeColor=ThemeColors.Current.Accent,TextAlign=ContentAlignment.MiddleCenter,Dock=DockStyle.Fill,BackColor=Color.Transparent,Tag="accent"});
+      badge.Controls.Add(new UiLabel {Text=(++n).ToString(),Font=UiFonts.Pixels(15,true),ForeColor=ThemeColors.Current.Accent,TextAlign=ContentAlignment.MiddleCenter,Dock=DockStyle.Fill,BackColor=Color.Transparent,Tag="accent"});
       var text=BlockText(item,15,false,0); text.MaximumSize=new Size(row.Width-36,0); text.Location=new Point(36,0);
       row.Controls.AddRange(new Control[]{badge,text}); row.Height=Math.Max(26,text.GetPreferredSize(new Size(row.Width-36,0)).Height); _article.Controls.Add(row);
      }
@@ -132,8 +133,8 @@ namespace DexManager.Forms
   public DocumentationForm() {
    Text="DX Manager · "+StoreUiText.Get("HelpDetailedGuideTitle","User guide · FAQ");Icon=AppIconProvider.Current;Font=UiFonts.Pixels(14);
    DoubleBuffered=true;UiWindowStyle.ApplyStoreSize(this,920,720);FormBorderStyle=FormBorderStyle.Sizable;MaximizeBox=true;MinimumSize=new Size(660,480);
-   _heading=new Label {Text=LocalizationService.IsKorean?"DX Manager · 사용 설명서":"DX Manager · User guide",Font=UiFonts.Pixels(28,true),BackColor=Color.Transparent};
-   _summary=new Label {Text=LocalizationService.IsKorean?"현재 포터블 버전의 사용 설명서와 자주 묻는 질문입니다.":"Offline user guide and FAQ for the current portable version.",Font=UiFonts.Pixels(13),BackColor=Color.Transparent};
+   _heading=new UiLabel {Text=LocalizationService.IsKorean?"DX Manager · 사용 설명서":"DX Manager · User guide",Font=UiFonts.Pixels(28,true),BackColor=Color.Transparent};
+   _summary=new UiLabel {Text=LocalizationService.IsKorean?"현재 포터블 버전의 사용 설명서와 자주 묻는 질문입니다.":"Offline user guide and FAQ for the current portable version.",Font=UiFonts.Pixels(13),BackColor=Color.Transparent};
    _card=new RoundedPanel {Radius=20,Padding=new Padding(24),BackColor=Color.Transparent};
    for(int i=0;i<2;i++) {
     int index=i;_tabs[i]=new ThemedButton {Text=i==0?(LocalizationService.IsKorean?"사용 설명서":"User guide"):(LocalizationService.IsKorean?"자주 묻는 질문":"FAQ"),CornerRadius=6};_tabs[i].Click+=delegate {SwitchDocument(index);};

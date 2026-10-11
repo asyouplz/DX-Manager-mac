@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -514,6 +514,7 @@ namespace DexManager.Forms
                     using (var brush = new SolidBrush(color))
                     {
                         var text = "DX";
+                        UiText.Configure(graphics);
                         var size = graphics.MeasureString(text, font);
                         graphics.DrawString(
                             text,

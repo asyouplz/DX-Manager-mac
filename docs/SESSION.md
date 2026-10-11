@@ -859,3 +859,28 @@ EXE SHA256: BACEA6027137EC0ACE770133034F258EF36F68CA977FD03FF9395F58717D3632
 APK SHA256: 95DAF4E734FD36FE07AD8388FE8E4C98D96D1EFA0A8E359D8C8E3E27383B6536
 Checksums: E:\vs\dex system\dist\DX-Manager-v2.5.0-SHA256.txt
 Local commit is the final action of this task; its hash is recorded by Git rather than embedded into its own commit.
+
+## 2026-10-06 scrcpy5.0 company test
+
+메이님 요청과 회사 Windows7 확인에 따라 독립 테스트 ZIP을 만들었다. 기존2.5.0 실행 파일/최종 ZIP과 Companion2.1.4는 해시가 유지된다. 01-software/02-auto는 디코딩 옵션만 다른 기본값이며 레거시 ADB를 포함한다. 공식5.0 파일 일치·프리셋 상속·Windows11 버전/도움말 검사·135개 ZIP 파일/개인정보 제외를 확인했다. 실제Win7/휴대폰 스트리밍 검증은 회사 확인을 기다린다. 상세 경로/해시는 SCRCPY_5_TEST_2026-10-06.md. 이번 테스트는 새 커밋/업로드 없이 준비했다.
+
+## 2026-10-06 independent font lab
+
+회사Win7 SP1/FHD/100%에서 메인·설정·도움말 글자 획이 깨지고 로그 본문만 정상이라는 사용자 보고가 있다. 원인은 미확정이며 실제 회사 화면 대신 그림판 예시를 받았다. 본체 재빌드 대신 독립 DXFontLab.exe를 요청받아 현재 Pretendard/GDI, 맑은 고딕/GDI, 정수 픽셀 크기, GDI+ 두 방식, 패널 합성 제외를 비교하도록 준비했다. 메인/도움말 크기·실제 페인팅 코드·글꼴/아이콘 리소스를 재사용한 샘플이며 휴대폰 명령/설정은 없다. Windows11에서36조합/실제 글꼴 선택/전환/캡처 및37 PNG 검증을 통과했다. 회사Win7 결과 대기. 결과는 임시 기록 후 복사하며 종료 전에 메모장에 저장한다. 상세: FONT_LAB_2026-10-06.md. 기존2.5.0 EXE/ZIP 해시, Store/APK와 제품 소스는 보존했고 커밋/업로드하지 않았다.
+
+## 2026-10-07 second font test
+
+회사Win7 실제 기록/캡처에서 맑은 고딕 B는 정상, 현재 Pretendard를 쓴 A/C/D/E/F는 깨짐으로 보고됐다.96DPI·ClearType·GDI 등록/글꼴 선택은 정상이며 작은 GDI+ 회색 AA가 특히 나쁘고 큰 글자는 회복된다. 내장 및 공식 정적 Pretendard 모두 힌팅/gasp가 없으므로 변환 중 유실로 단정하지 않는다. 사용자 요청으로 Font Lab2를 만들었다: 현재/공식 원본, gasp0x000A 표시 설정 보정, 보정 파일의 GDI+ 회색 AA, 현재 파일의 GDI+ AntiAlias(보정 제외), 맑은 고딕 기준. 수정 글꼴은 OFL 이름 변경과 원형/레이아웃 byte 보존 및 체크섬 검증을 수행했다. Windows11에서7조건42화면/49 PNG·실제 글꼴 선택 검증, ZIP23파일/8EXE 해시 확인. 본체/Store/APK/최종2.5.0은 그대로이며 Win7 품질은 내일 확인할 항목이다. 경로/해시/사용법: FONT_LAB2_2026-10-07.md. 커밋/업로드 없음.
+
+## 2026-10-08 F2 product UI preview
+
+사용자 회사 결과: A2~D2 깨짐, E2/F2/G2 정상이며 F2의 UI를 선호했다. 승인받아 실제 포터블 UI의 라벨/커스텀 텍스트 표시·측정을 F2 AntiAlias로 연결했다. 실행 버튼은 Store17px SemiBold/20px 아이콘/10px 간격을 한 그룹으로 중앙 정렬한다. 도움말 강조 상자는 내부 기본100px 높이를 제거해 검증된 한글/영문 주제의 아래 여백12px로 맞췄다. Release/62회귀/실제 UI53 PNG·숫자 편집·경로 선택/undo·드롭다운 검증 통과. Native TextBox 편집과 RichTextBox 본문은 Windows 렌더링을 유지하므로 통합 Win7/IME 품질은 추가 실기 확인 대상이다. 별도 F2 프리뷰를 만들고 최종2.5.0/Store/APK는 보존했다. Scrcpy는 기존4.1이며5.0 테스트는 분리돼 있다. 상세 경로/해시: F2_UI_PREVIEW_2026-10-08.md. 커밋/업로드 없음.
+## 2026-10-08 fixed preview / contrast / authorized dist cleanup
+
+메이님 지시대로 미니바는 제외하고 메인/설정 아이콘20px, 캡처/Wifi 매핑, Store 수준 글자 대비를 적용했다. Win7/8은F2, Win10/11은ClearType 표시/측정으로 분기했다. Release62 및 실제 UI53 PNG·편집/드롭다운·OS정책/아이콘 검증 통과. 고정 scripts/Build-PortablePreview.ps1이 DX Manager Preview 폴더를 관리 목록으로 덮어쓰며 설정/로그를 보존하고 ZIP을 만들지 않는다. 재실행에서4개 개인 설정파일 보존/62payload 일치 확인. 승인된 dist34항목을 경계/재분석지점 점검 후 삭제했다. 남은 것은 DX Companion(내부GitHub2.1.4 포함), DX Manager Store, 원본 DX Manager v2.5.0, DX Manager Preview. 오래된 설정/캡처는 .build-tools/dist-cleanup-20261008/user-data에 보관했고 과거F2설정은 고정폴더로 옮겼다. 원본2.5.0/Store 보존. 상세: FIXED_PREVIEW_2026-10-08.md. 커밋/업로드 없음.
+## 2026-10-08 ClearType regression correction
+
+메이님이 현대 Windows에서 큰 한글 제목의 획이 거칠어진 실제 화면을 보고했다. 이전 요청에서 추가한 ClearTypeGridFit 분기가 원인 후보이며, 안티앨리어싱을 끈 변경은 아니었다. 해당 픽셀 맞춤 분기를 제거하고 모든 지원 OS의 UiText 표시/측정을 검증된 F2 AntiAlias로 복원했다. 아이콘20px·색 대비·Store 캡처/Wifi 매핑·버튼 정렬·도움말 높이는 유지한다. Release와 실제 UI/경로 선택·undo/드롭다운/경고 상자 검증 통과. 고정 Preview 폴더만 갱신했고 ZIP은 만들지 않았다. 최신 EXE SHA256: 56D2D1AB00A4A2372F09E4E8CE4793528C4E60B655930AF8826ABF9F20AE1555. 이전 FIXED_PREVIEW 문서의 OS별 분기는 이 기록으로 대체한다. 집 PC에서 실제 제목 모양 재확인 필요. 커밋/업로드 없음.
+## 2026-10-11 local checkpoint
+
+메이님이 마지막 프리뷰에 반영된 버전을 로컬 Git에 커밋하도록 요청했고, 새 브랜치는 만들지 말고 커밋만 하라고 확인했다. 현재 코드의 Release 실행 파일과 고정 프리뷰 실행 파일 해시는56D2D1AB...로 일치한다. F2 AntiAlias 복원·20px 아이콘/대비·Store 실행 버튼/도움말 높이·고정 프리뷰 및 기존 테스트 도구/문서를 현재 브랜치의 체크포인트로 저장한다. 버전2.5.0 유지, Store/APK 및 미커밋 사용자 데이터/빌드 산출물은 포함하지 않는다. 새 브랜치/태그/푸시/업로드를 하지 않으며, 실제 커밋 해시는 Git 기록에서 확인한다.

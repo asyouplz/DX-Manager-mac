@@ -61,7 +61,7 @@ namespace DexManager.Forms
                 FillColor = _theme.CardBackground,
                 BorderColor = _theme.CardBorder
             };
-            card.Controls.Add(new Label
+            card.Controls.Add(new UiLabel
             {
                 AutoSize = true,
                 Font = UiFonts.Create(11F, FontStyle.Bold),
@@ -150,7 +150,7 @@ namespace DexManager.Forms
 
         private static Label CreateHint(string text)
         {
-            return new Label
+            return new UiLabel
             {
                 AutoSize = true,
                 MaximumSize = new Size(400, 0),
@@ -351,7 +351,7 @@ namespace DexManager.Forms
 
         private static RadioButton CreateRadio(string text)
         {
-            return new RadioButton
+            return new UiRadioButton
             {
                 Text = text,
                 AutoSize = true,
@@ -375,7 +375,7 @@ namespace DexManager.Forms
 
         private static void AddReadOnly(TableLayoutPanel table, string label, string value)
         {
-            AddRow(table, label, new Label
+            AddRow(table, label, new UiLabel
             {
                 AutoSize = true,
                 MaximumSize = new Size(410, 0),
@@ -389,7 +389,7 @@ namespace DexManager.Forms
         {
             var row = table.RowCount++;
             table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            table.Controls.Add(new Label
+            table.Controls.Add(new UiLabel
             {
                 Text = label,
                 AutoSize = true,

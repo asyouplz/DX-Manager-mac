@@ -17,9 +17,9 @@ namespace DexManager.Forms
         private Control BuildGeneralPage()
         {
             var page = CreatePage();
-            page.Controls.Add(new Label { Text = LocalizationService.Get("Desktop.GeneralTitle"), AutoSize = true,
+            page.Controls.Add(new UiLabel { Text = LocalizationService.Get("Desktop.GeneralTitle"), AutoSize = true,
                 Font = UiFonts.Create(12F, FontStyle.Bold), ForeColor = _theme.TextPrimary, Margin = new Padding(0, 0, 0, 6) });
-            page.Controls.Add(new Label { Text = LocalizationService.Get("Desktop.GeneralSubtitle"), AutoSize = true,
+            page.Controls.Add(new UiLabel { Text = LocalizationService.Get("Desktop.GeneralSubtitle"), AutoSize = true,
                 ForeColor = _theme.TextTertiary, Margin = new Padding(0, 0, 0, 14) });
             CreateSettingRow(page, UiSymbol.Settings, LocalizationService.Get("Desktop.SingleInstance"),
                 LocalizationService.Get("Desktop.SingleInstanceHint"), null, LocalizationService.Get("Desktop.Always"));
@@ -195,7 +195,7 @@ namespace DexManager.Forms
             connectionButtons.Controls.Add(_wirelessDisconnectButton, 2, 0);
             AddRow(connection, LocalizationService.Get("Settings.WirelessActions"), connectionButtons);
 
-            _wirelessStatusLabel = new Label
+            _wirelessStatusLabel = new UiLabel
             {
                 AutoSize = true,
                 MaximumSize = new Size(410, 0),
@@ -209,7 +209,7 @@ namespace DexManager.Forms
             AddRow(
                 pairing,
                 "Android 11+",
-                new Label
+                new UiLabel
                 {
                     AutoSize = true,
                     MaximumSize = new Size(410, 0),
@@ -283,7 +283,7 @@ namespace DexManager.Forms
                 FlowDirection = FlowDirection.TopDown,
                 WrapContents = false
             };
-            panel.Controls.Add(new Label
+            panel.Controls.Add(new UiLabel
             {
                 AutoSize = true,
                 MaximumSize = new Size(700, 0),
@@ -315,7 +315,7 @@ namespace DexManager.Forms
             panel.Controls.Add(logButton);
             panel.Controls.Add(environmentButton);
             panel.Controls.Add(_diagnosticReportButton);
-            panel.Controls.Add(new Label
+            panel.Controls.Add(new UiLabel
             {
                 AutoSize = true,
                 MaximumSize = new Size(610, 0),
@@ -339,7 +339,7 @@ namespace DexManager.Forms
                 page.PerformLayout();
             };
             panel.Controls.Add(_advancedOptionsButton);
-            panel.Controls.Add(new Label
+            panel.Controls.Add(new UiLabel
             {
                 AutoSize = true,
                 MaximumSize = new Size(610, 0),
@@ -368,7 +368,7 @@ namespace DexManager.Forms
                 FlowDirection = FlowDirection.TopDown,
                 WrapContents = false
             };
-            displayCleanup.Controls.Add(new Label
+            displayCleanup.Controls.Add(new UiLabel
             {
                 AutoSize = true,
                 MaximumSize = new Size(610, 0),
@@ -412,7 +412,7 @@ namespace DexManager.Forms
             companionButtons.Controls.Add(_displayCleanupPermissionButton);
             companionButtons.Controls.Add(_companionUninstallButton);
             displayCleanup.Controls.Add(companionButtons);
-            _displayCleanupStatusLabel = new Label
+            _displayCleanupStatusLabel = new UiLabel
             {
                 AutoSize = true,
                 MaximumSize = new Size(610, 0),

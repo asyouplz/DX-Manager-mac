@@ -408,3 +408,38 @@
 - [x] Final release notes, checksums and packaging paths prepared for user virus inspection.
 - [ ] GitHub push/tag/release only after virus checking and the user's explicit upload instruction.
 - [ ] Rare ADB Kill-survival scenario remains an unreproduced follow-up candidate; no optional fix added to the frozen final.
+
+## 2026-10-06 scrcpy5.0 test
+
+- [x] 회사Win7용 소프트웨어/자동 두 테스트 폴더·공식 런타임·공개 프리셋·레거시 ADB 및 ZIP 검증.
+- [ ] 회사Win7에서 시작, 화면/입력/캡처/미니바/종료·재연결 및 디코딩 동작 확인.
+- 상세: [SCRCPY_5_TEST_2026-10-06.md](SCRCPY_5_TEST_2026-10-06.md).
+
+## 2026-10-06 Win7 font comparison
+
+- [x] 독립 글꼴 테스트 도구: 현재 방식/맑은 고딕/정수 크기/GDI+ 두 방식/합성 제외, 메인·도움말·글자표와 두 테마.
+- [x] Windows11 36조합·원래 내장 글꼴/굵기·화면 전환/기록/창 이미지 및37 PNG 확인; 본체 최종본 보존.
+- [ ] 회사Win7 SP1/FHD/100%에서 A~F의 획 표시 비교 후 정상 방식 선택. 아직 본체 글꼴 수정하지 않음.
+- 상세: [FONT_LAB_2026-10-06.md](FONT_LAB_2026-10-06.md).
+
+## 2026-10-07 second font comparison
+
+- [x] 회사 결과: 현재 Pretendard 다섯 방식 깨짐, 맑은 고딕 정상; 큰 글자 회복·등록/배율/ClearType 상태 확인.
+- [x] 공식 정적 TTF와 gasp 표시 설정 보정 및 GDI+ AntiAlias 조건을 포함하는 독립7조건 테스트 준비; Windows11 42조합/49 PNG/ZIP 검사.
+- [ ] 회사Win7에서 A2~G2 비교 후 Pretendard 유지 가능한 조건 결정. 제품 코드 변경은 아직 하지 않음.
+- 상세: [FONT_LAB2_2026-10-07.md](FONT_LAB2_2026-10-07.md).
+
+## 2026-10-08 F2 integration
+
+- [x] 승인된 F2 표시/측정 본체 연결, Store 실행 버튼 크기/그룹 정렬, 도움말 강조 상자 빈 높이 수정.
+- [x] Release62회귀·실제 UI53 PNG·숫자/경로 선택/undo/드롭다운 검증과 별도 프리뷰 포장.
+- [ ] 회사Win7 통합 품질과 native 편집/IME/긴 텍스트 본문 확인; 프리뷰 사용자 승인 후 최종 반영 결정.
+- 상세: [F2_UI_PREVIEW_2026-10-08.md](F2_UI_PREVIEW_2026-10-08.md).
+## 2026-10-08 fixed preview
+
+- [x] 미니바 제외, 메인/설정20px 아이콘/Capture/Wifi/글자 대비 및 Windows별 표시 분기.
+- [x] Release62/실제 UI53 PNG·OS정책/입력/드롭다운 검증; 고정 프리뷰 덮어쓰기와4개 설정 보존.
+- [x] 사용자 승인 dist 정리, Companion/Store/최종후보/고정Preview 보존, 오래된 사용자 데이터 별도 보관.
+- [ ] 사용자 집 PC 선명도 및 통합Win7/native입력 확인.
+- 상세: [FIXED_PREVIEW_2026-10-08.md](FIXED_PREVIEW_2026-10-08.md).
+- [x] 큰 한글 제목 회귀: 현대 Windows ClearTypeGridFit 분기를 제거하고 전 OS F2 AntiAlias 표시/측정으로 복원; 집 PC 재확인 대기.

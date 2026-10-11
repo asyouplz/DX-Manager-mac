@@ -44,7 +44,7 @@ namespace DexManager.Forms
             Font = UiFonts.Create(9.5F);
             BackColor = theme.WindowBackground;
 
-            var header = new Label
+            var header = new UiLabel
             {
                 AutoSize = true,
                 Font = UiFonts.Create(14F, FontStyle.Bold),
@@ -53,7 +53,7 @@ namespace DexManager.Forms
                 Location = new Point(18, 16),
                 Text = LocalizationService.Get("DeviceFolder.Heading")
             };
-            _pathLabel = new Label
+            _pathLabel = new UiLabel
             {
                 AutoEllipsis = true,
                 ForeColor = theme.TextSecondary,
@@ -87,7 +87,7 @@ namespace DexManager.Forms
                 Navigate(item.Path);
             };
 
-            _statusLabel = new Label
+            _statusLabel = new UiLabel
             {
                 AutoEllipsis = true,
                 ForeColor = theme.TextTertiary,
@@ -137,7 +137,7 @@ namespace DexManager.Forms
             if (captureTransfer.HasValue)
             {
                 ClientSize = new Size(610, 514);
-                _captureTransfer = new CheckBox { Text = LocalizationService.IsKorean ? "캡처 후 휴대폰으로 자동 전송" : "Automatically transfer captures to the phone", Checked = captureTransfer.Value, Font = UiFonts.Pixels(14), Bounds = new Rectangle(18, 430, 370, 34), ForeColor = theme.TextPrimary, BackColor = theme.WindowBackground };
+                _captureTransfer = new UiCheckBox { Text = LocalizationService.IsKorean ? "캡처 후 휴대폰으로 자동 전송" : "Automatically transfer captures to the phone", Checked = captureTransfer.Value, Font = UiFonts.Pixels(14), Bounds = new Rectangle(18, 430, 370, 34), ForeColor = theme.TextPrimary, BackColor = theme.WindowBackground };
                 foreach (var button in new[] { _upButton, _refreshButton, cancelButton, _selectButton }) button.Top += 44;
                 Controls.Add(_captureTransfer);
             }

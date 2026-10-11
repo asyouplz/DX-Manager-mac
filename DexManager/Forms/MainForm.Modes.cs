@@ -266,7 +266,7 @@ namespace DexManager.Forms
 
         private void AddTopMenu(string text, int x, Action action)
         {
-            var menu = new LinkLabel
+            var menu = new UiLinkLabel
             {
                 AutoSize = true,
                 LinkColor = Color.FromArgb(75, 85, 99),
@@ -280,7 +280,7 @@ namespace DexManager.Forms
 
         private Label AddSectionTitle(string text, int x, int y)
         {
-            var label = new Label
+            var label = new UiLabel
             {
                 AutoSize = true,
                 Font = UiFonts.Create(13F, FontStyle.Bold),
@@ -294,7 +294,7 @@ namespace DexManager.Forms
 
         private Label AddFieldLabel(string text, int x, int y)
         {
-            var label = new Label
+            var label = new UiLabel
             {
                 AutoSize = true,
                 ForeColor = _theme.TextTertiary,

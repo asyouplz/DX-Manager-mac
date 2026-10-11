@@ -19,7 +19,7 @@ namespace DexManager.Forms
         private Control BuildSelectedDeviceDiagnosticsPanel()
         {
             _deviceDiagnosticsBody = new BufferedPanel {Width=620,Height=24,BackColor=_theme.CardBackground};
-            _deviceDiagnosticsStatusLabel = new Label {AutoSize=false,ForeColor=_theme.TextSecondary,BackColor=Color.Transparent,
+            _deviceDiagnosticsStatusLabel = new UiLabel {AutoSize=false,ForeColor=_theme.TextSecondary,BackColor=Color.Transparent,
                 Text=LocalizationService.Get("Settings.DeviceDiagnosticsWaiting")};
             _deviceDiagnosticsRefreshButton=CreateActionButton(LocalizationService.IsKorean?"새로고침":"Refresh",160);
             _deviceDiagnosticsRefreshButton.Click+=delegate {RefreshDeviceDiagnosticsAsync();};
@@ -244,7 +244,7 @@ namespace DexManager.Forms
                             : LocalizationService.Get("Common.Unknown");
                     var titleFont = UiFonts.Pixels(15F, true);
                     card.Disposed += delegate { titleFont.Dispose(); };
-                    content.Controls.Add(new Label
+                    content.Controls.Add(new UiLabel
                     {
                         AutoSize = true,
                         MaximumSize = new Size(Math.Max(220, cardWidth - 28), 0),
@@ -254,7 +254,7 @@ namespace DexManager.Forms
                         BackColor = _theme.CardSoft,
                         Text = name
                     });
-                    content.Controls.Add(new Label
+                    content.Controls.Add(new UiLabel
                     {
                         AutoSize = true,
                         MaximumSize = new Size(Math.Max(220, cardWidth - 28), 0),

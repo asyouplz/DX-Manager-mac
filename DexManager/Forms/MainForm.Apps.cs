@@ -57,7 +57,7 @@ namespace DexManager.Forms
             _missingStartAppNotice=false;
             if (_appNotice == null)
             {
-                _appNoticeLabel = new Label { Dock = DockStyle.Fill,
+                _appNoticeLabel = new UiLabel { Dock = DockStyle.Fill,
                     TextAlign = ContentAlignment.MiddleCenter, TabStop = false };
                 _appNotice = new RoundedPanel { Visible = false,
                     Padding = new Padding(12, 8, 38, 8), TabStop = false, BackdropSource=_appCard };
@@ -113,9 +113,9 @@ namespace DexManager.Forms
         {
             if (_appNotice == null) return;
             var width = Math.Max(120, Math.Min(ClientSize.Width - 32, DesktopPixels(620)));
-            var textSize = TextRenderer.MeasureText(_appNoticeLabel.Text, Font,
+            var textSize = UiText.MeasureText(_appNoticeLabel.Text, Font,
                 new Size(width - 60, 0), TextFormatFlags.WordBreak);
-            width = Math.Max(260, Math.Min(width, TextRenderer.MeasureText(_appNoticeLabel.Text, _appNoticeLabel.Font).Width + 76));
+            width = Math.Max(260, Math.Min(width, UiText.MeasureText(_appNoticeLabel.Text, _appNoticeLabel.Font).Width + 76));
             _appNotice.Size = new Size(width, Math.Max(48, textSize.Height + 24));
             _appNotice.Location = new Point(ClientSize.Width - width - DesktopPixels(32),
                 Math.Max(16, ClientSize.Height - _appNotice.Height - DesktopPixels(28)));

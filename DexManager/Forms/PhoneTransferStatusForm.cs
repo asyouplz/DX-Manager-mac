@@ -40,7 +40,7 @@ namespace DexManager.Forms
             BackColor = palette.WindowBackground;
             Font = UiFonts.Create(9.5F);
 
-            _statusLabel = new Label
+            _statusLabel = new UiLabel
             {
                 AutoSize = false,
                 Font = UiFonts.Create(12F, FontStyle.Bold),
@@ -49,7 +49,7 @@ namespace DexManager.Forms
                 Size = new Size(394, 28),
                 Text = LocalizationService.Get("PhoneTransfer.Receiving")
             };
-            _itemLabel = new Label
+            _itemLabel = new UiLabel
             {
                 AutoEllipsis = true,
                 ForeColor = palette.TextSecondary,
@@ -63,13 +63,13 @@ namespace DexManager.Forms
                 Style = ProgressBarStyle.Marquee,
                 MarqueeAnimationSpeed = 28
             };
-            _countLabel = new Label
+            _countLabel = new UiLabel
             {
                 ForeColor = palette.TextSecondary,
                 Location = new Point(18, 98),
                 Size = new Size(190, 22)
             };
-            _byteLabel = new Label
+            _byteLabel = new UiLabel
             {
                 ForeColor = palette.TextSecondary,
                 Location = new Point(220, 98),

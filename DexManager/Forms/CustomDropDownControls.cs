@@ -218,7 +218,7 @@ namespace DexManager.Forms
                     using (var brush = new SolidBrush(colors.AccentSoft))
                         e.Graphics.FillRectangle(brush, bounds);
                 }
-                TextRenderer.DrawText(
+                UiText.DrawText(
                     e.Graphics,
                     _items[index] == null ? string.Empty : _items[index].ToString(),
                     Font,

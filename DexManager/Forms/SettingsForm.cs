@@ -191,7 +191,7 @@ namespace DexManager.Forms
             MinimumSize = new Size(820, 600);
             _desktopCardWidth = Math.Max(520, Math.Min(716, (int)(ClientSize.Width / Math.Max(1F, CurrentAutoScaleDimensions.Width / 96F)) - 296));
 
-            _titleLabel = new Label
+            _titleLabel = new UiLabel
             {
                 AutoSize = false,
                 Font = UiFonts.Pixels(28F, true),
@@ -200,7 +200,7 @@ namespace DexManager.Forms
                 Size = new Size(670, 40),
                 Text = LocalizationService.Get("Main.Settings")
             };
-            _descriptionLabel = new Label
+            _descriptionLabel = new UiLabel
             {
                 AutoEllipsis = true,
                 ForeColor = _theme.TextTertiary,
@@ -233,7 +233,7 @@ namespace DexManager.Forms
                     AnchorStyles.Bottom,
                 BackColor = _theme.WindowBackground
             };
-            _saveStatusLabel = new Label
+            _saveStatusLabel = new UiLabel
             {
                 ForeColor = _theme.TextTertiary,
                 Location = new Point(0, 14),

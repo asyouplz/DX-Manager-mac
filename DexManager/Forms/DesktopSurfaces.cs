@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -225,9 +225,9 @@ namespace DexManager.Forms
                 }
                 return;
             }
-            var inset = Tile ? Width / 4 : 1;
-            DesktopSurface.DrawIcon(e.Graphics, Symbol, new Rectangle(inset, inset,
-                Width - inset * 2, Height - inset * 2), Tile ? colors.Accent : ForeColor);
+            var iconSize = System.Math.Min(System.Math.Min(Width, Height), System.Math.Max(1, (int)System.Math.Round(20F * e.Graphics.DpiX / 96F)));
+            DesktopSurface.DrawIcon(e.Graphics, Symbol, new Rectangle((Width-iconSize)/2, (Height-iconSize)/2,
+                iconSize, iconSize), Tile ? colors.Accent : ForeColor);
         }
     }
 }

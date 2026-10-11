@@ -63,9 +63,9 @@ namespace DexManager.Forms
             bottom.Bounds = new Rectangle(16, 4, 110, 40);
             _toolbar.Controls.Add(bottom);
 
-            _heading = new Label { Text = LocalizationService.Get("Log.Title"), Font = UiFonts.Pixels(24F, true), BackColor = Color.Transparent };
-            _description = new Label { Text = LocalizationService.Get("Desktop.LogSubtitle"), BackColor = Color.Transparent };
-            _footer = new Label { Text = LocalizationService.Get("Desktop.LogFooter"), BackColor = Color.Transparent };
+            _heading = new UiLabel { Text = LocalizationService.Get("Log.Title"), Font = UiFonts.Pixels(24F, true), BackColor = Color.Transparent };
+            _description = new UiLabel { Text = LocalizationService.Get("Desktop.LogSubtitle"), BackColor = Color.Transparent };
+            _footer = new UiLabel { Text = LocalizationService.Get("Desktop.LogFooter"), BackColor = Color.Transparent };
             _logSurface = new RoundedPanel { Radius = 10, Padding = new Padding(12), BackColor = Color.Transparent };
             _logTextBox.BorderStyle = BorderStyle.None;
             _logSurface.Controls.Add(_logTextBox);

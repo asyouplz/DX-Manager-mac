@@ -52,13 +52,13 @@ namespace DexManager.Forms {
    _usbConnectionBox=CreateRadio(StoreUiText.Get("ConnectionUsb.Content","USB"));_wirelessConnectionBox=CreateRadio(StoreUiText.Get("ConnectionWireless.Content","Wi-Fi"));
    _wirelessDeviceBox=CreateSelect();_wirelessDeviceBox.SelectedIndexChanged+=WirelessDeviceBox_SelectedIndexChanged;
    _companionDeviceSelector=CreateSelect();_companionDeviceSelector.SelectionChangeCommitted+=delegate {if(!_storeUiReady)return;_wirelessDeviceBox.SelectedIndex=_companionDeviceSelector.SelectedIndex;};
-   _wirelessHostBox=StorePath();_wirelessPortBox=StoreNumber(1,65535);_wirelessAutoReconnectBox=new ThemedCheckBox();_wirelessStatusLabel=new Label {AutoSize=false};
+   _wirelessHostBox=StorePath();_wirelessPortBox=StoreNumber(1,65535);_wirelessAutoReconnectBox=new ThemedCheckBox();_wirelessStatusLabel=new UiLabel {AutoSize=false};
    _pairingPortBox=StoreNumber(1,65535);_pairingCodeBox=StorePath();_pairingCodeBox.UsePasswordMask=true;_pairingCodeBox.MaxLength=6;
    _wirelessPrepareButton=StoreAction("ConnectionPrepareButton","USB 무선 준비",WirelessPrepareButton_Click);
    _wirelessConnectButton=StoreAction("ConnectionConnectButton","연결",WirelessConnectButton_Click);
    _wirelessDisconnectButton=StoreAction("ConnectionDisconnectButton","해제",WirelessDisconnectButton_Click);
    _pairButton=StoreAction("ConnectionPairButton","페어링",PairButton_Click);
-   _displayCleanupStatusLabel=new Label {AutoSize=false};_bundleStateText=new Label {Text=LocalizationService.Get("Settings.DisplayCleanupChecking")};_installStateText=new Label {Text=LocalizationService.Get("Settings.DisplayCleanupChecking")};
+   _displayCleanupStatusLabel=new UiLabel {AutoSize=false};_bundleStateText=new UiLabel {Text=LocalizationService.Get("Settings.DisplayCleanupChecking")};_installStateText=new UiLabel {Text=LocalizationService.Get("Settings.DisplayCleanupChecking")};
    _companionInstallButton=StoreAction("CompanionInstallButton","설치 / 업데이트",CompanionInstallButton_Click);
    _displayCleanupPermissionButton=StoreAction("CompanionGrantButton","권한 부여",DisplayCleanupPermissionButton_Click);
    _companionUninstallButton=StoreAction("CompanionUninstallButton","삭제",CompanionUninstallButton_Click);
@@ -86,10 +86,10 @@ namespace DexManager.Forms {
    _storeEditors["BrowseFileTransferTargetButton"]=StoreAction("PathsChoosePhoneTargetButton","휴대폰에서 선택",delegate {BrowseDeviceFolder(_fileTransferTargetFolderBox);SaveStorePaths();});
    _storeEditors["BrowsePhoneToPcReceiveFolderButton"]=StoreAction("PathsChoosePcReceiveButton","선택",delegate {BrowseStorePcPath(_phoneToPcReceiveFolderBox);});
    _storeEditors["@LogButton_Click"]=StoreAction("DiagnosticsOpenLogButton","로그 창 열기",delegate {if(_showLogs!=null)_showLogs();});
-   _storeEditors["DiagnosticEnvironmentText"]=new Label {Text=StoreUiText.Get("DiagnosticsEnvironmentText.Text","검사를 시작하지 않았습니다.")};
+   _storeEditors["DiagnosticEnvironmentText"]=new UiLabel {Text=StoreUiText.Get("DiagnosticsEnvironmentText.Text","검사를 시작하지 않았습니다.")};
    _storeEditors["RefreshDiagnosticsButton"]=StoreAction("DiagnosticsRefreshButton","새로고침",delegate {RefreshStoreEnvironment();RefreshDeviceDiagnosticsAsync();});
    _storeEditors["DiagnosticDeviceCardsGrid"]=devices;
-   _storeEditors["DiagnosticReportStatusText"]=new Label {Text=StoreUiText.Get("DiagnosticsReportStatusText.Text","민감한 값을 가린 보고서를 저장합니다.")};
+   _storeEditors["DiagnosticReportStatusText"]=new UiLabel {Text=StoreUiText.Get("DiagnosticsReportStatusText.Text","민감한 값을 가린 보고서를 저장합니다.")};
    _storeEditors["SaveDiagnosticReportButton"]=_diagnosticReportButton;
    _storeEditors["ResetSettingsButton"]=StoreAction("DiagnosticsResetButton","기본값 초기화",ResetDefaultsButton_Click);
   }
@@ -98,8 +98,8 @@ namespace DexManager.Forms {
    foreach(var pageName in new[]{"General","Connection","Paths","Input","Diagnostics","About","Companion"}) {
     var page=(FlowLayoutPanel)CreatePage();page.Padding=new Padding(0,0,16,16);
     if(pageName=="About") {BuildStoreAbout(page);result.Add(page);continue;}
-    page.Controls.Add(new Label {Text=StoreUiText.Get(pageName+"Heading.Text",pageName),Font=UiFonts.Pixels(20,true),ForeColor=_theme.TextPrimary,AutoSize=true,Margin=new Padding(0,0,0,6),Tag="primary"});
-    page.Controls.Add(new Label {Text=StoreUiText.Get(pageName+"Description.Text",""),Font=UiFonts.Pixels(14),ForeColor=_theme.TextSecondary,AutoSize=true,MaximumSize=new Size(CardWidth,0),Margin=new Padding(0,0,0,14)});
+    page.Controls.Add(new UiLabel {Text=StoreUiText.Get(pageName+"Heading.Text",pageName),Font=UiFonts.Pixels(20,true),ForeColor=_theme.TextPrimary,AutoSize=true,Margin=new Padding(0,0,0,6),Tag="primary"});
+    page.Controls.Add(new UiLabel {Text=StoreUiText.Get(pageName+"Description.Text",""),Font=UiFonts.Pixels(14),ForeColor=_theme.TextSecondary,AutoSize=true,MaximumSize=new Size(CardWidth,0),Margin=new Padding(0,0,0,14)});
     foreach(var spec in StoreSettingSpec.All.Where(s=>s.Page==pageName && s.Uid!="CompanionBundleCard" && s.Uid!="CompanionInstallStatusCard")) {
      var card=new StoreSettingCard(StoreUiText.Get(spec.Uid+".Header",spec.Header),StoreUiText.Get(spec.Uid+".Description",spec.Description),spec.Symbol,spec.Parent.Length>0,spec.Expander) {Width=CardWidth,Tag=spec.Uid};
      _storeCards[spec.Uid]=card;
@@ -114,7 +114,7 @@ namespace DexManager.Forms {
   private void AddStoreEditors(StoreSettingCard card,StoreSettingSpec spec) {
    var editors=spec.Editors.ToList();
    if(spec.Uid=="GeneralSingleInstanceCard" || spec.Uid=="GeneralCloseBehaviorCard") {
-    var text=new Label {Text=StoreUiText.Get(spec.Uid=="GeneralSingleInstanceCard"?"GeneralSingleInstanceValue.Text":"GeneralCloseBehaviorValue.Text",""),Font=UiFonts.Pixels(14,true),TextAlign=ContentAlignment.MiddleRight,Dock=DockStyle.Fill};card.EditorWidth=220;card.EditorHost.Controls.Add(text);
+    var text=new UiLabel {Text=StoreUiText.Get(spec.Uid=="GeneralSingleInstanceCard"?"GeneralSingleInstanceValue.Text":"GeneralCloseBehaviorValue.Text",""),Font=UiFonts.Pixels(14,true),TextAlign=ContentAlignment.MiddleRight,Dock=DockStyle.Fill};card.EditorWidth=220;card.EditorHost.Controls.Add(text);
    }
    if(spec.Uid=="CompanionBundleCard") {card.EditorWidth=300;_bundleStateText.Dock=DockStyle.Fill;card.EditorHost.Controls.Add(_bundleStateText);}
    if(spec.Uid=="CompanionInstallStatusCard") {card.DescriptionLabel.TextChanged+=delegate {card.Reflow();};}
@@ -132,13 +132,13 @@ namespace DexManager.Forms {
     int width=entry.Kind=="TextBlock" && editors.Count>1 ? 328 : entry.Width;
     if(spec.Uid=="PathsAdbCard" || spec.Uid=="PathsScrcpyCard")width=496;
     if(control is CheckBox) {
-     control.Text="";var enabled=new Label {Text=StoreUiText.Get("CommonEnabled.Text","사용"),Font=UiFonts.Pixels(14),TextAlign=ContentAlignment.MiddleCenter,Bounds=new Rectangle(x,0,48,40)};card.RegisterEditorBounds(enabled);card.EditorHost.Controls.Add(enabled);x+=52;
+     control.Text="";var enabled=new UiLabel {Text=StoreUiText.Get("CommonEnabled.Text","사용"),Font=UiFonts.Pixels(14),TextAlign=ContentAlignment.MiddleCenter,Bounds=new Rectangle(x,0,48,40)};card.RegisterEditorBounds(enabled);card.EditorHost.Controls.Add(enabled);x+=52;
     }
     if(entry.Kind=="Grid") {card.WideContent=true;width=CardWidth-36;control.AutoSize=false;
      control.SizeChanged+=delegate {card.EditorHeight=control.Height;card.Reflow();};maxHeight=control.Height;}
     int height=entry.Kind=="Grid"?maxHeight:40;
     if(!string.IsNullOrEmpty(entry.Header)) {
-     var header=new Label {Text=StoreUiText.Get(entry.Uid+".Header",entry.Header),Font=UiFonts.Pixels(12),Bounds=new Rectangle(x,0,width,20)};card.RegisterEditorBounds(header);card.EditorHost.Controls.Add(header);control.Bounds=new Rectangle(x,22,width,height);maxHeight=Math.Max(maxHeight,62);
+     var header=new UiLabel {Text=StoreUiText.Get(entry.Uid+".Header",entry.Header),Font=UiFonts.Pixels(12),Bounds=new Rectangle(x,0,width,20)};card.RegisterEditorBounds(header);card.EditorHost.Controls.Add(header);control.Bounds=new Rectangle(x,22,width,height);maxHeight=Math.Max(maxHeight,62);
     } else control.Bounds=new Rectangle(x,0,width,height);
     if(control is RadioButton) { ((RadioButton)control).AutoSize=false; ((RadioButton)control).TextAlign=ContentAlignment.MiddleLeft; control.Height=40; }
     card.RegisterEditorBounds(control);card.EditorHost.Controls.Add(control);card.Editors.Add(control);x+=width+8;
@@ -158,12 +158,12 @@ namespace DexManager.Forms {
    card.Reflow();
   }
   private void BuildStoreAbout(FlowLayoutPanel page) {
-   page.Controls.Add(new Label {Text=StoreUiText.Get("SettingsNavAbout.Content",LocalizationService.Get("Settings.About")),Font=UiFonts.Pixels(20,true),AutoSize=true,ForeColor=_theme.TextPrimary,Margin=new Padding(0,0,0,12),Tag="primary"});
+   page.Controls.Add(new UiLabel {Text=StoreUiText.Get("SettingsNavAbout.Content",LocalizationService.Get("Settings.About")),Font=UiFonts.Pixels(20,true),AutoSize=true,ForeColor=_theme.TextPrimary,Margin=new Padding(0,0,0,12),Tag="primary"});
    var card=new RoundedPanel {Radius=20,Width=CardWidth,AutoSize=true,AutoSizeMode=AutoSizeMode.GrowAndShrink,Padding=new Padding(20),BackColor=Color.Transparent};
    var stack=new FlowLayoutPanel {Location=new Point(20,20),Width=CardWidth-40,AutoSize=true,FlowDirection=FlowDirection.TopDown,WrapContents=false,BackColor=Color.Transparent};
-   stack.Controls.Add(new Label {Text="DX Manager v"+Application.ProductVersion,Font=UiFonts.Pixels(15,true),AutoSize=true,Tag="primary",Margin=new Padding(0,0,0,12)});
-   foreach(var key in new[]{"AboutSummaryText.Text","AboutDeveloperText.Text","AboutCopyrightText.Text","AboutLicenseText.Text","AboutScrcpyText.Text","AboutLibrariesText.Text","AboutSamsungText.Text","AboutDisclaimerText.Text"})stack.Controls.Add(new Label {Text=StoreUiText.Get(key,""),Font=UiFonts.Pixels(14),AutoSize=true,MaximumSize=new Size(CardWidth-40,0),Margin=new Padding(0,0,0,12)});
-   var contact=new LinkLabel {Text="dxmanager.support@gmail.com",AutoSize=true,Font=UiFonts.Pixels(14),Margin=new Padding(0,0,0,12)};contact.LinkClicked+=delegate {try{System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("mailto:dxmanager.support@gmail.com"){UseShellExecute=true});}catch(Exception ex){ShowStoreFailure(ex.Message);}};stack.Controls.Add(contact);
+   stack.Controls.Add(new UiLabel {Text="DX Manager v"+Application.ProductVersion,Font=UiFonts.Pixels(15,true),AutoSize=true,Tag="primary",Margin=new Padding(0,0,0,12)});
+   foreach(var key in new[]{"AboutSummaryText.Text","AboutDeveloperText.Text","AboutCopyrightText.Text","AboutLicenseText.Text","AboutScrcpyText.Text","AboutLibrariesText.Text","AboutSamsungText.Text","AboutDisclaimerText.Text"})stack.Controls.Add(new UiLabel {Text=StoreUiText.Get(key,""),Font=UiFonts.Pixels(14),AutoSize=true,MaximumSize=new Size(CardWidth-40,0),Margin=new Padding(0,0,0,12)});
+   var contact=new UiLinkLabel {Text="dxmanager.support@gmail.com",AutoSize=true,Font=UiFonts.Pixels(14),Margin=new Padding(0,0,0,12)};contact.LinkClicked+=delegate {try{System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("mailto:dxmanager.support@gmail.com"){UseShellExecute=true});}catch(Exception ex){ShowStoreFailure(ex.Message);}};stack.Controls.Add(contact);
    var notices=StoreAction("AboutOpenNoticesButton","제3자 라이선스 보기",delegate {OpenThirdPartyNotices();});notices.Width=200;stack.Controls.Add(notices);card.Controls.Add(stack);page.Controls.Add(card);
   }
   private void BrowseStorePcPath(ThemedTextControl box) {using(var dialog=new FolderBrowserDialog()){if(System.IO.Directory.Exists(box.Text))dialog.SelectedPath=box.Text;if(dialog.ShowDialog(this)==DialogResult.OK){box.Text=dialog.SelectedPath;SaveStorePaths();}}}

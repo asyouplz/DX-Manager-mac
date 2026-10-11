@@ -46,6 +46,7 @@ namespace DexManager.Forms
         public bool MenuCardStyle { get; set; }
         public bool ChevronUp { get; set; }
         public bool ExecutionBlocked { get; set; }
+        public bool CenterIconText { get; set; }
 
         protected override void OnMouseEnter(System.EventArgs e)
         {
@@ -110,7 +111,7 @@ namespace DexManager.Forms
                 ? fill
                 : (Primary ? fill : colors.ControlBorder);
             var text = NavigationStyle
-                ? (Primary ? colors.TextPrimary : colors.TextSecondary)
+                ? colors.TextPrimary
                 : (Primary ? Color.White : colors.TextPrimary);
             if (!Enabled || ExecutionBlocked)
             {
@@ -160,21 +161,38 @@ namespace DexManager.Forms
 
             if (MenuCardStyle)
             {
-                DesktopSurface.DrawIcon(e.Graphics, Symbol, new Rectangle(12, (Height - 22) / 2, 22, 22), colors.Accent);
+                DesktopSurface.DrawIcon(e.Graphics, Symbol, new Rectangle(12, (Height - 20) / 2, 20, 20), colors.Accent);
                 using (var titleFont = UiFonts.Pixels(14F, true))
                 using (var summaryFont = UiFonts.Pixels(13F))
                 {
                     var contentWidth = Width - 56;
-                    var summaryHeight = TextRenderer.MeasureText(e.Graphics, SecondaryText ?? string.Empty,
+                    var summaryHeight = UiText.MeasureText(e.Graphics, SecondaryText ?? string.Empty,
                         summaryFont, new Size(contentWidth, 0), TextFormatFlags.WordBreak | TextFormatFlags.NoPrefix).Height;
                     summaryHeight = System.Math.Min(summaryHeight, Height - titleFont.Height - 10);
                     var top = System.Math.Max(4, (Height-titleFont.Height-summaryHeight-4)/2);
-                    TextRenderer.DrawText(e.Graphics, Text, titleFont, new Rectangle(44, top, contentWidth, titleFont.Height),
+                    UiText.DrawText(e.Graphics, Text, titleFont, new Rectangle(44, top, contentWidth, titleFont.Height),
                         colors.TextPrimary, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
-                    TextRenderer.DrawText(e.Graphics, SecondaryText ?? string.Empty, summaryFont,
+                    UiText.DrawText(e.Graphics, SecondaryText ?? string.Empty, summaryFont,
                         new Rectangle(44, top+titleFont.Height+4, contentWidth, summaryHeight), colors.TextSecondary,
                         TextFormatFlags.Left | TextFormatFlags.WordBreak | TextFormatFlags.EndEllipsis);
                 }
+                return;
+            }
+            if (CenterIconText && Symbol != UiSymbol.None && !string.IsNullOrEmpty(Text))
+            {
+                // Store: 20px icon + 10px gap + 17px SemiBold text, centered as one group.
+                float scale = Font.SizeInPoints / 12.75F * e.Graphics.DpiX / 96F;
+                int iconSize = System.Math.Max(1, (int)System.Math.Round(20F * scale));
+                int gap = System.Math.Max(1, (int)System.Math.Round(10F * scale));
+                var measured = UiText.Measure(e.Graphics, Text, Font, Size.Empty, TextFormatFlags.NoPrefix);
+                int available = System.Math.Max(1, Width - (int)System.Math.Round(32F * scale) - iconSize - gap);
+                int textWidth = System.Math.Min(available, (int)System.Math.Ceiling(measured.Width));
+                int left = (Width - iconSize - gap - textWidth) / 2;
+                DesktopSurface.DrawIcon(e.Graphics, Symbol,
+                    new Rectangle(left, (Height - iconSize) / 2, iconSize, iconSize), text);
+                UiText.DrawText(e.Graphics, Text, Font,
+                    new Rectangle(left + iconSize + gap, 0, textWidth, Height), text,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
                 return;
             }
             if (Symbol == UiSymbol.Chevron)
@@ -184,7 +202,7 @@ namespace DexManager.Forms
             }
             else if (Symbol != UiSymbol.None)
                 DesktopSurface.DrawIcon(e.Graphics, Symbol,
-                    new Rectangle(string.IsNullOrEmpty(Text) ? (Width - 18) / 2 : 18, (Height - 18) / 2, 18, 18), text);
+                    new Rectangle(string.IsNullOrEmpty(Text) ? (Width - 20) / 2 : 18, (Height - 20) / 2, 20, 20), text);
             else if (NavigationStyle && ShowNavigationDot)
             {
                 var dot = new Rectangle(14, (Height - 7) / 2, 7, 7);
@@ -207,7 +225,7 @@ namespace DexManager.Forms
             {
                 using (var trailingFont = UiFonts.Create(8.5F))
                 {
-                    trailingWidth = TextRenderer.MeasureText(
+                    trailingWidth = UiText.MeasureText(
                         TrailingText,
                         trailingFont).Width;
                     var trailingBounds = new Rectangle(
@@ -215,7 +233,7 @@ namespace DexManager.Forms
                         0,
                         trailingWidth,
                         Height);
-                    TextRenderer.DrawText(
+                    UiText.DrawText(
                         e.Graphics,
                         TrailingText,
                         trailingFont,
@@ -235,7 +253,7 @@ namespace DexManager.Forms
                         (trailingWidth > 0 ? trailingWidth + 8 : 0),
                     Height)
                 : Symbol == UiSymbol.None ? bounds : new Rectangle(44, 0, Width - 50, Height);
-            TextRenderer.DrawText(
+            UiText.DrawText(
                 e.Graphics,
                 Text,
                 Font,
@@ -263,7 +281,7 @@ namespace DexManager.Forms
                 graphics.FillEllipse(brush, 13, Height - 20, 7, 7);
 
             var nameBounds = new Rectangle(13, 6, Width - 25, 23);
-            TextRenderer.DrawText(
+            UiText.DrawText(
                 graphics,
                 Text,
                 Font,
@@ -281,7 +299,7 @@ namespace DexManager.Forms
                     Height - 26,
                     Width - 38,
                     20);
-                TextRenderer.DrawText(
+                UiText.DrawText(
                     graphics,
                     SecondaryText ?? string.Empty,
                     statusFont,
@@ -429,9 +447,9 @@ namespace DexManager.Forms
 
             if (Symbol != UiSymbol.None)
                 DesktopSurface.DrawIcon(e.Graphics, Symbol,
-                    new Rectangle(1, (Height - 19) / 2, 19, 19), colors.TextTertiary);
-            var offset = Symbol == UiSymbol.None ? 2 : 24;
-            TextRenderer.DrawText(
+                    new Rectangle(1, (Height - 20) / 2, 20, 20), colors.TextPrimary);
+            var offset = Symbol == UiSymbol.None ? 2 : 30;
+            UiText.DrawText(
                 e.Graphics,
                 Text,
                 Font,

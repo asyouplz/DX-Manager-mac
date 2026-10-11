@@ -25,8 +25,8 @@ namespace DexManager.Forms
             _nested=nested; _expander=expander;
             BackColor=Color.Transparent; Margin=new Padding(nested?14:0,0,0,8);
             HeaderSurface=new RoundedPanel {Radius=4,BackColor=Color.Transparent};
-            TitleLabel=new Label {Text=title,Font=UiFonts.Pixels(14),BackColor=Color.Transparent,Tag="primary"};
-            DescriptionLabel=new Label {Text=description,Font=UiFonts.Pixels(12),BackColor=Color.Transparent,AutoEllipsis=true};
+            TitleLabel=new UiLabel {Text=title,Font=UiFonts.Pixels(14),BackColor=Color.Transparent,Tag="primary"};
+            DescriptionLabel=new UiLabel {Text=description,Font=UiFonts.Pixels(12),BackColor=Color.Transparent,AutoEllipsis=true};
             _icon=new SymbolView {Symbol=symbol,Visible=!nested};
             EditorHost=new Panel {BackColor=Color.Transparent};
             _expand=new ThemedButton {Text="",Symbol=UiSymbol.Chevron,NavigationStyle=true,Visible=expander,TabStop=true,Font=UiFonts.Pixels(14),CornerRadius=4};

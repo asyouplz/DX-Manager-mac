@@ -42,8 +42,8 @@ namespace DexManager.Forms
             StartPosition=FormStartPosition.CenterParent;FormBorderStyle=FormBorderStyle.FixedDialog;MaximizeBox=false;MinimizeBox=false;ShowInTaskbar=false;
             var area=Screen.PrimaryScreen.WorkingArea;
             var width=Math.Min(580,area.Width-48);
-            var titleLabel=new Label {Text=title,Font=UiFonts.Pixels(22,true),AutoSize=false,Bounds=new Rectangle(24,22,width-48,36),ForeColor=ThemeColors.Current.TextPrimary,BackColor=Color.Transparent};
-            var body=new Label {Text=text,AutoSize=true,MaximumSize=new Size(width-48,0),Font=UiFonts.Pixels(14),ForeColor=ThemeColors.Current.TextPrimary,BackColor=Color.Transparent};
+            var titleLabel=new UiLabel {Text=title,Font=UiFonts.Pixels(22,true),AutoSize=false,Bounds=new Rectangle(24,22,width-48,36),ForeColor=ThemeColors.Current.TextPrimary,BackColor=Color.Transparent};
+            var body=new UiLabel {Text=text,AutoSize=true,MaximumSize=new Size(width-48,0),Font=UiFonts.Pixels(14),ForeColor=ThemeColors.Current.TextPrimary,BackColor=Color.Transparent};
             var preferred=body.GetPreferredSize(new Size(width-48,0));
             int contentHeight=Math.Min(preferred.Height+8,Math.Max(140,area.Height-240));
             ClientSize=new Size(width,Math.Max(230,80+contentHeight+(acknowledgment?64:0)+76));
@@ -66,7 +66,7 @@ namespace DexManager.Forms
             AcceptButton=defaultButton==MessageBoxDefaultButton.Button2?secondary:primary;
             if(acknowledgment)
             {
-                var check=new CheckBox {Text=StoreUiText.Get("FirstRunDialogCheck","I have read the above."),Font=UiFonts.Pixels(14),Bounds=new Rectangle(24,80+contentHeight,width-48,40),ForeColor=ThemeColors.Current.TextPrimary,BackColor=ThemeColors.Current.CardBackground};
+                var check=new UiCheckBox {Text=StoreUiText.Get("FirstRunDialogCheck","I have read the above."),Font=UiFonts.Pixels(14),Bounds=new Rectangle(24,80+contentHeight,width-48,40),ForeColor=ThemeColors.Current.TextPrimary,BackColor=ThemeColors.Current.CardBackground};
                 primary.Enabled=false;check.CheckedChanged+=delegate {primary.Enabled=check.Checked;};_surface.Controls.Add(check);
             }
             if(defaultButton==MessageBoxDefaultButton.Button2 && secondary.Visible)Shown+=delegate {secondary.Focus();};

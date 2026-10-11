@@ -85,7 +85,7 @@ namespace DexManager.Forms
                 _startAppLabel
             })
             {
-                label.ForeColor = _theme.TextTertiary;
+                label.ForeColor = _theme.TextSecondary;
                 label.BackColor = _theme.CardBackground;
             }
 
@@ -138,10 +138,10 @@ namespace DexManager.Forms
                 control.BackColor = _theme.NavigationBackground;
                 var label = control as Label;
                 if (label != null)
-                    label.ForeColor = _theme.TextTertiary;
+                    label.ForeColor = _theme.TextSecondary;
                 var button = control as ThemedButton;
                 if (button != null)
-                    button.ForeColor = _theme.TextSecondary;
+                    button.ForeColor = _theme.TextPrimary;
                 control.Invalidate();
             }
 
@@ -218,7 +218,7 @@ namespace DexManager.Forms
                 BorderColor = _theme.CardBorder
             };
 
-            _deviceSectionLabel = new Label
+            _deviceSectionLabel = new UiLabel
             {
                 AutoSize = true,
                 Font = UiFonts.Create(9.5F, FontStyle.Bold),
@@ -239,7 +239,7 @@ namespace DexManager.Forms
             };
             _sidebar.Controls.Add(_deviceSectionDivider);
 
-            _modeSectionLabel = new Label
+            _modeSectionLabel = new UiLabel
             {
                 AutoSize = true,
                 Font = UiFonts.Create(9.5F, FontStyle.Bold),
@@ -276,7 +276,7 @@ namespace DexManager.Forms
             _singleModeButton3.Click += delegate { SelectSingleWindowPreview(3); };
             _sidebar.Controls.Add(_singleModeButton3);
 
-            _sidebarHintLabel = new Label
+            _sidebarHintLabel = new UiLabel
             {
                 AutoEllipsis = true,
                 ForeColor = _theme.TextTertiary,

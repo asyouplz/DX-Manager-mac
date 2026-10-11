@@ -47,7 +47,7 @@ namespace DexManager.Forms
                 false,
                 new Padding(0, 0, 0, 8)));
 
-            var projectLink = new LinkLabel
+            var projectLink = new UiLinkLabel
             {
                 AutoSize = true,
                 Font = UiFonts.Create(9.5F, FontStyle.Regular),
@@ -96,7 +96,7 @@ namespace DexManager.Forms
             bool bold,
             Padding margin)
         {
-            return new Label
+            return new UiLabel
             {
                 AutoSize = true,
                 MaximumSize = new Size(610, 0),

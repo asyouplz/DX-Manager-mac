@@ -1,6 +1,7 @@
-﻿param(
+param(
     [string]$Version = "",
     [switch]$SkipBuild,
+    [switch]$NoArchive,
     [string]$TargetFrameworkRootPath = "",
     [string]$OutputRoot = "",
     [ValidateNotNullOrEmpty()][string]$PackageDirectoryName = "DX Manager"
@@ -210,7 +211,7 @@ New-Item -ItemType Directory -Path $distRoot -Force | Out-Null
 if (Test-Path -LiteralPath $packageRoot) {
     Remove-Item -LiteralPath $packageRoot -Recurse -Force
 }
-if (Test-Path -LiteralPath $zipPath) {
+if (!$NoArchive -and (Test-Path -LiteralPath $zipPath)) {
     Remove-Item -LiteralPath $zipPath -Force
 }
 New-Item -ItemType Directory -Path $packageRoot -Force | Out-Null
@@ -282,7 +283,7 @@ if ($unexpectedPdb) {
     throw "Debug symbols must not be included in the package: $($unexpectedPdb.FullName)"
 }
 
-Compress-Archive -LiteralPath $packageRoot -DestinationPath $zipPath -CompressionLevel Optimal
+if (!$NoArchive) { Compress-Archive -LiteralPath $packageRoot -DestinationPath $zipPath -CompressionLevel Optimal }
 
 Write-Host "Release folder: $packageRoot"
-Write-Host "Release archive: $zipPath"
+if (!$NoArchive) { Write-Host "Release archive: $zipPath" }

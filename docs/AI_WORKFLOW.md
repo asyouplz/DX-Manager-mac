@@ -110,3 +110,5 @@ Use the verified Release output and preserve older distribution folders:
 ```
 
 The first-run review override is disabled. Existing config/onboarding.json remains valid. Companion remains the pinned signed2.1.4 APK. Commit only after verifying the package; do not push, tag, publish or upload scan files without the user's explicit follow-up.
+
+Portable previews now use scripts/Build-PortablePreview.ps1 and the single DX Manager Preview folder. Preserve user config/logs/captures; do not generate a per-preview ZIP. See FIXED_PREVIEW_2026-10-08.md.

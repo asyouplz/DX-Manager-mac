@@ -26,9 +26,9 @@ namespace DexManager.Forms
             card.Controls.Add(new SymbolView { Symbol = symbol, ForeColor = _theme.TextPrimary,
                 Bounds = new Rectangle(18, 26, 22, 22) });
             var rightWidth = editor is ThemedCheckBox ? 52 : 224;
-            card.Controls.Add(new Label { Text = title, Bounds = new Rectangle(56, 13, CardWidth - rightWidth - 85, 26),
+            card.Controls.Add(new UiLabel { Text = title, Bounds = new Rectangle(56, 13, CardWidth - rightWidth - 85, 26),
                 ForeColor = _theme.TextPrimary, BackColor = Color.Transparent, AutoEllipsis = true, Tag = "primary" });
-            card.Controls.Add(new Label { Text = description, Bounds = new Rectangle(56, 39, CardWidth - rightWidth - 85, 30),
+            card.Controls.Add(new UiLabel { Text = description, Bounds = new Rectangle(56, 39, CardWidth - rightWidth - 85, 30),
                 Font = UiFonts.Create(8.5F), ForeColor = _theme.TextTertiary, BackColor = Color.Transparent, AutoEllipsis = true, Tag = "primary" });
             if (editor != null)
             {
@@ -37,7 +37,7 @@ namespace DexManager.Forms
                 editor.AccessibleName = title;
                 card.Controls.Add(editor);
             }
-            else card.Controls.Add(new Label { Text = fixedValue, TextAlign = ContentAlignment.MiddleRight,
+            else card.Controls.Add(new UiLabel { Text = fixedValue, TextAlign = ContentAlignment.MiddleRight,
                 Bounds = new Rectangle(CardWidth - 242, 18, 224, 40), ForeColor = _theme.TextPrimary, BackColor = Color.Transparent, Tag = "primary" });
             page.Controls.Add(card); return card;
         }

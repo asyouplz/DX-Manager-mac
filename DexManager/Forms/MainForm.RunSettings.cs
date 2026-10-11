@@ -76,7 +76,7 @@ namespace DexManager.Forms
         }
         private static int MeasureInlineLabel(Label label)
         {
-            return TextRenderer.MeasureText(
+            return UiText.MeasureText(
                 label.Text,
                 label.Font,
                 Size.Empty,
@@ -87,7 +87,7 @@ namespace DexManager.Forms
             Label label,
             int fieldTop)
         {
-            var labelHeight = TextRenderer.MeasureText(
+            var labelHeight = UiText.MeasureText(
                 label.Text,
                 label.Font,
                 Size.Empty,

@@ -60,7 +60,7 @@ namespace DexManager.Forms
             StartPosition = FormStartPosition.Manual;
             ClientSize = new Size(430, ExpandedHeight);
 
-            _statusLabel = new Label
+            _statusLabel = new UiLabel
             {
                 AutoSize = false,
                 Font = UiFonts.Create(12F, FontStyle.Bold),
@@ -77,10 +77,10 @@ namespace DexManager.Forms
                 InitialDelay = 400,
                 ReshowDelay = 100
             };
-            _queueLabels = new Label[VisibleQueueRows];
+            _queueLabels = new UiLabel[VisibleQueueRows];
             for (var index = 0; index < _queueLabels.Length; index++)
             {
-                var label = new Label
+                var label = new UiLabel
                 {
                     AutoEllipsis = true,
                     ForeColor = index == 0
@@ -97,14 +97,14 @@ namespace DexManager.Forms
                 Controls.Add(label);
             }
 
-            _detailLabel = new Label
+            _detailLabel = new UiLabel
             {
                 AutoEllipsis = true,
                 ForeColor = palette.TextTertiary,
                 Location = new Point(18, 180),
                 Size = new Size(394, 21)
             };
-            _countLabel = new Label
+            _countLabel = new UiLabel
             {
                 AutoEllipsis = true,
                 ForeColor = palette.TextTertiary,

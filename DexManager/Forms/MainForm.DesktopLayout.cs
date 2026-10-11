@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using DexManager.Models;
 using System.Drawing;
 using System.Windows.Forms;
@@ -112,7 +112,7 @@ namespace DexManager.Forms
                 var item = _headerDevices.SelectedItem as HeaderDeviceItem;
                 if (item != null) SelectDeviceContext(item.Context);
             };
-            _transportBadge = new Label { TextAlign = ContentAlignment.MiddleCenter,
+            _transportBadge = new UiLabel { TextAlign = ContentAlignment.MiddleCenter,
                 Font=UiFonts.Pixels(15),BackColor=Color.Transparent,AutoEllipsis=true };
             _transportSurface=new RoundedPanel {Radius=8,FillColor=_theme.CardSoft,BorderColor=_theme.ControlBorder,BackColor=Color.Transparent};
             _transportUsbIcon = new SymbolView { Symbol = UiSymbol.Usb, ForeColor = _theme.TextSecondary };
@@ -123,12 +123,14 @@ namespace DexManager.Forms
             // Refresh only the projection; the existing monitor owns connection commands.
             _headerRefreshButton.Click += delegate { _deviceMonitor.RequestRefresh(); };
             _statusCard.Controls.AddRange(new Control[] { _headerDevices, _transportSurface, _headerRefreshButton });
-            _startButton.Font = UiFonts.Pixels(16F, true);
-            _stopButton.Font = UiFonts.Pixels(16F, true);
+            _startButton.Font = UiFonts.Create(17F * 0.75F, FontStyle.Bold);
+            _stopButton.Font = UiFonts.Create(17F * 0.75F, FontStyle.Bold);
             _startButton.Parent = _statusCard;
             _stopButton.Parent = _statusCard;
             ((ThemedButton)_startButton).Symbol = UiSymbol.Launch;
+            ((ThemedButton)_startButton).CenterIconText = true;
             ((ThemedButton)_stopButton).Symbol = UiSymbol.Power;
+            ((ThemedButton)_stopButton).CenterIconText = true;
             _applySettingsLink.Parent = _statusCard;
 
             _displaySettingsTitle.Parent = _displayCard;
@@ -169,7 +171,7 @@ namespace DexManager.Forms
 
             _sidebar.Radius = 0;
             _sidebar.BorderColor = _theme.NavigationBackground;
-            _brandLabel = new Label { Text = LocalizationService.Get("App.Name"), AutoSize = false,
+            _brandLabel = new UiLabel { Text = LocalizationService.Get("App.Name"), AutoSize = false,
                 Font = UiFonts.Pixels(18F, true), TextAlign = ContentAlignment.MiddleLeft };
             _brandIcon = new PictureBox { Image = AppIconProvider.Current.ToBitmap(), SizeMode = PictureBoxSizeMode.Zoom };
             _sidebar.Controls.AddRange(new Control[] { _brandLabel, _brandIcon });
@@ -191,7 +193,7 @@ namespace DexManager.Forms
 
         private Label AddDesktopSubtitle(Control card, string key)
         {
-            var label = new Label { Text = LocalizationService.Get(key), AutoEllipsis = true,
+            var label = new UiLabel { Text = LocalizationService.Get(key), AutoEllipsis = true,
                 BackColor = Color.Transparent, ForeColor = _theme.TextTertiary, Font = UiFonts.Pixels(12F) };
             card.Controls.Add(label); return label;
         }
@@ -265,16 +267,16 @@ namespace DexManager.Forms
             _transportWifiIcon.ForeColor = _theme.TextSecondary;
             var both = _headerUsbConnected && _headerWifiConnected;
             var any = _headerUsbConnected || _headerWifiConnected;
-            var labelLeft = both ? 60 : _headerWifiConnected ? 36 : any ? 32 : 10;
-            var textWidth = (int)Math.Ceiling(TextRenderer.MeasureText(_transportBadge.Text,
+            var labelLeft = both ? 64 : any ? 36 : 10;
+            var textWidth = (int)Math.Ceiling(UiText.MeasureText(_transportBadge.Text,
                 _transportBadge.Font, Size.Empty, TextFormatFlags.NoPadding).Width / DesktopScale);
             var badgeWidth = Math.Max(78, labelLeft + textWidth + 14);
             var deviceWidth = Math.Min(230, width - headerX - badgeWidth - 70);
             Place(_headerDevices, headerX, 90, deviceWidth, 38);
             Place(_transportSurface, headerX + deviceWidth + 10, 90, badgeWidth, 40);
             Place(_headerRefreshButton, headerX + deviceWidth + badgeWidth + 20, 90, 40, 40);
-            Place(_transportUsbIcon, 10, 11, 16, 18);
-            Place(_transportWifiIcon, both ? 32 : 10, 11, 22, 18);
+            Place(_transportUsbIcon, 10, 10, 20, 20);
+            Place(_transportWifiIcon, both ? 36 : 10, 10, 20, 20);
             Place(_transportBadge, labelLeft, 1, badgeWidth - labelLeft - 10, 38);
         }
 
@@ -330,7 +332,7 @@ namespace DexManager.Forms
                     field.BeginInvoke((Action)delegate {if(!field.IsDisposed && field.Focused)field.SelectAll();});
             };
             var ok=new ThemedButton {Primary=true,Text=LocalizationService.IsKorean?"확인":"OK",Bounds=new Rectangle(228,104,100,40),DialogResult=DialogResult.OK};
-            dialog.Controls.AddRange(new Control[]{new Label {Text=LocalizationService.Get("Main.Width"),Bounds=new Rectangle(24,14,140,24),ForeColor=_theme.TextPrimary},new Label {Text=LocalizationService.Get("Main.Height"),Bounds=new Rectangle(188,14,140,24),ForeColor=_theme.TextPrimary},width,height,ok});
+            dialog.Controls.AddRange(new Control[]{new UiLabel {Text=LocalizationService.Get("Main.Width"),Bounds=new Rectangle(24,14,140,24),ForeColor=_theme.TextPrimary},new UiLabel {Text=LocalizationService.Get("Main.Height"),Bounds=new Rectangle(188,14,140,24),ForeColor=_theme.TextPrimary},width,height,ok});
             dialog.AcceptButton=ok;dialog.ActiveControl=first;
             dialog.Shown+=delegate {dialog.Activate();dialog.BeginInvoke((Action)delegate {if(!dialog.IsDisposed){first.Focus();first.SelectAll();}});};
             return dialog;

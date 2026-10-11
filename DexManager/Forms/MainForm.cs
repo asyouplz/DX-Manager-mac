@@ -256,7 +256,7 @@ namespace DexManager.Forms
             UiWindowStyle.ApplyStoreSize(this, 1200, 800);
             AutoScroll = false;
 
-            _pageTitle = new Label
+            _pageTitle = new UiLabel
             {
                 AutoSize = true,
                 Font = UiFonts.Create(22F, FontStyle.Bold),
@@ -282,7 +282,7 @@ namespace DexManager.Forms
             {
                 Location = new Point(33, 91)
             };
-            _indicatorStatus = new Label
+            _indicatorStatus = new UiLabel
             {
                 AutoSize = false,
                 Font = UiFonts.Create(15F, FontStyle.Bold),
@@ -291,14 +291,14 @@ namespace DexManager.Forms
                 Size = new Size(240, 31),
                 TextAlign = ContentAlignment.MiddleLeft
             };
-            _indicatorDetail = new Label
+            _indicatorDetail = new UiLabel
             {
                 AutoEllipsis = true,
                 ForeColor = _theme.TextTertiary,
                 Location = new Point(35, 130),
                 Size = new Size(570, 22)
             };
-            _deviceInfoLabel = new Label
+            _deviceInfoLabel = new UiLabel
             {
                 AutoEllipsis = true,
                 ForeColor = _theme.TextTertiary,
@@ -315,10 +315,10 @@ namespace DexManager.Forms
                 LocalizationService.Get("Main.Waiting"),
                 LocalizationService.Get("Main.PreparingAdb"));
 
-            _adbStatusValue = new Label { Visible = false };
-            _scrcpyStatusValue = new Label { Visible = false };
-            _dexStatusValue = new Label { Visible = false };
-            _deviceStatusValue = new Label { Visible = false };
+            _adbStatusValue = new UiLabel { Visible = false };
+            _scrcpyStatusValue = new UiLabel { Visible = false };
+            _dexStatusValue = new UiLabel { Visible = false };
+            _deviceStatusValue = new UiLabel { Visible = false };
             AddDivider(204);
 
             _displaySettingsTitle = AddSectionTitle(
@@ -425,7 +425,7 @@ namespace DexManager.Forms
             _additionalArgumentsBox = CreateCustomText(32, 577, 440);
             _additionalArgumentsBox.PlaceholderText = LocalizationService.IsKorean ? "예: --no-audio --video-codec=h264" : "e.g. --no-audio --video-codec=h264";
             _additionalArgumentsBox.Visible = false;
-            _advancedToggle = new LinkLabel
+            _advancedToggle = new UiLinkLabel
             {
                 AutoSize = true,
                 LinkColor = _theme.Accent,
@@ -458,7 +458,7 @@ namespace DexManager.Forms
                 152);
             _stopButton.Click += StopButton_Click;
             _stopButton.Visible = false;
-            _applySettingsLink = new LinkLabel
+            _applySettingsLink = new UiLinkLabel
             {
                 AutoSize = true,
                 LinkBehavior = LinkBehavior.HoverUnderline,
@@ -493,7 +493,7 @@ namespace DexManager.Forms
             Controls.Add(_startButton);
             Controls.Add(_stopButton);
             Controls.Add(_applySettingsLink);
-            _modeHintLabel = new Label
+            _modeHintLabel = new UiLabel
             {
                 AutoEllipsis = true,
                 ForeColor = Color.FromArgb(107, 114, 128),

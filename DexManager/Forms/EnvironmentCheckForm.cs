@@ -44,7 +44,7 @@ namespace DexManager.Forms
                 Height = 112,
                 Padding = new Padding(28, 20, 28, 10)
             };
-            _titleLabel = new Label
+            _titleLabel = new UiLabel
             {
                 AutoSize = true,
                 Font = UiFonts.Create(
@@ -54,7 +54,7 @@ namespace DexManager.Forms
                 Text = LocalizationService.Get(
                     "Environment.Title")
             };
-            _guideLabel = new Label
+            _guideLabel = new UiLabel
             {
                 AutoEllipsis = true,
                 Location = new Point(30, 61),
@@ -72,7 +72,7 @@ namespace DexManager.Forms
                 Height = 70,
                 Padding = new Padding(28, 12, 28, 18)
             };
-            _statusLabel = new Label
+            _statusLabel = new UiLabel
             {
                 AutoEllipsis = true,
                 Dock = DockStyle.Fill,
@@ -216,7 +216,7 @@ namespace DexManager.Forms
             int left,
             int width)
         {
-            return new Label
+            return new UiLabel
             {
                 AutoEllipsis = true,
                 Location = new Point(left, 4),
@@ -299,7 +299,7 @@ namespace DexManager.Forms
                 BackColor = theme.CardBackground,
                 Tag = result
             };
-            var status = new Label
+            var status = new UiLabel
             {
                 AutoEllipsis = true,
                 Location = new Point(0, 0),
@@ -312,7 +312,7 @@ namespace DexManager.Forms
                     FontStyle.Bold),
                 Text = GetStatusText(result.Status)
             };
-            var name = new Label
+            var name = new UiLabel
             {
                 AutoEllipsis = true,
                 Location = new Point(90, 0),
@@ -322,7 +322,7 @@ namespace DexManager.Forms
                 TextAlign = ContentAlignment.MiddleLeft,
                 Text = result.Name
             };
-            var message = new Label
+            var message = new UiLabel
             {
                 AutoEllipsis = true,
                 Location = new Point(270, 0),
