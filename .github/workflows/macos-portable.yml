@@ -19,6 +19,8 @@ on:
       - "docs/PACKAGE_README_MACOS.md"
       - "global.json"
       - "scripts/Package-Mac-Release.sh"
+      - "scripts/Create-AppBundle.sh"
+      - "scripts/app_icon.icns"
   push:
     branches:
       - main
@@ -41,12 +43,14 @@ on:
       - "docs/PACKAGE_README_MACOS.md"
       - "global.json"
       - "scripts/Package-Mac-Release.sh"
+      - "scripts/Create-AppBundle.sh"
+      - "scripts/app_icon.icns"
   workflow_dispatch:
     inputs:
       version:
         description: Version used in the generated ZIP filenames
         required: true
-        default: "2.0.1"
+        default: "2.0.2"
 
 permissions:
   contents: read
@@ -83,7 +87,7 @@ jobs:
           elif [[ -n "$REQUESTED_VERSION" ]]; then
             version="$REQUESTED_VERSION"
           else
-            version="2.0.1"
+            version="2.0.2"
           fi
           echo "DXM_PACKAGE_VERSION=$version" >> "$GITHUB_ENV"
 
@@ -107,6 +111,7 @@ jobs:
           --rid "${{ matrix.rid }}"
           --version "$DXM_PACKAGE_VERSION"
           --skip-tests
+          --include-app
 
       - name: Upload prebuilt portable package
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

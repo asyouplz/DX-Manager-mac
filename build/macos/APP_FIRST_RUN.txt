@@ -1,0 +1,43 @@
+DX Manager app — first launch
+
+This optional app opens the existing DX Manager terminal menu. It is ad-hoc
+signed for integrity checks, without an Apple Developer ID or notarization.
+It does not remove quarantine attributes or change your Mac's security settings.
+
+1. Extract the complete ZIP and open DX Manager.app. You may move this whole
+   app to Applications; do not move or replace individual files inside it.
+2. If macOS blocks it, close the warning, open System Settings > Privacy &
+   Security, and review Open Anyway for DX Manager. Only approve a package you
+   obtained from the project's Release and whose checksum you verified.
+3. A bundled component may require its own approval. The app bundle does not
+   guarantee that Gatekeeper asks only once or removes all warnings.
+4. The Terminal window contains the DX Manager menu. Keep the phone connected,
+   use Q to stop sessions, and wait for cleanup before closing Terminal.
+
+App settings: ~/Library/Application Support/DX Manager/config/settings.json
+App logs: ~/Library/Logs/DX Manager
+Existing portable-folder settings are kept separate and are not copied or
+overwritten. The portable Start DX Manager.command retains its existing paths.
+
+Apple's approval instructions: https://support.apple.com/en-us/102445
+
+한국어
+
+이 선택형 앱은 기존 DX Manager 터미널 메뉴를 엽니다. 무결성 검사를 위한
+ad-hoc 서명만 있으며 Apple Developer ID 서명이나 공증은 없습니다.
+quarantine 속성을 삭제하거나 Mac의 보안 설정을 변경하지 않습니다.
+
+1. ZIP 전체를 풀고 DX Manager.app를 여십시오. 앱 전체를 응용 프로그램
+   폴더로 옮길 수 있습니다. 앱 내부 파일을 개별 이동하거나 교체하지 마십시오.
+2. macOS가 차단하면 경고를 닫고 시스템 설정 > 개인정보 보호 및 보안에서
+   DX Manager의 '그래도 열기'를 확인하십시오. 프로젝트 Release에서 받은
+   파일인지 확인하고 체크섬을 검증한 패키지만 승인하십시오.
+3. 포함된 구성요소도 별도 승인이 필요할 수 있습니다. 앱 묶음만으로 Gatekeeper
+   승인이 한 번으로 끝나거나 모든 경고가 없어지는 것은 아닙니다.
+4. Terminal 창에서 DX Manager 메뉴를 사용합니다. 휴대폰을 연결한 상태에서
+   Q로 세션을 종료하고 정리가 끝난 뒤 Terminal을 닫으십시오.
+
+앱 설정: ~/Library/Application Support/DX Manager/config/settings.json
+앱 로그: ~/Library/Logs/DX Manager
+기존 포터블 폴더의 설정은 별도로 유지하며 자동으로 복사하거나 덮어쓰지 않습니다.
+포터블 Start DX Manager.command의 기존 경로는 유지됩니다.

@@ -143,6 +143,71 @@ DX Manager가 만든 화면과 사용자가 개발자 옵션에서 직접 선택
 
 ## macOS 포터블 서명과 실기 범위
 
+### 2026-10-12 follow-up / 후속 확인
+
+A follow-up of the published arm64 build on USB SM-S942N (Android 17, SDK 37,
+One UI property `90000`) kept DeX visible with the phone panel off, as confirmed
+by the user. This is not evidence of a fix for Galaxy Z Flip6, manual locking,
+or other models/firmware. Preview.2 code checks passed (Release build without
+warnings/errors, xUnit 121/121, multi-device 39/39). Both preview.2 ZIPs passed
+package checks, and native arm64 noninteractive launcher checks passed. The
+preview.2 interactive launcher started DeX on authorized USB SM-S942N and
+panel OFF was observed. `O` displayed help without changing the scrcpy
+process, overlay, or panel state. External settings paths and the app signature
+were verified after startup. The user confirmed native screen-on/off and normal
+DeX display. `2` after ON → OFF restored the panel and baseline settings; a
+second DeX start followed by active-session `Q` exited with code 0, restored
+the same baseline, and left no DX Manager/scrcpy processes. The app signature
+remained valid after exit. These results apply only to this USB SM-S942N;
+folding/manual locking, Galaxy Z Flip6, and other models/firmware remain untested.
+Empty macOS USB inventory output did not reflect the authorized USB ADB
+connection in this environment; it alone is not evidence of disconnection.
+TUI `O` only shows shortcut help; focus the intended scrcpy window and use left
+`Option+O` for off or `Option+Shift+O` for on. Preview.1's separate helper was
+removed after source review found that its startup flag did not establish
+restoration after native screen-on. This sequence was not reproduced on a
+physical phone; see `DECISIONS.md`.
+
+The candidate `.app` remains ad hoc signed, and embedded components may still
+need approval. In macOS 15 and later, use **System Settings > Privacy & Security
+> Open Anyway** after attempting launch; Control-click is no longer a
+Gatekeeper override. See [Apple's notice](https://developer.apple.com/news/?id=saqachfa).
+
+The older preview.1 arm64 app ran through its internal launcher on macOS 26.6.2.
+Its two ZIPs passed static package checks, but x64 was cross-packaged without
+Intel or Rosetta execution. Those results do not validate preview.2 artifacts.
+The visual Finder-to-Terminal flow and quarantined-download approval have not
+been verified for either candidate.
+
+공개 arm64 빌드를 USB SM-S942N 한 대(Android 17, SDK 37, One UI 속성
+`90000`)에서 후속 확인한 결과, 사용자가 패널이 꺼진 상태의 DeX 정상 표시를
+확인했다. Galaxy Z Flip6, 수동 잠금, 다른 모델·펌웨어가 수정됐다는 근거는 아니다.
+preview.2 코드 검증은 Release 경고·오류 0, xUnit 121/121·다중 기기 39/39로
+통과했다. 두 ZIP의 패키지 검사와 네이티브 arm64 비대화형 실행기를 확인했다.
+preview.2 대화형 실행기에서 authorized USB SM-S942N의 DeX를 시작해 패널 OFF를
+관찰했다. `O`는 안내만 표시했고 scrcpy 프로세스·overlay·패널 상태는 유지됐다.
+실행 후 번들 밖 설정 경로와 앱 서명도 확인했다. 사용자가 화면 켜기·끄기 단축키와
+DeX 정상 표시를 확인했다. ON → OFF 뒤 `2`로 중지해 패널·기존 설정이 복원됐고,
+DeX 재시작 후 실행 중 `Q`로 종료하여 코드 0·같은 원래 상태 복원·관련 프로세스가
+남지 않음을 확인했다. 종료 후 앱 서명도 유효했다. 이 결과는 해당 USB SM-S942N에
+한정하며 접기·수동 잠금, Galaxy Z Flip6와 다른 모델·펌웨어는 미확인이다. 이 환경의 빈
+macOS USB 목록은 실제 authorized USB ADB 연결을 반영하지 않았으므로 단독으로
+연결 해제의 근거가 되지 않는다. TUI `O`는 단축키 안내만 표시하며 대상 scrcpy 창에서 왼쪽 `Option+O`로
+끄고 `Option+Shift+O`로 켠다. preview.1의 별도 helper는 화면 켜기 이후 복원을
+시작 옵션으로 확인할 수 없다는 소스 검토에 따라 제거했다. 이 순서를 실제 휴대폰에서
+실패로 재현한 것은 아니며 이유는 `DECISIONS.md`를 참조한다.
+
+후보 `.app`도 ad hoc 서명만 사용하며 내부 구성요소의 승인이 추가로 필요할 수
+있다. macOS 15 이상에서는 실행을 시도한 뒤 **시스템 설정 > 개인정보 보호 및
+보안 > 그래도 열기**를 사용한다. Control-클릭은 Gatekeeper 승인 방법이
+아니다. [Apple 변경 안내](https://developer.apple.com/news/?id=saqachfa)를 참조한다.
+
+이전 preview.1 arm64 앱은 macOS 26.6.2에서 내부 실행기로 기동했다. 그 ZIP
+두 개는 정적 패키지 검증을 통과했지만 x64는 교차 패키징했으며 Intel·Rosetta에서
+실행하지 않았다. 해당 결과가 preview.2 산출물을 검증하는 것은 아니다. 두 후보
+모두 Finder에서 Terminal이 열리는 화면과 quarantine 다운로드의 최초 승인은
+미확인이다.
+
 macOS arm64/x64 ZIP은 self-contained이므로 Homebrew와 별도 .NET 설치에
 의존하지 않는다. 다만 현재 자동화 설정에는 Apple Developer ID 인증서와
 notarization 자격 증명이 구성되어 있지 않다. 브라우저로 받은 ZIP은 최초 실행
@@ -150,7 +215,7 @@ notarization 자격 증명이 구성되어 있지 않다. 브라우저로 받은
 버전에서 경고 없는 최초 실행을 보장하지 않는다. 패키징 스크립트가 quarantine
 속성을 자동 삭제하거나 macOS 보안 기능을 우회하지 않는다.
 
-Apple Silicon ZIP은 Apple Silicon Mac에서 실제 바이너리 기동을 확인했다.
-Intel ZIP은 아키텍처와 외부 경로를 검사하고 Apple Silicon Mac의 Rosetta에서
-실행 파일 기동을 확인했지만, Intel 실기 전체 DeX 흐름은 GitHub의
-`macos-15-intel` 자동 빌드와 별도로 실제 Intel Mac 확인이 남아 있다.
+이전 포터블 빌드에서는 Apple Silicon 네이티브 기동과 Intel ZIP의 Rosetta 기동을
+확인한 기록이 있다. 이 기록은 `2.0.2-preview.1`이나 `2.0.2-preview.2` 후보의
+x64 실행 결과를 대신하지 않는다. 실제 Intel Mac의 전체 Galaxy DeX 흐름도
+별도 확인 대상이다.
