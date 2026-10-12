@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text;
 using DexManager.Mac.Hosting;
+using DexManager.Mac.Platform;
 
 namespace DexManager.Mac;
 
@@ -39,6 +40,7 @@ internal static class Program
 
         try
         {
+            ConfigureBundledScrcpyEnvironment(new MacPathProvider());
             using var host = new InteractiveHost();
 
             if (args.Length > 0)
@@ -114,6 +116,25 @@ internal static class Program
             AnsiConsole.Error($"Fatal error: {ex.Message}");
             return 1;
         }
+    }
+
+    internal static void ConfigureBundledScrcpyEnvironment(
+        MacPathProvider paths,
+        Action<string, string> setVariable = null)
+    {
+        if (!paths.IsAppBundle) return;
+        if (!File.Exists(paths.BundledScrcpyServerPath))
+        {
+            throw new FileNotFoundException(
+                "The app's bundled scrcpy server is missing. Extract the complete app again.",
+                paths.BundledScrcpyServerPath);
+        }
+
+        setVariable ??= Environment.SetEnvironmentVariable;
+        // scrcpy 4.1 supports these paths. Data stays in Resources while its
+        // macOS executable stays in MacOS; direct CLI/autostart also use them.
+        setVariable("SCRCPY_SERVER_PATH", paths.BundledScrcpyServerPath);
+        setVariable("SCRCPY_ICON_DIR", paths.BundledScrcpyResourceDirectory);
     }
 
     private static void PrintHelp()

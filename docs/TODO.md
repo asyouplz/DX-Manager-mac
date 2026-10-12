@@ -1,5 +1,75 @@
 # TODO
 
+## macOS 2.0.2 publication / 공개 배포
+
+- [x] Submit personal-fork PR #2 and withdraw the earlier upstream PR #7.
+- [x] Pass Apple Silicon and Intel CI run `38210807278`.
+- [x] Publish `macos-v2.0.2` as latest and verify all four unauthenticated downloads.
+- [x] Keep the shared 2.0.1 URL working with a link to the new release.
+- [ ] Review/merge personal-fork PR #2 (not performed by this task).
+
+### 한국어
+
+- [x] 개인 저장소 PR #2 제출, 앞서 만든 원작자 PR #7 철회
+- [x] Apple Silicon·Intel 원격 CI 통과
+- [x] 2.0.2 최신 공개 릴리스와 로그인 없는 네 다운로드 검증
+- [x] 기존 2.0.1 공유 페이지에 새 버전 안내 추가
+- [ ] 개인 저장소 PR #2 검토·병합 대기. 이 작업에서는 병합하지 않음
+
+## 2.0.2 runtime validation history / 실행 코드 검증 기록
+
+- [x] Recheck published-build panel-off on USB SM-S942N and restore baseline
+  settings; keep this separate from candidate and other-model validation.
+- [x] Remove the separate `O` helper after source review; retain native scrcpy
+  shortcut help and the selected-device settings fix.
+- [x] Rebuild preview.2 with warnings as errors and run the complete tests:
+  xUnit 121/121 and multi-device 39/39 passed, including settings isolation,
+  save/reload, and failed-save preservation.
+- [x] Open the preview.2 interactive TUI, start DeX on the intended USB
+  SM-S942N, and observe panel OFF. Verify that `O` displays HELP ONLY without
+  changing the scrcpy process, overlay, or panel state.
+- [x] Receive visual DeX confirmation and check native screen-on/off shortcuts
+  in the focused scrcpy window on USB SM-S942N.
+- [x] Verify `2` cleanup after native ON → OFF, then restart DeX and verify
+  active-session `Q` cleanup/exit 0. Panel, overlay, stay-awake, and timeout
+  returned to baseline with no remaining DX Manager/scrcpy processes.
+- [x] Validate both preview.2 `--include-app` ZIPs, signatures, architectures,
+  checksums, private-data exclusion, and native arm64 noninteractive launcher
+  checks. Keep preview.1 checks and hashes as history in `SESSION.md`.
+- [x] Recheck external app data paths and unchanged bundle signature after
+  interactive preview.2 startup; common Scrcpy preferences match the backup.
+- [ ] Verify the visual Finder-to-Terminal flow; the internal PTY launcher
+  result does not cover Finder or its security dialogs.
+- [ ] Check first launch from a quarantined download on supported macOS.
+- [ ] Recheck the reported black-display case on its actual model/firmware;
+  Galaxy Z Flip6, folding/manual lock, and physical Intel Mac remain unverified.
+
+### 한국어
+
+- [x] 공개 빌드의 USB SM-S942N 패널 끄기와 기존 설정 복원 확인. 후보·다른 모델
+  검증과 구분한다.
+- [x] 소스 검토 후 별도 `O` helper를 제거하고 scrcpy 단축키 안내와 선택 기기
+  설정 수정 유지
+- [x] preview.2 경고를 오류로 처리하는 빌드 및 전체 테스트: xUnit 121/121·
+  다중 기기 39/39 통과. 설정 분리·저장·재로드·저장 실패 보존 포함
+- [x] preview.2 대화형 TUI에서 대상 USB SM-S942N의 DeX를 시작해 패널 OFF
+  관찰. `O`의 HELP ONLY 표시와 scrcpy 프로세스·overlay·패널 상태 불변 확인
+- [x] USB SM-S942N의 DeX 정상 표시와 대상 scrcpy 창의 화면 켜기·끄기 단축키를
+  사용자와 확인
+- [x] 단축키 ON → OFF 후 `2` 정리, 다시 DeX를 시작한 뒤 실행 중 `Q` 정리·
+  종료 코드 0 확인. 패널·overlay·stay-awake·timeout이 시작 전으로 돌아왔고
+  DX Manager/scrcpy 프로세스가 남지 않음
+- [x] preview.2의 두 `--include-app` ZIP·서명·아키텍처·체크섬·개인 데이터 제외와
+  네이티브 arm64 비대화형 실행기 확인. preview.1 검증·해시는 `SESSION.md`의
+  과거 기록으로 보존
+- [x] preview.2 대화형 시작 후 번들 밖 앱 데이터 경로·서명 유지와 공통 Scrcpy
+  옵션의 백업 일치 확인
+- [ ] Finder에서 Terminal이 열리는 실제 화면 확인. 내부 PTY 실행 결과만으로
+  Finder나 보안 대화상자가 확인된 것으로 보지 않는다.
+- [ ] 지원 macOS에서 quarantine 상태 다운로드의 최초 실행 확인
+- [ ] 검은 화면이 보고된 실제 모델·펌웨어 재확인. Galaxy Z Flip6, 접기·수동 잠금과
+  실제 Intel Mac은 별도 검증 대상이다.
+
 ## 다음 작업
 
 - [x] `asyouplz/DX-Manager-mac`의 커뮤니티 macOS `macos-v2.0.1` 배포
@@ -8,7 +78,8 @@
   - [x] README 다운로드 링크, 원본·macOS 포팅 출처와 별도 배포 관계 안내 준비
   - [x] 두 ZIP과 `.zip.sha256`의 다운로드 후 재검증
   - [x] 소스에 맞는 태그와 Release 게시 후 네 첨부파일의 로그인 없는 다운로드·해시 일치 확인
-- [ ] macOS 배포본을 실제 Galaxy에서 DeX 시작·중지와 정상 종료 cleanup 확인
+- [x] 공개 macOS 빌드의 USB SM-S942N DeX·패널 끄기·`Ctrl+C` 종료와 원래 설정 복원 확인
+- [ ] 다른 Galaxy 모델·펌웨어, 무선 연결과 후보 빌드의 동작은 별도로 확인
 
 - [x] v2.0.1 DeX 기기별 설정 표시 회귀 수정
   - [x] 첫 물리 identity 결속 뒤 기기별 DeX 설정 UI 재동기화

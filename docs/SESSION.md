@@ -2,6 +2,309 @@
 
 마지막 갱신: 2026-10-12
 
+## 2026-10-12 - macOS 2.0.2 published and personal-fork PR submitted
+
+- User authorized PR submission and release replacement after the preview.2 physical test.
+- Current PR: https://github.com/asyouplz/DX-Manager-mac/pull/2, open and not
+  merged. It compares `codex/macos-screen-first-run` against personal-fork
+  `main` (`8fea894`), which already contains the earlier macOS prerequisites.
+  The diff contains these improvements and distribution documentation only.
+- The user's target selection arrived after upstream PR #7 was created.
+  That PR was withdrawn/closed without merging, and its description links to
+  personal-fork PR #2. Its successful CI remains historical validation evidence.
+- Latest public release: https://github.com/asyouplz/DX-Manager-mac/releases/tag/macos-v2.0.2.
+  Annotated tag `macos-v2.0.2` remains at
+  `92cab640be0367a718a574c34ddf22a14afacec0`. Runtime, packaging inputs and
+  embedded guides match the personal PR; distribution records differ. The PR
+  target correction did not change the published tag or any release asset. The final
+  version metadata is 2.0.2; the runtime behavior is unchanged from tested preview.2.
+- Final local Release build passed with zero warnings/errors, xUnit 121/121
+  and multi-device 39/39. Upstream CI run `38210807278` passed both Apple
+  Silicon and Intel jobs, including native package smoke checks; no Galaxy
+  is connected to those runners. A duplicate personal-fork dispatch was cancelled.
+- Two final ZIPs, each with 71 entries, passed CRC/checksum, required files and
+  licenses, architecture, executable modes, private-data exclusion and actual-context
+  signature checks. Native arm64 version/help/integrity checks passed; a tampered
+  copy was rejected. No new TUI/device commands were run during publication.
+- All four public assets were downloaded again without authentication and matched
+  the local ZIP/checksum files byte-for-byte. Both downloaded checksum checks and
+  ZIP CRC checks passed. The latest-release API points to `macos-v2.0.2`.
+- Existing `macos-v2.0.1` tag/assets remain unchanged. Its release description now
+  begins with the 2.0.2 download link, preserving the previously shared Clien URL.
+- Final local delivery: `dist/macos-v2.0.2/` in the original checkout. arm64 ZIP:
+  132,023,087 bytes, SHA-256 `98dc4887acd434063be061518d0fca60401e289cd23291d3ab4bb4191041f392`.
+  x64 ZIP: 147,616,370 bytes, SHA-256 `562bedebfbf88b41278e3611890fcc566a1d771cf017596b5bd69f1288165faa`.
+- Physical testing remains the preview.2 USB SM-S942N result below. Final package
+  verification and CI are not a new physical-device run. Galaxy Z Flip6,
+  folding/manual lock, other firmware, physical Intel/Galaxy operation, Finder UI
+  and first approval from a quarantined download remain unverified. Developer ID
+  signing/notarization are not available.
+- Distribution-only documentation is maintained on `codex/macos-screen-first-run`.
+  Original checkout and experimental phone-preview worktree remain separate.
+
+### 한국어
+
+- 사용자의 대상 선택에 맞춰 개인 저장소 PR #2를 제출했다. `main`에는 앞선
+  macOS 변경이 이미 있어 이번 개선과 배포 문서만 비교된다. 현재 open이며
+  병합하지 않았다. 대상 선택 전에 만든 원작자 PR #7은 새 PR 링크를 남겨 닫았다.
+- 릴리스 태그·첨부파일은 그대로다. 개인 PR과 공개 소스의 실행·패키징·내장 안내는
+  동일하며 배포 기록 문서만 다르다. 기존 원작자 PR CI 성공은 검증 이력으로 남긴다.
+- 개인 포크의 최신 공개 릴리스를 `macos-v2.0.2`로 갱신했다. 기존 2.0.1 태그·파일은
+  유지하고 기존 릴리스 페이지 상단에 2.0.2 링크를 넣어 공유 주소를 보존했다.
+- 최종 로컬 빌드 경고·오류 0, xUnit 121개·다중 기기 39개 통과. 원작자 CI도
+  Apple Silicon·Intel 모두 통과했다. CI에는 휴대폰이 없으며 중복 개인 포크 실행은 취소했다.
+- 두 ZIP과 앱 서명·실행 권한·필수 파일·개인 파일 제외·arm64 비대화형 실행·변조 거부를
+  확인했다. 공개된 네 파일을 로그인 없이 다시 받아 로컬 파일과 해시가 같음을 확인했고
+  ZIP CRC와 체크섬 검사도 통과했다. 최종 파일명·크기·해시는 위에 기록했다.
+- 실행 코드는 preview.2 실기와 동일하며 최종 파일 실기를 다시 수행하지 않았다.
+  게시 중에는 휴대폰 제어를 하지 않았다. 다른 모델·접기·잠금·실제 Intel/Galaxy·
+  Finder·다운로드 최초 보안 승인은 여전히 별도 검증 대상이다.
+
+## 2026-10-12 - 2.0.2-preview.2 validation history (before publication)
+
+- TUI `O` now only displays scrcpy shortcut help. Focus the intended DeX/scrcpy
+  window, then left `Option+O` for panel off or `Option+Shift+O` for on. No
+  separate screen-off helper is launched. Selected-device settings and the
+  optional app launcher remain in scope.
+- Source review found that preview.1's startup-flag guard did not cover the
+  main session's native screen-on action clearing restoration state before a
+  separate helper turns the panel off. This was not reproduced on a physical
+  phone. See `DECISIONS.md` for the reason to keep control in the main scrcpy
+  session rather than add another power manager.
+- The revised full `DexManager.Mac.sln` Release build passed with
+  `--no-restore --warnaserror`, zero warnings and zero errors. Full xUnit
+  passed 121/121 and multi-device tests passed 39/39. The five removed tests
+  covered the removed O helper policy; the previous 126-test result is history.
+- Both preview.2 `--include-app` ZIPs passed CRC/SHA-256, extraction,
+  architecture, private-data exclusion, and signature checks; each contains
+  71 entries. Native arm64 noninteractive launcher `--verify`, `--version`,
+  and `--help` checks passed. Both app bundles passed deep/strict signature
+  verification in the actual macOS permission context. An isolated sandbox
+  check reported an ADB signature failure on identical bytes; the actual
+  context checks passed for both source apps and the copied arm64 app.
+- x64 was cross-packaged and statically validated, without Intel/Rosetta
+  execution. Preview.1 PTY results below remain separate from this revision.
+- At 14:47 KST, the intended USB SM-S942N was authorized and its live stable
+  identity matched. The preview.2 physical-test baseline was overlay `null`,
+  stay-awake `7`, timeout `120000`, panel ON, Awake, keyguard false, with no
+  pre-existing DX Manager/scrcpy process. No connection identifiers are recorded
+  here. ADB server socket/port overrides were unset. macOS USB inventory tools
+  still returned no entries despite the authorized USB ADB device, so an empty
+  USB inventory alone does not establish disconnection in this environment.
+- The delivered preview.2 app's internal `App-Start.command` opened the
+  interactive TUI. Selecting `1` started DeX with `--keep-active -S
+  --no-power-on`. At 14:50:43 KST, the panel remained OFF, Android was Awake
+  with keyguard false, and the same scrcpy process and display 76 remained
+  active with a `1600x900/150,hdmi` overlay.
+- TUI `O` displayed HELP ONLY; the scrcpy process, overlay, and panel state
+  were unchanged. App data remained under Application Support, and bundled
+  ADB/scrcpy resolved inside the delivered app. Top-level settings changes were
+  limited to Paths and new DeviceRunSettingsProfiles; common Scrcpy preferences
+  matched the backup. The app's deep/strict signature check passed after startup.
+- The user confirmed normal DeX display and that left `Option+Shift+O` turned
+  the phone panel ON. At 14:52:58 KST, the physical display was ON with the
+  same scrcpy process/display 76, Awake, keyguard false, and unchanged overlay,
+  stay-awake, and timeout values. The user then confirmed left `Option+O`
+  turned the panel OFF while DeX remained visually normal; the 14:54:02 KST
+  device observation matched that result with the same running session.
+- TUI `2` stopped that session. At 14:54:15 KST, the panel was ON, overlay was
+  `null`, stay-awake was `7`, and timeout was `120000`, matching the baseline.
+  The scrcpy process had exited and only the TUI host remained. This confirms
+  native ON → OFF → normal stop restoration in the same main scrcpy session
+  on the tested SM-S942N.
+- A second `1` start created display 78 and a new scrcpy process with the panel
+  OFF. `Q` from that active session exited with code 0 and "DX Manager stopped
+  cleanly". At 14:55:14 KST, the panel was ON, overlay `null`, stay-awake `7`,
+  timeout `120000`, Awake, keyguard false, and no DX Manager/scrcpy processes
+  remained. No manual settings restoration was needed. The copied app's
+  deep/strict signature check still passed after exit.
+- These physical results apply to this USB SM-S942N on Android 17 / SDK 37 /
+  One UI property `90000`. Galaxy Z Flip6, folding/manual locking, other
+  models/firmware, x64 execution, visual Finder launch, and first launch from a
+  quarantined download remain unverified.
+- At the end of this validation phase, changes were local and uncommitted.
+  Publication followed in the newer 2.0.2 entry above; preview.2 ZIPs were not published.
+
+Preview.2 artifacts (each ZIP has a matching `.zip.sha256`):
+
+| Architecture | ZIP | SHA-256 |
+| --- | --- | --- |
+| arm64 | `dist/first-run-candidate-preview2/DX-Manager-v2.0.2-preview.2-macos-arm64.zip` | `50448939ab7ac2c9420282a2efb34649477033c9842fd9217963da2c72909f41` |
+| x64 | `dist/first-run-candidate-preview2-x64/DX-Manager-v2.0.2-preview.2-macos-x64.zip` | `f7460edc3e2bd1212433ab85101e287746fd2ba8c10020dc2d56a1c2e35520c5` |
+
+The standalone arm64 app is `dist/first-run-candidate-preview2/DX Manager.app`.
+The delivery directory in the original checkout is
+`dist/macos-first-run-2.0.2-preview.2/`; it contains the arm64 app, both ZIPs,
+and both checksum files. Copied ZIP hashes match the table, and the copied
+arm64 app's signature passed. ZIP sizes are 132,019,451 bytes (arm64) and
+147,610,782 bytes (x64). Preview.1 artifacts remain separate and unchanged.
+
+### 한국어
+
+- TUI `O`는 scrcpy 단축키 안내만 표시한다. 대상 DeX/scrcpy 창에 포커스를 두고
+  왼쪽 `Option+O`로 패널을 끄고 `Option+Shift+O`로 켠다. 별도 화면 끄기 helper는
+  실행하지 않는다. 선택 기기 설정 수정과 선택형 앱 실행기는 유지한다.
+- 주 세션의 화면 켜기 단축키가 복원 예약을 해제한 뒤 별도 helper로 끄는 순서를
+  preview.1의 시작 옵션 조건이 처리하지 못함을 소스에서 확인했다. 실제 휴대폰에서
+  재현한 실패는 아니다. 별도 전원 관리자를 추가하지 않고 주 scrcpy에서 화면 제어를
+  유지하는 이유는 `DECISIONS.md`에 기록했다.
+- 수정 후 전체 `DexManager.Mac.sln` Release 빌드는
+  `--no-restore --warnaserror`로 경고·오류 0이었다. 전체 xUnit 121/121, 다중
+  기기 39/39를 통과했다. 제거한 O helper 정책 테스트가 5개이므로 종전 126개
+  결과와 구분한다.
+- preview.2의 두 `--include-app` ZIP은 각각 71개 항목이며 CRC·SHA-256·
+  재압축 해제·아키텍처·개인 데이터 제외·서명 검증을 통과했다. 네이티브 arm64
+  실행기의 비대화형 `--verify`·`--version`·`--help`를 확인했다. 두 앱은 실제
+  macOS 권한 환경에서 deep/strict 서명 검증을 통과했다. 격리 샌드박스의 ADB
+  서명 검사에서는 동일 바이트에 실패가 표시됐지만 실제 권한 환경에서 두 원본 앱과
+  arm64 복사본 검증은 통과했다.
+- x64는 교차 패키징·정적 검증 결과이며 Intel/Rosetta 실행은 하지 않았다.
+  아래 preview.1 PTY 기록은 이번 수정의 결과와 구분한다.
+- 14:47 KST 대상 USB SM-S942N이 authorized 상태이고 실제 안정 identity가
+  일치함을 확인했다. preview.2 실기 시작 전 overlay `null`, stay-awake `7`,
+  timeout `120000`, 패널 ON·Awake·keyguard false였고 기존 DX Manager/scrcpy
+  프로세스는 없었다. 연결 식별값은 이 문서에 기록하지 않는다. ADB 서버 socket·port
+  재지정은 없었다. USB ADB 연결이 확인된 상태에서도 macOS USB 목록 도구는 빈
+  결과였으므로 이 환경에서 빈 USB 목록만으로 연결 해제를 판단하지 않는다.
+- 전달한 preview.2 앱 내부 `App-Start.command`에서 대화형 TUI를 열고 `1`로
+  `--keep-active -S --no-power-on`이 적용된 DeX를 시작했다. 14:50:43 KST에도
+  패널 OFF·Awake·keyguard false였고 같은 scrcpy 프로세스와 display 76,
+  `1600x900/150,hdmi` overlay가 유지됐다.
+- TUI `O`는 HELP ONLY를 표시했고 scrcpy 프로세스·overlay·패널 상태를 바꾸지
+  않았다. 설정은 Application Support에 저장됐고 ADB/scrcpy는 전달한 앱 내부
+  도구로 선택됐다. 최상위 설정의 변경은 Paths와 새 DeviceRunSettingsProfiles이며
+  공통 Scrcpy 옵션은 백업과 같았다. 실행 후 앱 deep/strict 서명 검증도 통과했다.
+- 사용자가 DeX 정상 표시와 왼쪽 `Option+Shift+O`의 휴대폰 패널 ON을 확인했다.
+  14:52:58 KST 기기 조회에서도 패널 ON, 같은 scrcpy 프로세스·display 76,
+  Awake·keyguard false와 기존 overlay·stay-awake·timeout 값을 확인했다.
+  이어 왼쪽 `Option+O`로 패널을 꺼도 DeX가 정상 표시됨을 사용자가 확인했고,
+  14:54:02 KST 조회에서도 같은 세션의 패널 OFF와 나머지 상태 유지를 확인했다.
+- TUI `2`로 중지한 뒤 14:54:15 KST 패널 ON·overlay `null`·stay-awake `7`·
+  timeout `120000`이 시작 전과 일치했다. scrcpy는 종료되고 TUI 호스트만 남았다.
+  테스트한 SM-S942N에서 같은 주 scrcpy 세션의 ON → OFF → 정상 중지 복원을
+  확인한 결과다.
+- `1`로 다시 시작하여 새 scrcpy 프로세스·display 78과 패널 OFF를 확인했다.
+  실행 중 `Q`로 종료해 코드 0과 "DX Manager stopped cleanly"를 받았다.
+  14:55:14 KST 패널 ON·overlay `null`·stay-awake `7`·timeout `120000`·
+  Awake·keyguard false였으며 DX Manager/scrcpy 프로세스가 남지 않았다.
+  설정을 수동으로 복원할 필요는 없었다. 종료 후 전달 앱의 deep/strict 서명도
+  계속 유효했다.
+- 실기 결과는 이 USB SM-S942N(Android 17, SDK 37, One UI 속성 `90000`)에
+  한정한다. Galaxy Z Flip6, 접기·수동 잠금, 다른 모델·펌웨어, x64 실행,
+  Finder 실행 화면과 quarantine 다운로드 최초 실행은 별도 검증 대상이다.
+- 이 검증 단계 종료 시점에는 로컬 미커밋 상태였다. 이후 게시 결과는 위 2.0.2
+  항목을 따른다. preview.2 ZIP 자체는 공개하지 않았다.
+- 새 ZIP 경로·해시는 위 표에 기록했다. 별도 arm64 앱은
+  `dist/first-run-candidate-preview2/DX Manager.app`에 있다. 원래 체크아웃의
+  전달 폴더는 `dist/macos-first-run-2.0.2-preview.2/`이며 arm64 앱·두 ZIP·두
+  체크섬을 포함한다. 복사한 ZIP 해시가 위 표와 일치하고 arm64 앱 서명이 유효함을
+  확인했다. ZIP 크기는 arm64 132,019,451바이트, x64 147,610,782바이트다.
+  preview.1 산출물은 별도로 보존했다.
+
+## 2026-10-12 - 2.0.2-preview.1 history (superseded, unpublished)
+
+- Historical branch state: `codex/macos-screen-first-run`. Preview.1 was not
+  published and is superseded by preview.2 above. Its checks and artifacts
+  below apply only to preview.1; published `macos-v2.0.1` stayed unchanged.
+- The TUI edited common defaults while DeX read an existing device profile.
+  Preview.1 aligned dashboard, edits, and launch settings. Its initial `O`
+  helper was gated on selected managed DeX started with `TurnScreenOff=True`.
+  Source review later found that this guard did not establish restoration
+  ownership after native screen-on; preview.2 removed the helper action.
+- The physical baseline used the published arm64 build's `--dex` and existing
+  `-S` / `--keep-active` on USB SM-S942N, Android 17 / SDK 37 / One UI property
+  `90000`. The user confirmed that the phone panel was off while DeX remained
+  visible. No candidate-code or Galaxy Z Flip6 result is implied.
+- A bounded idle check temporarily set `stay_on_while_plugged_in=0` and
+  `screen_off_timeout=10000`. After 18 seconds, state remained Awake, overlay
+  ON, keyguard false. After `Ctrl+C`, restoration was rechecked: overlay `null`,
+  stay-awake `7`, timeout `120000`.
+- Optional `--include-app` adds `DX Manager.app` in the same portable ZIP. The
+  app opens the existing TUI and writes settings under
+  `~/Library/Application Support/DX Manager/config/settings.json`, with logs
+  in `~/Library/Logs/DX Manager`. Portable data is not imported automatically.
+- The final whole-solution Release build, after all app environment changes,
+  passed with `--no-restore --warnaserror` and zero warnings/errors. The latest
+  complete xUnit run passed 126/126, and multi-device regressions passed 39/39.
+- Both `2.0.2-preview.1` ZIPs built with `--include-app`. Each has 71 entries;
+  CRC/SHA-256, extraction, architecture, signatures, and exclusion of private
+  user data passed. The app keeps scrcpy-server and icons in Resources and
+  sets its own `SCRCPY_SERVER_PATH` / `SCRCPY_ICON_DIR`; ordinary portable
+  launches retain their existing environment behavior.
+- On macOS 26.6.2 arm64, the native app's `--verify` and internal
+  `App-Start.command --version` passed. An interactive PTY launch through
+  `App-Start.command` displayed the dashboard, rejected `O` without active
+  managed DeX, and exited cleanly with code 0 after `Q`. New settings were
+  written to Application Support rather than the bundle; the app signature
+  remained valid after startup, and ADB/scrcpy resolved to bundled paths.
+- x64 was cross-packaged on arm64 and statically validated. This candidate
+  was not executed on Intel hardware or through Rosetta.
+- The phone disconnected after the successful published-build baseline and
+  restoration. Preview.1's positive `O` path and phone-power restoration were
+  not physically verified before that helper action was removed.
+- Developer ID/notarization, the visual Finder-to-Terminal launch flow, and
+  first launch from a quarantined browser download remain unverified. No
+  candidate commit, push, or release is recorded.
+
+Local candidate artifacts (each ZIP has a matching `.zip.sha256`):
+
+| Architecture | ZIP | SHA-256 |
+| --- | --- | --- |
+| arm64 | `dist/first-run-candidate/DX-Manager-v2.0.2-preview.1-macos-arm64.zip` | `5a0c31e2bc2aff4ecdc454b97afb8a4f196bb0a4db9bb9a0fe6dc312466efb38` |
+| x64 | `dist/first-run-candidate-x64/DX-Manager-v2.0.2-preview.1-macos-x64.zip` | `eb67fa58ada0309e1da173d52072f6f2c697e75ac4c9e969382966111a50d0a9` |
+
+The separately extracted Apple Silicon app is
+`dist/first-run-candidate/DX Manager.app`.
+The Apple Silicon app, both ZIPs, and their checksums were also copied to the
+original checkout's ignored `dist/macos-first-run-2.0.2-preview.1/` directory;
+copied hashes and the app signature were rechecked. The original checkout's
+Git status is clean. Candidate changes remain uncommitted in the managed
+worktree, with HEAD unchanged at `8fea894`.
+
+### 한국어
+
+- 당시 작업 브랜치는 `codex/macos-screen-first-run`이다. preview.1은 공개하지
+  않았으며 위 preview.2가 대체한다. 아래 검증·산출물은 preview.1에만 적용하며
+  공개 `macos-v2.0.1` 태그·첨부파일은 유지했다.
+- TUI는 공통 기본값을 바꾸고 DeX는 기존 기기 프로필을 읽던 불일치를 수정한다.
+  preview.1의 초기 `O` helper는 `TurnScreenOff=True`로 시작한 선택 기기의
+  관리 중인 DeX로 제한했다. 이후 소스 검토에서 화면 켜기 이후의 복원 소유 상태를
+  이 조건만으로 확인할 수 없음을 발견하여 preview.2에서 helper 동작을 제거했다.
+- 후보 변경 전 공개 arm64 빌드의 `--dex`와 기존 `-S` / `--keep-active`를 USB
+  SM-S942N(Android 17, SDK 37, One UI 속성 `90000`)에서 확인했다. 사용자가
+  휴대폰 패널이 꺼진 상태의 DeX 정상 표시를 확인했다. 후보 코드 또는 Galaxy
+  Z Flip6가 검증됐다는 뜻은 아니다.
+- 제한된 유휴 확인에서 `stay_on_while_plugged_in=0`,
+  `screen_off_timeout=10000`으로 잠시 바꾼 뒤 18초 후에도 Awake·overlay ON·
+  keyguard false를 관찰했다. `Ctrl+C` 뒤 overlay `null`, stay-awake `7`,
+  timeout `120000`으로 원래 값 복원을 재확인했다.
+- `--include-app`은 같은 포터블 ZIP에 `DX Manager.app`을 추가한다. 기존 TUI를
+  열고 설정·로그는 위 Library 경로에 저장하며 기존 포터블 데이터를 자동으로
+  가져오지 않는다.
+- 앱 환경 변수 변경까지 모두 반영한 최종 전체 솔루션 Release 빌드는
+  `--no-restore --warnaserror` 조건에서 경고·오류 0으로 통과했다. 최신 전체
+  xUnit 126/126과 다중 기기 회귀 39/39도 통과했다.
+- `--include-app`을 사용한 `2.0.2-preview.1` ZIP 두 개를 만들었다. 각각 71개
+  항목의 CRC·SHA-256·재압축 해제·아키텍처·서명·개인 데이터 제외를 확인했다.
+  scrcpy 서버·아이콘은 Resources에 두고 앱 실행에만 `SCRCPY_SERVER_PATH`와
+  `SCRCPY_ICON_DIR`를 지정한다. 기존 포터블 실행의 환경 동작은 유지한다.
+- macOS 26.6.2 arm64에서 앱 `--verify`, 내부 `App-Start.command --version`을
+  확인했다. PTY에서 내부 실행기를 실제 대화형으로 열어 대시보드 표시, 관리 중인
+  DeX가 없는 경우 `O` 거부, `Q` 정상 종료 코드 0을 확인했다. 새 설정은 번들 밖
+  Application Support에 저장됐고 실행 후에도 앱 서명이 유효했으며, ADB·scrcpy가
+  번들 경로로 선택됨을 확인했다.
+- x64 후보는 arm64에서 교차 패키징하고 정적으로 검증했다. 이 후보를 실제 Intel
+  또는 Rosetta로 실행한 결과는 아니다. 로컬 ZIP 경로·해시는 위 표를 사용하며
+  Apple Silicon 앱은 `dist/first-run-candidate/DX Manager.app`에 있다.
+- Apple Silicon 앱과 두 ZIP·체크섬을 원래 체크아웃의 Git 제외 경로
+  `dist/macos-first-run-2.0.2-preview.1/`에도 복사하고 해시·앱 서명을 재확인했다.
+  원래 체크아웃의 Git 상태는 깨끗하다. 후보 수정은 관리형 worktree에 미커밋
+  상태로 있으며 HEAD는 `8fea894` 그대로다.
+- 공개 빌드 기준 동작과 복원 확인 후 휴대폰 연결이 끊겨 preview.1의 실제 `O`
+  성공 경로·휴대폰 전원 복원은 확인하지 못한 상태에서 helper 동작을 제거했다.
+  Developer ID·공증, Finder에서 Terminal이 열리는 화면 및 quarantine 다운로드의
+  최초 실행도 미확인이다. 후보 커밋·push·공개는 기록하지 않았다.
+
 ## 2026-10-12 커뮤니티 macOS 릴리스 게시 완료
 
 - 배포 저장소는 `asyouplz/DX-Manager-mac`이며 원본 `maze-mei/DX-Manager`의
@@ -27,8 +330,8 @@
 - 기존 휴대폰 미리보기 실험 PR #1의 브랜치는 이번 배포 범위에서 제외한다.
 - 릴리스 상세 설명: [RELEASE_NOTES_macos-v2.0.1.md](RELEASE_NOTES_macos-v2.0.1.md).
 
-아래 항목은 각 작성 시점의 과거 기록이다. 현재 배포 기준은 위 항목과 실제 Git
-태그·Release를 함께 확인한다.
+아래 항목은 각 작성 시점의 과거 기록이다. 현재 공개 배포는 위의
+`macos-v2.0.1` 항목과 실제 Git 태그·Release를 확인하고, 미공개 후보와 구분한다.
 
 ## 2026-08-31 macOS 포터블 배포 작업 (과거 기록)
 

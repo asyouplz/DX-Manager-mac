@@ -6,6 +6,90 @@
 
 ---
 
+<a id="unreleased-macos-candidate"></a>
+
+## macOS 2.0.2 release
+
+Version 2.0.2 adds selected-phone settings, phone-screen shortcut help, and an
+optional app launcher. These additions are not in the earlier `macos-v2.0.1`
+downloads.
+
+- Use `S` to select the phone, then `9` to review its display, streaming, and
+  screen-power preferences. Device profiles stay separate from the common
+  defaults shown when no phone is selected. Saved launch preferences apply to
+  newly started windows; existing windows are not restarted automatically.
+- In the terminal dashboard, `O` only displays phone-screen shortcut help;
+  it does not change the screen state. Focus the intended DeX/scrcpy window
+  and press left **Option+O** for panel off or **Option+Shift+O** for on.
+  These native shortcuts keep screen control in the running scrcpy session.
+  They do not unlock the phone. The phone's power/lock button, folding, or a
+  security lock may also lock DeX; unlock the phone normally in that case.
+- The 2.0.2 ZIPs include `DX Manager.app` (the `--include-app` packaging option).
+  Move the complete app to a writable location such as your Applications
+  folder, then open it in Finder to launch the same terminal dashboard. The
+  portable `Start DX Manager.command` remains available alongside it.
+- The app stores settings in
+  `~/Library/Application Support/DX Manager/config/settings.json` and logs in
+  `~/Library/Logs/DX Manager`. Existing portable-folder settings are not moved
+  or overwritten automatically.
+- Developer ID signing and notarization are still absent. On macOS 15 or
+  later, attempt to open the app, then use **System Settings > Privacy &
+  Security > Open Anyway** if offered for the verified download. Control-click
+  is no longer a Gatekeeper override. Bundled components may still need
+  separate approval. See [Apple's macOS 15 change](https://developer.apple.com/news/?id=saqachfa)
+  and [Apple's opening instructions](https://support.apple.com/en-us/102445).
+
+Physical-device testing used `2.0.2-preview.2` on an Apple Silicon Mac with a
+USB-connected SM-S942N (Android 17 / SDK 37 / One UI property `90000`). DeX
+startup, native screen-on/off shortcuts, help-only `O`, and normal stop/exit
+restoration were confirmed. Version 2.0.2 retains that runtime behavior;
+its release-version metadata, archive, and signature checks are recorded
+separately in the release notes, not as another physical-device test.
+
+Intel/Rosetta execution, other models or firmware, folding/manual locking,
+visual Finder launch, and first launch from a quarantined download remain
+unverified for this revision.
+
+### 한국어: macOS 2.0.2 릴리스
+
+2.0.2에는 선택한 휴대폰의 설정, 화면 제어 단축키 안내와 선택형 `.app` 실행기가
+추가되었습니다. 이전 `macos-v2.0.1` 다운로드에는 이 기능이 포함되어 있지
+않습니다.
+
+- `S`로 대상 휴대폰을 선택한 뒤 `9`에서 해당 기기의 화면·스트리밍·화면 전원
+  설정을 확인합니다. 기기를 선택하지 않았을 때의 공통 기본값과 기기별 프로필을
+  구분합니다. 저장한 시작 옵션은 새로 여는 창에 적용하며 기존 창을 자동으로
+  다시 시작하지 않습니다.
+- 터미널 대시보드의 `O`는 화면 제어 단축키 안내만 표시하며 화면 상태를 바꾸지
+  않습니다. 대상 DeX/scrcpy 창에 포커스를 둔 뒤 왼쪽 **Option+O**로 패널을
+  끄고 **Option+Shift+O**로 켭니다. 실행 중인 scrcpy 세션 자체가 화면 제어를
+  처리합니다. 휴대폰 잠금을 해제하는 기능은 아닙니다. 전원·잠금 버튼, 접기 또는
+  보안 잠금으로 DeX도 잠길 수 있으며 이때는 휴대폰 잠금을 직접 해제합니다.
+- 2.0.2 ZIP에는 `DX Manager.app`도 들어갑니다(`--include-app` 패키징 옵션).
+  `.app` 전체를 응용 프로그램 폴더 등으로 옮겨 Finder에서 열면 같은 터미널
+  대시보드가 시작됩니다. 기존 `Start DX Manager.command`도 함께 유지합니다.
+- `.app` 설정은 `~/Library/Application Support/DX Manager/config/settings.json`,
+  로그는 `~/Library/Logs/DX Manager`에 저장합니다. 기존 포터블 폴더의 설정은
+  자동 이동하거나 덮어쓰지 않습니다.
+- Apple Developer ID 서명과 공증은 아직 없습니다. macOS 15 이상에서는 실행을
+  한 번 시도한 뒤 **시스템 설정 > 개인정보 보호 및 보안 > 그래도 열기**를
+  사용합니다. Control-클릭은 이 버전부터 Gatekeeper 승인 방법이 아닙니다.
+  번들 구성요소별 승인이 추가로 필요할 수 있습니다. [Apple 변경 안내](https://developer.apple.com/news/?id=saqachfa)와
+  [실행 안내](https://support.apple.com/en-us/102445)를 참조하십시오.
+
+실기 검증은 Apple Silicon Mac과 USB로 연결한 SM-S942N(Android 17 / SDK 37 /
+One UI 속성값 `90000`)에서 `2.0.2-preview.2`로 수행했습니다. DeX 시작,
+기본 화면 켜기·끄기 단축키, 안내만 표시하는 `O`, 정상 중지·종료 시 복원을
+확인했습니다. 2.0.2는 이 실행 동작을 유지하며, 최종 릴리스 버전 표기·압축파일·
+서명 검사는 릴리스 설명에 별도로 기록합니다. 이를 추가 실기 검증으로 보지는
+않습니다.
+
+이번 수정의 Intel/Rosetta 실행, 다른 모델·펌웨어, 접기·수동 잠금, Finder 화면을
+통한 실행과 다운로드 격리 속성이 있는 파일의 첫 실행은 아직 확인하지
+않았습니다.
+
+---
+
 ## 1. 개요 (Overview)
 
 **DX Manager for macOS**는 삼성 갤럭시 스마트폰의 **Samsung DeX 가상 디스플레이** 및 **앱별 독립 가상 디스플레이(단일창)**를 macOS 환경에서 고성능 저지연으로 제어하고 관리할 수 있도록 포팅된 .NET 8 기반 크로스플랫폼 도구입니다.
@@ -26,7 +110,8 @@
 - **소스 개발자**: `global.json`에 지정된 .NET 8 SDK가 필요합니다.
 - **지원 스마트폰**:
   - Samsung Galaxy 기기 중 Samsung DeX를 지원하는 기기 (Galaxy S시리즈, Note시리즈, Z Fold시리즈, Tab S시리즈 등)
-  - Android 16 / One UI 8.x (현재 기준 동작 검증)
+  - 이전 지원 기준은 Android 16 / One UI 8.x이며, 이번 변경의 실제 확인 환경은
+    위의 SM-S942N / Android 17입니다. 다른 기기의 동작까지 보장하지 않습니다.
 
 ---
 
@@ -37,22 +122,26 @@
 - Apple M 시리즈 Mac: `DX-Manager-v<version>-macos-arm64.zip`
 - Intel Mac: `DX-Manager-v<version>-macos-x64.zip`
 
-여기서 `<version>`은 공개된 Release 버전(예: `2.0.1`)으로 바꿉니다. ZIP 안의
+여기서 `<version>`은 공개된 Release 버전(예: `2.0.2`)으로 바꿉니다. ZIP 안의
 문서에는 패키징 시 실제 버전이 자동 반영됩니다.
 
 저장소의 GitHub Actions workflow는 `macos-15` Apple Silicon 실행 환경과
 `macos-15-intel` Intel 실행 환경에서 각각 전체 빌드·테스트·패키지 검증을
 수행하도록 구성되어 있습니다. 버전 태그의 두 작업이 성공하면 검증된 ZIP 두 개와
 SHA-256 파일을 포함한 GitHub Release 초안을 만들며, 유지관리자가 확인 후
-공개합니다. 이 변경의 첫 원격 workflow 성공 여부는 아직 확인해야 합니다.
+공개합니다. 공개 `macos-v2.0.1`에 사용한 원본 CI run `35304622556`에서는
+두 아키텍처의 빌드와 패키지 검증이 성공했습니다. 이는 2.0.1의 기록이며
+2.0.2의 검증 결과는 해당 릴리스 설명과 `SESSION.md`에서 별도로 관리합니다.
 Release가 공개된 뒤 사용자는 Mac에 맞는 ZIP 하나를
-내려받아 전체 폴더의 압축을 풀고 `Start DX Manager.command`를 더블클릭합니다.
+내려받아 전체 폴더의 압축을 풀고 `DX Manager.app` 또는
+`Start DX Manager.command`를 엽니다.
 소스 빌드는 필요하지 않습니다.
 
 현재 자동 생성 패키지는 Apple Developer ID 서명·공증 전 단계이므로 최초 실행
-시 macOS 승인이 필요할 수 있습니다. Control-클릭 후 **열기**를 사용하거나
-**시스템 설정 > 개인정보 보호 및 보안**에서 차단된 항목을 확인하십시오. 자동으로
-보안 속성을 지우는 명령은 실행하지 않습니다.
+시 macOS 승인이 필요할 수 있습니다. 실행을 한 번 시도한 뒤
+**시스템 설정 > 개인정보 보호 및 보안**에서 차단된 항목의 **그래도 열기**를
+사용하십시오. macOS 15 이상에서는 Control-클릭으로 Gatekeeper를 승인할 수
+없습니다. 자동으로 보안 속성을 지우는 명령은 실행하지 않습니다.
 
 ### 3.2 스마트폰 설정
 
@@ -85,7 +174,7 @@ DX Manager for macOS는 xUnit 기반 단위/통합 테스트와 다중 기기 �
 사용합니다.
 
 ```bash
-# 95개 xUnit 단위 및 통합 테스트 실행
+# xUnit 단위 및 통합 테스트 실행 (현재 개수는 실행 결과로 확인)
 dotnet test DexManager.Mac.sln -c Release
 
 # 39개 다중 기기 세션 격리 회귀 테스트 실행
@@ -100,6 +189,9 @@ scripts/Package-Mac-Release.sh --rid osx-arm64
 
 # Intel용 self-contained ZIP
 scripts/Package-Mac-Release.sh --rid osx-x64
+
+# 2.0.2 릴리스처럼 같은 ZIP에 독립 실행 가능한 .app도 포함
+scripts/Package-Mac-Release.sh --rid osx-arm64 --version 2.0.2 --include-app
 ```
 
 스크립트는 DX Manager와 ADB proxy를 지정한 RID로 미리 publish하고, 공식

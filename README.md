@@ -26,63 +26,67 @@
 
 ## macOS downloads — community distribution
 
-This fork provides a community macOS distribution of
-[maze-mei/DX-Manager](https://github.com/maze-mei/DX-Manager), incorporating the
-macOS port by [kimdongup](https://github.com/kimdongup). The macOS files are
-published separately by [asyouplz](https://github.com/asyouplz), and are not an
-official release from the original project.
+This fork distributes macOS builds of [maze-mei/DX-Manager](https://github.com/maze-mei/DX-Manager),
+including the macOS port by [kimdongup](https://github.com/kimdongup).
+These files are maintained by [asyouplz](https://github.com/asyouplz) and are a
+community distribution separate from the original project's releases.
 
-**[macos-v2.0.1 release and download details](https://github.com/asyouplz/DX-Manager-mac/releases/tag/macos-v2.0.1)**
+**[macOS 2.0.2 release and download details](https://github.com/asyouplz/DX-Manager-mac/releases/tag/macos-v2.0.2)**
 
 | Mac | Download | Verify |
 | --- | --- | --- |
-| Apple Silicon (M-series) | [arm64 ZIP](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.0.1/DX-Manager-v2.0.1-macos-arm64.zip) | [SHA-256](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.0.1/DX-Manager-v2.0.1-macos-arm64.zip.sha256) |
-| Intel | [x64 ZIP](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.0.1/DX-Manager-v2.0.1-macos-x64.zip) | [SHA-256](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.0.1/DX-Manager-v2.0.1-macos-x64.zip.sha256) |
+| Apple Silicon (M-series) | [arm64 ZIP](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.0.2/DX-Manager-v2.0.2-macos-arm64.zip) | [SHA-256](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.0.2/DX-Manager-v2.0.2-macos-arm64.zip.sha256) |
+| Intel | [x64 ZIP](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.0.2/DX-Manager-v2.0.2-macos-x64.zip) | [SHA-256](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.0.2/DX-Manager-v2.0.2-macos-x64.zip.sha256) |
 
-Requires **macOS 14 Sonoma or later**. The runtime, scrcpy, and ADB are bundled;
-Homebrew and a separate .NET installation are not required. Extract the entire
-ZIP, keep its files together, and open **`Start DX Manager.command`**. This
-starts the macOS terminal interface. Enable USB debugging on a DeX-capable
-Galaxy phone, connect it, and approve its USB debugging prompt.
+Requires **macOS 14 Sonoma or later**. Extract the entire ZIP, then open
+**`DX Manager.app`** or the portable **`Start DX Manager.command`**. Both open
+DX Manager's terminal menu. The app can be moved as a whole to Applications;
+the portable launcher needs its sibling files. Runtime, scrcpy 4.1, ADB, and
+ADB proxy are included; Homebrew and a separate .NET installation are unnecessary.
 
-These packages have no Apple Developer ID signature or notarization, so macOS
-may require first-launch approval. See the
-[portable package guide](docs/PACKAGE_README_MACOS.md#6-first-launch-and-gatekeeper)
-for launch and verification instructions. Automated build and package checks
-do not establish device compatibility; Galaxy DeX operation was not tested on
-a physical phone during this release preparation. See the
-[release notes](docs/RELEASE_NOTES_macos-v2.0.1.md) for the source and validation
-record. Windows downloads remain on the
-[original project's Releases page](https://github.com/maze-mei/DX-Manager/releases).
+Version 2.0.2 aligns the menu and new windows with the selected phone's settings.
+Focus the DeX window and use left **Option+O** for phone panel off or
+**Option+Shift+O** for on. Terminal `O` shows shortcut help only. Panel off is
+separate from a security lock; folding or locking a phone may still lock DeX.
+
+There is no Apple Developer ID signature or notarization. First-launch approval
+may still be required for the app and individual tools. See the
+[package guide](docs/PACKAGE_README_MACOS.md) and [release record](docs/RELEASE_NOTES_macos-v2.0.2.md).
+The unchanged runtime was tested as preview.2 on USB SM-S942N: native screen
+on/off kept DeX visible, and normal stop/quit restored the original state.
+Galaxy Z Flip6, folding/manual lock, physical Intel operation, and Finder or
+quarantined-download first launch remain unverified. Windows downloads are on
+the [original project's Releases page](https://github.com/maze-mei/DX-Manager/releases).
 
 ## macOS 다운로드 — 커뮤니티 배포본
 
 이 포크는 [maze-mei/DX-Manager](https://github.com/maze-mei/DX-Manager)를
-바탕으로 [kimdongup](https://github.com/kimdongup)님의 macOS 포팅을 포함한
-커뮤니티 배포본입니다. macOS 파일은 [asyouplz](https://github.com/asyouplz)가
-별도로 배포하며, 원본 프로젝트의 공식 릴리스는 아닙니다.
+바탕으로 [kimdongup](https://github.com/kimdongup)님의 macOS 포팅을 포함합니다.
+[asyouplz](https://github.com/asyouplz)가 관리하는 커뮤니티 배포본이며 원본 프로젝트의
+공식 릴리스와 별도로 제공합니다.
 
-**[macos-v2.0.1 릴리스 및 다운로드 안내](https://github.com/asyouplz/DX-Manager-mac/releases/tag/macos-v2.0.1)**
+**[macOS 2.0.2 릴리스 및 다운로드 안내](https://github.com/asyouplz/DX-Manager-mac/releases/tag/macos-v2.0.2)**
 
-| Mac 종류 | 다운로드 | 검증 파일 |
-| --- | --- | --- |
-| Apple Silicon (M 시리즈) | [arm64 ZIP](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.0.1/DX-Manager-v2.0.1-macos-arm64.zip) | [SHA-256](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.0.1/DX-Manager-v2.0.1-macos-arm64.zip.sha256) |
-| Intel | [x64 ZIP](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.0.1/DX-Manager-v2.0.1-macos-x64.zip) | [SHA-256](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.0.1/DX-Manager-v2.0.1-macos-x64.zip.sha256) |
+위 표에서 **M 시리즈 Mac은 arm64**, **Intel Mac은 x64** ZIP을 받으십시오.
+**macOS 14 Sonoma 이상**이 필요합니다. ZIP 전체를 풀고 **`DX Manager.app`**
+또는 **`Start DX Manager.command`**를 열면 터미널 메뉴가 나옵니다.
+앱은 통째로 응용 프로그램 폴더로 옮길 수 있으며, 포터블 실행기는 같은 폴더의
+파일들을 함께 유지해야 합니다. 런타임·scrcpy 4.1·ADB·ADB proxy가 포함되어
+Homebrew나 .NET을 따로 설치할 필요가 없습니다.
 
-**macOS 14 Sonoma 이상**이 필요합니다. 런타임, scrcpy와 ADB가 포함되어
-Homebrew나 .NET을 따로 설치할 필요가 없습니다. ZIP 전체를 풀고 파일들을 같은
-폴더에 둔 상태에서 **`Start DX Manager.command`**를 열면 터미널 인터페이스가
-시작됩니다. DeX 지원 Galaxy 휴대폰의 USB 디버깅을 켜고 연결한 뒤 휴대폰의
-USB 디버깅 허용 메시지를 승인합니다.
+2.0.2에서는 메뉴의 설정과 새 창에 적용하는 설정을 선택한 휴대폰 기준으로 맞췄습니다.
+DeX 창을 클릭하고 왼쪽 **Option+O**로 휴대폰 패널을 끄고 **Option+Shift+O**로
+켭니다. 터미널의 `O`는 사용법만 표시합니다. 패널 끄기와 보안 잠금은 다르므로
+휴대폰을 접거나 잠그면 DeX도 잠길 수 있습니다.
 
-이 패키지에는 Apple Developer ID 서명과 공증이 없어 최초 실행 시 macOS의
-승인이 필요할 수 있습니다. 실행과 파일 검증 방법은
-[포터블 패키지 안내](docs/PACKAGE_README_MACOS.md)를 참조하십시오. 자동 빌드와
-패키지 검사만으로 실제 기기 호환성을 확인할 수는 없으며, 이번 배포 준비에서는
-Galaxy 휴대폰을 연결한 DeX 동작을 확인하지 않았습니다. 소스와 검증 기록은
-[릴리스 설명](docs/RELEASE_NOTES_macos-v2.0.1.md)에 정리되어 있습니다.
-Windows용 파일은 [원본 프로젝트의 Releases](https://github.com/maze-mei/DX-Manager/releases)에서
-받을 수 있습니다.
+Apple Developer ID 서명·공증이 없어 앱과 개별 도구의 최초 실행 승인이 남을 수
+있습니다. [패키지 안내](docs/PACKAGE_README_MACOS.md)와
+[릴리스 기록](docs/RELEASE_NOTES_macos-v2.0.2.md)을 참조하십시오.
+동일한 실행 코드를 preview.2로 USB SM-S942N에서 시험해 화면 켜기·끄기 중 DeX
+표시 유지와 정상 중지·종료 후 원래 상태 복원을 확인했습니다. Galaxy Z Flip6,
+접기·수동 잠금, 실제 Intel 기기 동작, Finder 및 다운로드 최초 실행 승인은
+별도로 확인해야 합니다. Windows 파일은
+[원본 프로젝트 Releases](https://github.com/maze-mei/DX-Manager/releases)에서 받습니다.
 
 <p align="center">
   <img src="docs/images/en/readme-hero-en.png" width="900" alt="DX Manager running Samsung DeX">

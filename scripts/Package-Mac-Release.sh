@@ -5,11 +5,12 @@ set -euo pipefail
 script_directory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repository_root="$(cd "$script_directory/.." && pwd)"
 
-version="2.0.1"
+version="2.0.2"
 rid=""
 output_directory="$repository_root/dist"
 scrcpy_archive=""
 skip_tests=0
+include_app=0
 
 scrcpy_version="4.1"
 dotnet_runtime_version="8.0.30"
@@ -26,15 +27,17 @@ Usage:
   scripts/Package-Mac-Release.sh --rid osx-arm64|osx-x64 [options]
 
 Options:
-  --version VERSION          Package version (default: 2.0.1)
+  --version VERSION          Package version (default: 2.0.2)
   --output-dir DIRECTORY    Generated ZIP directory (default: ./dist)
   --scrcpy-archive FILE     Use an already downloaded official scrcpy archive
   --skip-tests              Skip the test suites (intended only after CI tests)
+  --include-app             Also include a Finder-launchable DX Manager.app
+                            (ad-hoc signed, not Apple notarized; default: off)
   -h, --help                Show this help
 
 Examples:
   scripts/Package-Mac-Release.sh --rid osx-arm64
-  scripts/Package-Mac-Release.sh --rid osx-x64 --version 2.0.1
+  scripts/Package-Mac-Release.sh --rid osx-x64 --version 2.0.2
 EOF
 }
 
@@ -118,6 +121,10 @@ while [[ $# -gt 0 ]]; do
             skip_tests=1
             shift
             ;;
+        --include-app)
+            include_app=1
+            shift
+            ;;
         -h|--help)
             usage
             exit 0
@@ -132,6 +139,11 @@ done
 [[ -n "$rid" ]] || fail "--rid is required"
 [[ "$version" =~ ^[0-9A-Za-z][0-9A-Za-z._-]*$ ]] ||
     fail "version contains unsupported filename characters: $version"
+bundle_version="${version%%-*}"
+if [[ $include_app -eq 1 ]]; then
+    [[ "$bundle_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] ||
+        fail "--include-app requires a major.minor.patch version (optional -prerelease suffix)"
+fi
 
 case "$rid" in
     osx-arm64)
@@ -163,6 +175,10 @@ require_command unzip
 require_command zip
 require_command date
 require_command sed
+if [[ $include_app -eq 1 ]]; then
+    require_command clang
+    require_command plutil
+fi
 
 output_directory="$(mkdir -p "$output_directory" && cd "$output_directory" && pwd)"
 temporary_base="${TMPDIR:-/tmp}"
@@ -368,28 +384,87 @@ if [[ "${CI:-}" == "true" && "$host_arch" != "$binary_arch" ]]; then
     fail "CI runner architecture is $host_arch, expected $binary_arch for $rid"
 fi
 if [[ "$host_arch" == "$binary_arch" ]]; then
-    smoke_home="$work_root/smoke-home"
-    mkdir -p "$smoke_home"
     clean_path="/usr/bin:/bin:/usr/sbin:/sbin"
 
-    version_output="$(HOME="$smoke_home" PATH="$clean_path" \
+    version_output="$(PATH="$clean_path" \
         "$package_root/DXManager.Mac" --version)"
     [[ "$version_output" == *"$version"* ]] ||
         fail "DX Manager version output does not contain $version: $version_output"
-    HOME="$smoke_home" PATH="$clean_path" "$package_root/DXManager.Mac" --help >/dev/null
-    proxy_output="$(HOME="$smoke_home" PATH="$clean_path" \
+    PATH="$clean_path" "$package_root/DXManager.Mac" --help >/dev/null
+    proxy_output="$(PATH="$clean_path" \
         "$package_root/tools/adb-proxy/DXMAdbProxy" --self-test)"
     [[ "$proxy_output" == *"$version"* ]] ||
         fail "ADB proxy self-test output does not contain $version: $proxy_output"
-    scrcpy_output="$(HOME="$smoke_home" PATH="$clean_path" \
+    scrcpy_output="$(PATH="$clean_path" \
         "$package_root/tools/scrcpy/scrcpy" --version 2>&1)"
     [[ "$scrcpy_output" == *"scrcpy $scrcpy_version"* ]] ||
         fail "scrcpy version verification failed: $scrcpy_output"
-    HOME="$smoke_home" PATH="$clean_path" \
+    PATH="$clean_path" \
         "$package_root/tools/scrcpy/adb" version >/dev/null
 else
     echo "Skipping executable smoke tests: host is $host_arch, package is $binary_arch."
     echo "The matching GitHub Actions runner performs these tests before artifact upload."
+fi
+
+if [[ $include_app -eq 1 ]]; then
+    # Reuse the already verified portable payload, not a second publish pipeline.
+    app_root="$work_root/app/DX Manager.app"
+    app_macos="$app_root/Contents/MacOS"
+    app_resources="$app_root/Contents/Resources"
+    mkdir -p "$app_macos/tools/scrcpy" "$app_macos/tools/adb-proxy" "$app_resources"
+    cp "$package_root/DXManager.Mac" "$app_macos/"
+    cp "$package_root/tools/adb-proxy/DXMAdbProxy" "$app_macos/tools/adb-proxy/"
+    cp "$package_root/tools/scrcpy/scrcpy" "$package_root/tools/scrcpy/adb" "$app_macos/tools/scrcpy/"
+    cp "$package_root/PORTABLE_PACKAGE.txt" "$app_resources/"
+    # scrcpy-server is a Java payload, not macOS executable code. Keep it and
+    # other tool data in Resources so signing does not treat them as helpers.
+    cp -R "$package_root/tools" "$app_resources/"
+    rm "$app_resources/tools/adb-proxy/DXMAdbProxy" \
+        "$app_resources/tools/scrcpy/scrcpy" "$app_resources/tools/scrcpy/adb"
+    cp -R "$package_root/licenses" "$app_resources/"
+    cp -R "$package_root/docs" "$app_resources/"
+    cp "$package_root/README.md" "$package_root/LICENSE" "$app_resources/"
+    cp "$repository_root/build/macos/App-Start.command" "$app_resources/Start DX Manager.command"
+    cp "$repository_root/build/macos/APP_FIRST_RUN.txt" "$app_resources/"
+    cp "$repository_root/build/macos/APP_FIRST_RUN.txt" "$package_root/"
+    cp "$repository_root/scripts/app_icon.icns" "$app_resources/AppIcon.icns"
+    chmod 755 "$app_resources/Start DX Manager.command"
+
+    clang -fobjc-arc -fblocks -Wall -Wextra -Werror \
+        -arch "$binary_arch" -mmacosx-version-min=14.0 \
+        -framework AppKit -framework Foundation \
+        "$repository_root/build/macos/AppLauncher.m" -o "$app_macos/DXManager.Launcher"
+    cat > "$app_root/Contents/Info.plist" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>CFBundleName</key><string>DX Manager</string>
+  <key>CFBundleDisplayName</key><string>DX Manager</string>
+  <key>CFBundleIdentifier</key><string>io.github.asyouplz.dxmanager</string>
+  <key>CFBundleVersion</key><string>$bundle_version</string>
+  <key>CFBundleShortVersionString</key><string>$bundle_version</string>
+  <key>DXMReleaseVersion</key><string>$version</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleExecutable</key><string>DXManager.Launcher</string>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
+  <key>LSMinimumSystemVersion</key><string>14.0</string>
+  <key>LSUIElement</key><true/>
+  <key>NSHighResolutionCapable</key><true/>
+  <key>NSHumanReadableCopyright</key><string>DX Manager by maze; macOS port by kimdongup; community distribution by asyouplz. MIT License.</string>
+</dict></plist>
+EOF
+    plutil -lint "$app_root/Contents/Info.plist"
+    assert_architecture "$app_macos/DXManager.Launcher" "$binary_arch" "Finder launcher"
+    assert_portable_dependencies "$app_macos/DXManager.Launcher"
+    # Payload binaries were signed individually above. Do not re-sign nested tools.
+    codesign --force --sign - --timestamp=none "$app_macos/DXManager.Launcher"
+    codesign --force --sign - --timestamp=none "$app_root"
+    codesign --verify --deep --strict "$app_root"
+    for relative_binary in DXManager.Mac tools/adb-proxy/DXMAdbProxy tools/scrcpy/scrcpy tools/scrcpy/adb; do
+        cmp "$package_root/$relative_binary" "$app_macos/$relative_binary" ||
+            fail "app bundle changed its verified payload: $relative_binary"
+    done
+    cp -R "$app_root" "$package_root/DX Manager.app"
 fi
 
 zip_path="$output_directory/DX-Manager-v$version-macos-$package_arch.zip"
@@ -420,22 +495,39 @@ reextracted="$extract_root/DX Manager"
 [[ -x "$reextracted/tools/scrcpy/adb" ]] || fail "ZIP did not preserve the ADB executable bit"
 
 if [[ "$host_arch" == "$binary_arch" ]]; then
-    extracted_smoke_home="$work_root/extracted-smoke-home"
     extracted_smoke_tmp="$work_root/extracted-smoke-tmp"
-    mkdir -p "$extracted_smoke_home" "$extracted_smoke_tmp"
-    launcher_version="$(HOME="$extracted_smoke_home" \
-        TMPDIR="$extracted_smoke_tmp" \
+    mkdir -p "$extracted_smoke_tmp"
+    launcher_version="$(TMPDIR="$extracted_smoke_tmp" \
         PATH="/usr/bin:/bin:/usr/sbin:/sbin" \
         "$reextracted/Start DX Manager.command" --version 2>&1)"
     [[ "$launcher_version" == *"$version"* ]] ||
         fail "re-extracted launcher version check failed: $launcher_version"
-    tui_output="$({ sleep 2; printf 'Q\n'; } | \
-        HOME="$extracted_smoke_home" \
-        TMPDIR="$extracted_smoke_tmp" \
+    # These return before constructing InteractiveHost; TUI/Q would discover
+    # connected phones and could start or stop real sessions.
+    TMPDIR="$extracted_smoke_tmp" \
         PATH="/usr/bin:/bin:/usr/sbin:/sbin" \
-        "$reextracted/Start DX Manager.command" 2>&1)"
-    [[ "$tui_output" == *"DX Manager stopped cleanly"* ]] ||
-        fail "re-extracted TUI did not complete Q cleanup: $tui_output"
+        "$reextracted/Start DX Manager.command" --help >/dev/null
+fi
+
+if [[ $include_app -eq 1 ]]; then
+    extracted_app="$reextracted/DX Manager.app"
+    codesign --verify --deep --strict "$extracted_app"
+    if [[ "$host_arch" == "$binary_arch" ]]; then
+        app_launcher="$extracted_app/Contents/MacOS/DXManager.Launcher"
+        TMPDIR="$extracted_smoke_tmp" "$app_launcher" --verify
+        app_version="$(TMPDIR="$extracted_smoke_tmp" "$app_launcher" --version)"
+        [[ "$app_version" == *"$version"* ]] || fail "app launcher version mismatch: $app_version"
+        TMPDIR="$extracted_smoke_tmp" "$app_launcher" --help >/dev/null
+        # Resource tampering must fail without opening Terminal or invoking ADB.
+        tampered_app="$work_root/tamper test/한글 DX Manager.app"
+        mkdir -p "$(dirname "$tampered_app")"
+        cp -R "$extracted_app" "$tampered_app"
+        printf '\nmodified test resource\n' >> "$tampered_app/Contents/Resources/README.md"
+        if "$tampered_app/Contents/MacOS/DXManager.Launcher" --verify >/dev/null 2>&1; then
+            fail "app launcher accepted a modified bundle"
+        fi
+    fi
+    codesign --verify --deep --strict "$extracted_app"
 fi
 
 zip_hash="$(sha256_file "$staged_zip")"

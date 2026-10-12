@@ -2,6 +2,78 @@
 
 세부 변경은 Git 이력을 사용하고 여기에는 큰 이정표만 적는다.
 
+## 2026-10-12 - macOS 2.0.2 community release
+
+- Published the selected-phone settings fix, native screen-control guidance and
+  optional standalone app as macOS 2.0.2; submitted personal-fork PR #2 without merging.
+  The earlier upstream PR #7 was withdrawn after the repository target was clarified.
+- Final local build/tests and both Mac CI jobs passed. All four public downloads
+  matched their verified local files. The old release page links to the new version.
+- Physical evidence remains the preview.2 SM-S942N test described below;
+  version/documentation and final package checks do not extend device compatibility.
+- See `RELEASE_NOTES_macos-v2.0.2.md` and `SESSION.md` for source, checksums and limits.
+
+### 한국어
+
+- 선택 휴대폰 설정 수정·화면 제어 안내·선택형 앱을 macOS 2.0.2로 공개하고
+  개인 저장소 PR #2를 제출했다. 대상 확인 전에 만든 원작자 PR #7은 철회했으며
+  PR을 병합하지 않았다.
+- 최종 로컬 빌드·테스트와 두 Mac CI가 통과했다. 공개 네 다운로드의 로컬 파일 일치를
+  확인했고, 이전 릴리스 페이지에 새 버전 링크를 추가했다.
+- 실기 근거는 아래 preview.2의 SM-S942N 결과이며 최종 버전·문서·패키지 검사만으로
+  다른 기기 호환성을 확대하지 않는다. 소스·해시·제약은 릴리스 설명과 SESSION을 따른다.
+
+## 2026-10-12 - 2.0.2-preview.2 validation history (superseded by 2.0.2)
+
+- Align the terminal dashboard, settings edits, and new windows with the
+  selected phone's profile; keep common defaults separate.
+- Add TUI `O` as help for scrcpy's native screen shortcuts: focus its window,
+  left `Option+O` for off and `Option+Shift+O` for on. Remove preview.1's
+  separate screen-off helper after source review found its restoration guard
+  insufficient after native screen-on. No general black-display or Galaxy
+  Z Flip6 fix is claimed.
+- Prepare optional `--include-app` packaging with a Finder launcher for the
+  existing TUI and settings/logs outside the app bundle. Developer ID signing
+  and notarization are not included; first-launch approvals may remain.
+- The revised Release build passed with zero warnings/errors; xUnit 121/121
+  and multi-device tests 39/39 passed. Five tests for the removed helper policy
+  were removed. Both preview.2 ZIPs passed structural, checksum, architecture,
+  privacy, and signature checks; native arm64 noninteractive launcher checks
+  passed. See `SESSION.md` for separate preview.1 and preview.2 hashes/results.
+- The preview.2 interactive app started DeX on USB SM-S942N and panel OFF was
+  observed. `O` displayed help without changing the session. External settings
+  and the app signature were verified after startup. The user confirmed native
+  screen-on/off with normal DeX display; `2` and active-session `Q` restored
+  the panel, overlay, and original settings, with clean exit and no remaining
+  processes. These results apply to the tested SM-S942N only.
+- Galaxy Z Flip6, folding/manual locking, x64 execution, visual Finder launch,
+  and quarantined-download approval remain unverified. Published
+  `macos-v2.0.1` files are unchanged; no candidate is published.
+
+### 한국어
+
+- 터미널 표시·설정 변경·새 창 시작을 선택한 휴대폰의 프로필과 맞추고 공통
+  기본값과 구분한다.
+- TUI `O`는 scrcpy 창에서 왼쪽 `Option+O`로 끄고 `Option+Shift+O`로 켜는
+  기존 단축키를 안내한다. 화면 켜기 이후 복원 조건이 충분하지 않다는 소스 검토에
+  따라 preview.1의 별도 화면 끄기 helper를 제거한다. 모든 검은 화면 또는
+  Galaxy Z Flip6 문제가 수정됐다고 주장하지 않는다.
+- Finder에서 기존 TUI를 여는 선택형 `--include-app`을 준비하고 설정·로그는
+  앱 번들 밖에 저장한다. Developer ID 서명·공증은 포함하지 않으며 최초 실행
+  승인이 남을 수 있다.
+- 수정 후 Release 빌드는 경고·오류 0, xUnit 121/121과 다중 기기 39/39를
+  통과했다. 제거한 helper 정책의 테스트 5개도 삭제했다. preview.2 두 ZIP의
+  구조·체크섬·아키텍처·개인 데이터 제외·서명과 네이티브 arm64 비대화형 실행기를
+  확인했다. preview.1·preview.2의 해시와 검증은 `SESSION.md`에서 구분한다.
+- preview.2 대화형 앱에서 USB SM-S942N의 DeX 시작과 패널 OFF를 관찰했고 `O`는
+  세션을 바꾸지 않고 안내만 표시했다. 실행 후 번들 밖 설정과 앱 서명도 확인했다.
+  사용자가 화면 켜기·끄기 중에도 DeX 정상 표시를 확인했다. `2`와 실행 중 `Q`
+  모두 패널·overlay·기존 설정을 복원했고 정상 종료 후 관련 프로세스가 남지 않았다.
+  이 결과는 테스트한 SM-S942N에 한정한다.
+- Galaxy Z Flip6, 접기·수동 잠금, x64 실행, Finder 실행 화면과 quarantine
+  다운로드 승인은 미확인이다. 공개 `macos-v2.0.1` 파일은 변경하지 않았고 후보도
+  공개하지 않았다.
+
 ## 2026-10-12 - macos-v2.0.1 community distribution
 
 - Published a separate macOS release on `asyouplz/DX-Manager-mac`, preserving the

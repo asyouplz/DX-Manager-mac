@@ -1,3 +1,5 @@
+> **Updated macOS download: [2.0.2](https://github.com/asyouplz/DX-Manager-mac/releases/tag/macos-v2.0.2).** Includes selected-phone settings fixes, screen-control guidance and an optional app launcher. Use the new release for this update; the 2.0.1 files below are preserved for existing links and rollback.
+
 # DX Manager for macOS v2.0.1 — Community distribution
 
 ## English
@@ -40,6 +42,8 @@ Use `x64` instead of `arm64` for Intel. The result must be `OK`.
 ```
 
 ## 한국어
+
+> **최신 macOS 다운로드: [2.0.2](https://github.com/asyouplz/DX-Manager-mac/releases/tag/macos-v2.0.2).** 선택한 휴대폰의 설정 수정, 화면 제어 안내와 선택형 앱 실행기를 포함합니다. 이번 업데이트는 새 릴리스에서 받으십시오. 아래 2.0.1 파일은 기존 링크와 되돌리기 용도로 보존합니다.
 
 이 릴리스는 [asyouplz/DX-Manager-mac](https://github.com/asyouplz/DX-Manager-mac)에서 관리하는 별도 macOS 배포본입니다. 기존 Apple Silicon·Intel 포터블 패키지의 내용을 변경하지 않고 제공합니다. 원본 프로젝트는 [maze-mei/DX-Manager](https://github.com/maze-mei/DX-Manager)이며, macOS 포팅은 [kimdongup/DX-Manager-mac](https://github.com/kimdongup/DX-Manager-mac)을 통해 기여됐습니다. 원본 프로젝트의 공식 릴리스와는 별도로 이 포크에서 게시합니다.
 

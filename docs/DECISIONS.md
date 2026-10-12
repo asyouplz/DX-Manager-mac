@@ -368,3 +368,57 @@ transport에서 `EnsureVirtualDisplay`가 성공하거나 명시적 reset이 성
 Apple Developer ID와 notarization 자격 증명은 저장소에 넣지 않는다. 인증서가
 구성되기 전 자동 artifact에는 Developer ID 서명·공증이 없음을 문서에 표시하고
 Gatekeeper를 자동으로 우회하지 않는다.
+
+## 2026-10-12 - macOS settings and first-launch candidate
+
+The TUI must display, edit, and launch from the same selected physical-device
+profile. Clone-save-apply preserves live settings when saving fails. Common
+defaults remain separate; selecting a phone must not overwrite its profile.
+
+In `2.0.2-preview.2`, TUI `O` only displays the native screen shortcuts: focus
+the intended DeX/scrcpy window, then left `Option+O` for off or
+`Option+Shift+O` for on. Screen control and its cleanup state stay in the same
+running scrcpy process. The menu launches no separate helper and sends no
+Android lock/sleep or keyguard-bypass commands.
+
+Source review found that preview.1's startup-flag guard was insufficient:
+the main scrcpy session's native screen-on shortcut can clear its pending
+power-restoration state. A later off command from a separate `--no-cleanup`
+helper does not update that main session's state. Starting with
+`TurnScreenOff=True` therefore cannot guarantee restoration after that sequence.
+This is a source-found lifecycle boundary, not a reproduced physical-device
+failure. Remove the new helper action instead of adding another power manager.
+The published-build SM-S942N baseline did not reproduce black DeX with the
+panel off. No general black-display fix or Windows engine change is claimed.
+
+The optional `.app` uses the portable packaging pipeline and opens the same
+TUI through Launch Services. Settings and logs stay outside the signed bundle;
+portable settings are not imported implicitly. Ad hoc signing does not provide
+Developer ID or notarization. The candidate does not remove quarantine or
+change system-wide security settings, and remains separate from published
+`macos-v2.0.1` assets.
+
+### 한국어
+
+TUI의 표시·수정·실행은 같은 물리 기기 프로필을 사용한다. 복제본을 저장한 뒤
+메모리에 적용하여 저장 실패 시 기존 값을 보존한다. 공통 기본값을 별도로 두고
+기기 선택만으로 해당 프로필을 덮어쓰지 않는다.
+
+`2.0.2-preview.2`의 TUI `O`는 기존 화면 단축키만 안내한다. 대상 DeX/scrcpy
+창에 포커스를 두고 왼쪽 `Option+O`로 끄고 `Option+Shift+O`로 켠다. 화면 제어와
+종료 정리 상태는 같은 실행 중인 scrcpy 프로세스에서 관리한다. 메뉴에서 별도
+helper를 실행하거나 Android 잠금·절전·keyguard 우회 명령을 보내지 않는다.
+
+소스 검토에서 preview.1의 시작 옵션 조건만으로는 부족한 경로를 확인했다. 주
+scrcpy의 화면 켜기 단축키는 종료 시 전원 복원 예약을 해제할 수 있다. 이후 별도
+`--no-cleanup` helper가 화면을 꺼도 주 세션의 상태는 갱신되지 않는다. 따라서
+`TurnScreenOff=True`로 시작했다는 사실만으로 해당 순서의 복원을 보장할 수 없다.
+이 판단은 소스에서 확인한 수명주기 경계이며 실제 휴대폰에서 재현한 실패는 아니다.
+새 전원 관리자를 추가하지 않고 후보에서 추가한 helper 동작을 제거한다. 공개
+빌드의 SM-S942N 기준 실기에서는 패널이 꺼진 상태의 검은 DeX를 재현하지 못했다.
+모든 검은 화면을 수정했다고 주장하거나 Windows 엔진을 변경하지 않는다.
+
+선택형 `.app`도 같은 포터블 패키징 경로로 만들며 Launch Services를 통해 기존
+TUI를 연다. 설정·로그는 서명된 번들 밖에 두고 포터블 설정을 자동으로 가져오지
+않는다. ad hoc 서명은 Developer ID·공증을 대신하지 않는다. quarantine 삭제나
+시스템 전체 보안 설정 변경은 하지 않으며 공개 `macos-v2.0.1`과 후보를 구분한다.
