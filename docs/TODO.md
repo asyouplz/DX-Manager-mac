@@ -6,7 +6,8 @@
 - [x] Pass Apple Silicon and Intel CI run `38210807278`.
 - [x] Publish `macos-v2.0.2` as latest and verify all four unauthenticated downloads.
 - [x] Keep the shared 2.0.1 URL working with a link to the new release.
-- [ ] Review/merge personal-fork PR #2 (not performed by this task).
+- [x] Merge personal-fork PR #2 after both jobs in CI run `38211822870` passed.
+- [x] Confirm both published ZIPs contain `DX Manager.app` version 2.0.2.
 
 ### 한국어
 
@@ -14,7 +15,8 @@
 - [x] Apple Silicon·Intel 원격 CI 통과
 - [x] 2.0.2 최신 공개 릴리스와 로그인 없는 네 다운로드 검증
 - [x] 기존 2.0.1 공유 페이지에 새 버전 안내 추가
-- [ ] 개인 저장소 PR #2 검토·병합 대기. 이 작업에서는 병합하지 않음
+- [x] 개인 PR CI `38211822870`의 두 작업 통과 후 PR #2 병합
+- [x] 공개한 두 ZIP의 `DX Manager.app` 버전 2.0.2 포함 재확인
 
 ## 2.0.2 runtime validation history / 실행 코드 검증 기록
 

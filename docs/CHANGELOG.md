@@ -5,7 +5,8 @@
 ## 2026-10-12 - macOS 2.0.2 community release
 
 - Published the selected-phone settings fix, native screen-control guidance and
-  optional standalone app as macOS 2.0.2; submitted personal-fork PR #2 without merging.
+  optional standalone app as macOS 2.0.2; merged personal-fork PR #2 after explicit
+  approval and successful Apple Silicon/Intel CI (`38211822870`).
   The earlier upstream PR #7 was withdrawn after the repository target was clarified.
 - Final local build/tests and both Mac CI jobs passed. All four public downloads
   matched their verified local files. The old release page links to the new version.
@@ -16,8 +17,8 @@
 ### 한국어
 
 - 선택 휴대폰 설정 수정·화면 제어 안내·선택형 앱을 macOS 2.0.2로 공개하고
-  개인 저장소 PR #2를 제출했다. 대상 확인 전에 만든 원작자 PR #7은 철회했으며
-  PR을 병합하지 않았다.
+  개인 저장소 PR #2를 제출했다. 사용자 승인과 개인 PR의 두 아키텍처 CI 통과 후
+  main에 병합했다. 대상 확인 전에 만든 원작자 PR #7은 철회했다.
 - 최종 로컬 빌드·테스트와 두 Mac CI가 통과했다. 공개 네 다운로드의 로컬 파일 일치를
   확인했고, 이전 릴리스 페이지에 새 버전 링크를 추가했다.
 - 실기 근거는 아래 preview.2의 SM-S942N 결과이며 최종 버전·문서·패키지 검사만으로

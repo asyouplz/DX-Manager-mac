@@ -2,13 +2,19 @@
 
 마지막 갱신: 2026-10-12
 
-## 2026-10-12 - macOS 2.0.2 published and personal-fork PR submitted
+## 2026-10-12 - macOS 2.0.2 published and personal-fork PR merged
 
 - User authorized PR submission and release replacement after the preview.2 physical test.
-- Current PR: https://github.com/asyouplz/DX-Manager-mac/pull/2, open and not
-  merged. It compares `codex/macos-screen-first-run` against personal-fork
-  `main` (`8fea894`), which already contains the earlier macOS prerequisites.
-  The diff contains these improvements and distribution documentation only.
+- Current PR: https://github.com/asyouplz/DX-Manager-mac/pull/2, merged into
+  personal-fork `main` on 2026-10-12 at 15:29 KST, after explicit user approval.
+  Merge commit: `066d53188fb6877fa3121676c964aceb3439be78`. The exact approved
+  head `97d9579aa1eba7d3c8eced145cc531680f65a9e3` passed both Apple Silicon
+  and Intel CI jobs in personal-fork run `38211822870`. Earlier macOS prerequisites
+  were already in main; the experimental phone-preview branch was not included.
+- Rechecked both public ZIPs against current GitHub asset digests. Each contains
+  `DX Manager/DX Manager.app/`, an executable native launcher, and app version
+  2.0.2. Published assets and tags did not need replacement for this merge.
+  Runtime/package inputs in merged main match the published release source.
 - The user's target selection arrived after upstream PR #7 was created.
   That PR was withdrawn/closed without merging, and its description links to
   personal-fork PR #2. Its successful CI remains historical validation evidence.
@@ -39,14 +45,20 @@
   folding/manual lock, other firmware, physical Intel/Galaxy operation, Finder UI
   and first approval from a quarantined download remain unverified. Developer ID
   signing/notarization are not available.
-- Distribution-only documentation is maintained on `codex/macos-screen-first-run`.
-  Original checkout and experimental phone-preview worktree remain separate.
+- The runtime, app packaging, download README and release records are now in
+  personal-fork main. Original checkout and experimental phone-preview worktree
+  remain separate. No new phone-control commands were run for the merge.
 
 ### 한국어
 
 - 사용자의 대상 선택에 맞춰 개인 저장소 PR #2를 제출했다. `main`에는 앞선
-  macOS 변경이 이미 있어 이번 개선과 배포 문서만 비교된다. 현재 open이며
-  병합하지 않았다. 대상 선택 전에 만든 원작자 PR #7은 새 PR 링크를 남겨 닫았다.
+  macOS 변경이 이미 있어 이번 개선과 배포 문서만 비교했다. 사용자 승인 후
+  2026-10-12 15:29 KST 개인 main에 병합했다. 개인 PR의 두 아키텍처 CI가
+  통과한 head를 고정해 병합했으며 커밋은 위에 기록했다.
+  대상 선택 전에 만든 원작자 PR #7은 새 PR 링크를 남겨 닫았다.
+- 공개한 두 ZIP 모두 `DX Manager/DX Manager.app/`와 버전 2.0.2 네이티브
+  실행기를 포함함을 현재 공개 해시와 대조했다. 병합된 실행·패키징 소스가
+  릴리스 소스와 같아 ZIP·태그는 유지했다. 병합 과정에서 휴대폰은 제어하지 않았다.
 - 릴리스 태그·첨부파일은 그대로다. 개인 PR과 공개 소스의 실행·패키징·내장 안내는
   동일하며 배포 기록 문서만 다르다. 기존 원작자 PR CI 성공은 검증 이력으로 남긴다.
 - 개인 포크의 최신 공개 릴리스를 `macos-v2.0.2`로 갱신했다. 기존 2.0.1 태그·파일은

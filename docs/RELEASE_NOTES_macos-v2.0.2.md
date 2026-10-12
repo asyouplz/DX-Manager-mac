@@ -2,11 +2,11 @@
 
 ## English
 
-This release replaces 2.0.1 as the current community macOS download. Original project: [maze-mei/DX-Manager](https://github.com/maze-mei/DX-Manager); macOS port: [kimdongup/DX-Manager-mac](https://github.com/kimdongup/DX-Manager-mac); distribution: [asyouplz/DX-Manager-mac](https://github.com/asyouplz/DX-Manager-mac). The changes are maintained in [personal-fork PR #2](https://github.com/asyouplz/DX-Manager-mac/pull/2). macOS is distributed separately from the original project's Windows releases.
+This release replaces 2.0.1 as the current community macOS download. Original project: [maze-mei/DX-Manager](https://github.com/maze-mei/DX-Manager); macOS port: [kimdongup/DX-Manager-mac](https://github.com/kimdongup/DX-Manager-mac); distribution: [asyouplz/DX-Manager-mac](https://github.com/asyouplz/DX-Manager-mac). The changes were merged into this repository's `main` through [PR #2](https://github.com/asyouplz/DX-Manager-mac/pull/2). macOS is distributed separately from the original project's Windows releases.
 
 ### Download
 
-Requires **macOS 14 Sonoma or later**. No Homebrew or separate .NET installation is needed.
+**Both ZIPs below include `DX Manager.app` inside the `DX Manager` folder**, together with the portable launcher. Requires **macOS 14 Sonoma or later**. No Homebrew or separate .NET installation is needed.
 
 | Mac | Package | Checksum |
 | --- | --- | --- |
@@ -28,7 +28,7 @@ Extract the entire ZIP and open **DX Manager.app**. You may move the whole app t
 ### Source and verification
 
 - Source is archived at [`macos-v2.0.2`](https://github.com/asyouplz/DX-Manager-mac/tree/macos-v2.0.2). It includes the native-tool selection prerequisite from still-open [PR #5](https://github.com/maze-mei/DX-Manager/pull/5).
-- [Earlier CI run 38210807278 (withdrawn upstream PR)](https://github.com/maze-mei/DX-Manager/actions/runs/38210807278) passed on both Apple Silicon and Intel runners, including native package smoke checks. These are software checks without a connected Galaxy.
+- [Personal-fork PR CI run 38211822870](https://github.com/asyouplz/DX-Manager-mac/actions/runs/38211822870) passed on both Apple Silicon and Intel runners, including native package smoke checks. These are software checks without a connected Galaxy.
 - Final 2.0.2 local Release build: zero warnings/errors; xUnit **121/121**, multi-device tests **39/39**.
 - Both final packages: SHA-256, ZIP CRC, required files/licenses, executable permissions, architecture and private-data exclusion passed. Both app signatures passed deep/strict verification. Apple Silicon version/help/integrity checks passed; a tampered app copy was rejected. Intel was cross-packaged locally.
 - The same runtime was tested as **2.0.2-preview.2** on Apple Silicon with USB **SM-S942N**, Android 17 / SDK 37 / One UI property `90000`. The user confirmed normal DeX during phone-panel on/off. `2` and active-session `Q` restored the panel, overlay and original power settings, and exited without remaining DX Manager/scrcpy processes. Final 2.0.2 changes version metadata/documentation; it is not claimed as a second physical-device test.
@@ -50,11 +50,11 @@ For Intel, replace `arm64` with `x64`. The result must be `OK`.
 
 ## 한국어
 
-기존 2.0.1을 잇는 **macOS 2.0.2 커뮤니티 배포본**입니다. 원본은 [maze-mei/DX-Manager](https://github.com/maze-mei/DX-Manager), macOS 포팅은 [kimdongup/DX-Manager-mac](https://github.com/kimdongup/DX-Manager-mac)이며 이 포크에서 별도로 배포합니다. 수정은 [개인 배포 저장소 PR #2](https://github.com/asyouplz/DX-Manager-mac/pull/2)에서 관리합니다. macOS 파일은 원본 프로젝트의 Windows 릴리스와 별도로 배포합니다.
+기존 2.0.1을 잇는 **macOS 2.0.2 커뮤니티 배포본**입니다. 원본은 [maze-mei/DX-Manager](https://github.com/maze-mei/DX-Manager), macOS 포팅은 [kimdongup/DX-Manager-mac](https://github.com/kimdongup/DX-Manager-mac)이며 이 포크에서 별도로 배포합니다. 수정은 [개인 배포 저장소 PR #2](https://github.com/asyouplz/DX-Manager-mac/pull/2)를 통해 이 저장소의 `main`에 병합했습니다. macOS 파일은 원본 프로젝트의 Windows 릴리스와 별도로 배포합니다.
 
 ### 다운로드와 실행
 
-위 표에서 **M 시리즈 Mac은 arm64**, **Intel Mac은 x64** ZIP과 체크섬을 받으십시오. **macOS 14 Sonoma 이상**이 필요하며 Homebrew나 .NET을 따로 설치할 필요가 없습니다.
+**두 ZIP 모두 압축을 풀면 `DX Manager` 폴더 안에 `DX Manager.app`이 있습니다.** 위 표에서 **M 시리즈 Mac은 arm64**, **Intel Mac은 x64** ZIP과 체크섬을 받으십시오. **macOS 14 Sonoma 이상**이 필요하며 Homebrew나 .NET을 따로 설치할 필요가 없습니다.
 
 ZIP 전체를 풀고 **DX Manager.app**을 여십시오. 앱 전체를 응용 프로그램 폴더로 옮겨도 됩니다. 기존 **Start DX Manager.command**도 제공하며, 이 포터블 실행기를 사용할 때는 같은 폴더의 파일들을 함께 유지하십시오. 두 방식 모두 터미널 메뉴를 엽니다. `1`은 DeX 시작, `2`는 중지, `Q`는 세션을 정리하고 종료합니다. 휴대폰의 USB 디버깅을 켜고 연결한 뒤 잠금을 풀고, 필요하면 RSA 승인창에서 허용하십시오.
 
@@ -70,7 +70,7 @@ ZIP 전체를 풀고 **DX Manager.app**을 여십시오. 앱 전체를 응용 �
 
 ### 검증 범위
 
-[철회한 원작자 PR의 기존 CI 38210807278](https://github.com/maze-mei/DX-Manager/actions/runs/38210807278)도 Apple Silicon·Intel 실행 환경 모두 통과했습니다. 각 환경의 패키지 실행 검사를 포함하며 휴대폰을 연결한 실기는 아닙니다.
+[개인 저장소 PR CI 38211822870](https://github.com/asyouplz/DX-Manager-mac/actions/runs/38211822870)도 Apple Silicon·Intel 실행 환경 모두 통과했습니다. 각 환경의 패키지 실행 검사를 포함하며 휴대폰을 연결한 실기는 아닙니다.
 
 최종 2.0.2 로컬 빌드는 경고·오류 0, xUnit 121개와 다중 기기 테스트 39개를 통과했습니다. 두 ZIP의 체크섬·압축 무결성·필수 파일·라이선스·실행 권한·아키텍처·개인 파일 제외와 앱 서명을 확인했습니다. Apple Silicon에서 버전·도움말·무결성 검사는 정상이며, 변조한 복사본은 거부했습니다. Intel 파일은 로컬에서 교차 패키징했습니다.
 
