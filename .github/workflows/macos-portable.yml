@@ -20,6 +20,10 @@ on:
       - "global.json"
       - "scripts/Package-Mac-Release.sh"
       - "scripts/Create-AppBundle.sh"
+      - "scripts/Test-MacDesktopControls.sh"
+      - "scripts/Check-Mac-Upstream.py"
+      - "scripts/upstream/**"
+      - "docs/MACOS_GUI_PARITY.md"
       - "scripts/app_icon.icns"
   push:
     branches:
@@ -44,13 +48,17 @@ on:
       - "global.json"
       - "scripts/Package-Mac-Release.sh"
       - "scripts/Create-AppBundle.sh"
+      - "scripts/Test-MacDesktopControls.sh"
+      - "scripts/Check-Mac-Upstream.py"
+      - "scripts/upstream/**"
+      - "docs/MACOS_GUI_PARITY.md"
       - "scripts/app_icon.icns"
   workflow_dispatch:
     inputs:
       version:
         description: Version used in the generated ZIP filenames
         required: true
-        default: "2.0.2"
+        default: "2.1.0"
 
 permissions:
   contents: read
@@ -87,7 +95,7 @@ jobs:
           elif [[ -n "$REQUESTED_VERSION" ]]; then
             version="$REQUESTED_VERSION"
           else
-            version="2.0.2"
+            version="2.1.0"
           fi
           echo "DXM_PACKAGE_VERSION=$version" >> "$GITHUB_ENV"
 
@@ -104,6 +112,9 @@ jobs:
 
       - name: Run multi-device foundation tests
         run: dotnet run --project DexManager.MultiDeviceTests/DexManager.MultiDeviceTests.csproj --configuration Release --no-build
+
+      - name: Run native desktop controls checks
+        run: scripts/Test-MacDesktopControls.sh
 
       - name: Build and verify portable ZIP
         run: >-

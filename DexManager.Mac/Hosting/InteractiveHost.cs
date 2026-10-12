@@ -6,7 +6,7 @@ using DexManager.Utils;
 
 namespace DexManager.Mac.Hosting;
 
-public sealed class InteractiveHost : IDisposable
+public sealed partial class InteractiveHost : IDisposable
 {
     private readonly MacPlatformService _platformService;
     private readonly MacPathProvider _pathProvider;
@@ -38,10 +38,12 @@ public sealed class InteractiveHost : IDisposable
     private int _shutdownStarted;
     private int _runtimeServicesDisposed;
 
-    public InteractiveHost()
+    public InteractiveHost() : this(new MacPathProvider()) { }
+
+    internal InteractiveHost(MacPathProvider pathProvider)
     {
         _platformService = new MacPlatformService();
-        _pathProvider = new MacPathProvider();
+        _pathProvider = pathProvider;
         _captureService = new MacCaptureService(_pathProvider.DefaultScreenshotFolder);
         _keyboardService = new MacKeyboardService();
         _autoStartService = new MacAutoStartService();
@@ -51,6 +53,7 @@ public sealed class InteractiveHost : IDisposable
 
         _settingsService = new SettingsService(_logService, _pathProvider.SettingsDirectory);
         _settings = _settingsService.Load();
+        LocalizationService.Apply(_settings.Language);
         _runSettings = new MacRunSettingsStore(_settingsService, _settings);
 
         _processRunner = new ProcessRunner(_logService);
@@ -154,26 +157,6 @@ public sealed class InteractiveHost : IDisposable
                 {
                     _settings.Paths.ScrcpyPath = scrcpy;
                     modified = true;
-                }
-            }
-
-            if (_settings.Scrcpy != null && (_settings.Scrcpy.UseHidKeyboard || _settings.Scrcpy.UseHidMouse))
-            {
-                _settings.Scrcpy.UseHidKeyboard = false;
-                _settings.Scrcpy.UseHidMouse = false;
-                modified = true;
-            }
-
-            if (_settings.SingleWindowSlots != null)
-            {
-                foreach (var slot in _settings.SingleWindowSlots)
-                {
-                    if (slot != null && (slot.UseHidKeyboard || slot.UseHidMouse))
-                    {
-                        slot.UseHidKeyboard = false;
-                        slot.UseHidMouse = false;
-                        modified = true;
-                    }
                 }
             }
 

@@ -422,3 +422,34 @@ scrcpy의 화면 켜기 단축키는 종료 시 전원 복원 예약을 해제�
 TUI를 연다. 설정·로그는 서명된 번들 밖에 두고 포터블 설정을 자동으로 가져오지
 않는다. ad hoc 서명은 Developer ID·공증을 대신하지 않는다. quarantine 삭제나
 시스템 전체 보안 설정 변경은 하지 않으며 공개 `macos-v2.0.1`과 후보를 구분한다.
+
+## 2026-10-12 — Native Mac GUI preview
+
+Use AppKit for the native control window, with a persistent private-pipe C# host.
+The native UI does not open Terminal or implement a second DeX lifecycle. It calls
+existing Core services through a serialized, tested boundary, using explicit physical
+identity and mode for each request. Keep independent runtime bundles per physical
+phone. Retain the optional terminal entry point. No additional runtime dependency
+was introduced. Track upstream changes through the 67-file source map and the
+read-only comparison script rather than replacing Mac adaptations wholesale.
+
+한국어: AppKit 창과 기존 C# 서비스 사이를 내부 파이프로 연결한다. 터미널을
+열거나 DeX 실행·정리 코드를 화면 쪽에 중복 구현하지 않는다. 요청은 물리 기기와
+모드를 명시하고 직렬 처리한다. 원작과의 화면·기능 차이는 `MACOS_GUI_PARITY.md`로
+관리한다. 후속 요청에서 휴대폰 실기를 승인받았으며 결과를 세션 문서에 기록한다.
+
+## 2026-10-12 — Mac desktop controls
+
+Use a native event tap only while owned scrcpy sessions exist and Accessibility is
+allowed. Route converted keys to the focused owned PID, ignore stamped injections,
+and release tracked modifiers on focus change, tap reset and shutdown. Native mini-bar
+screen actions use the existing scrcpy process so its screen-power cleanup remains
+responsible. Capture an exact owned window with ScreenCaptureKit, save a unique PNG,
+then let C# validate the path and physical session before optional phone transfer.
+Do not add an HTTP control endpoint, a helper scrcpy process, or automatic OS grants.
+
+한국어: 앱이 만든 scrcpy 세션과 권한이 있을 때만 키 훅을 설치한다. 포커스를 가진
+소유 PID로만 변환 입력을 전달하고 주입 재진입·키 해제 누락을 처리한다. 미니바는
+기존 scrcpy의 전원 단축키를 사용해 종료 복원 경계를 유지한다. 캡처는 소유한 창만
+PNG로 저장하고 C#이 파일·물리 기기를 다시 확인한 후 선택적으로 휴대폰에 전송한다.
+OS 권한은 사용자가 승인하며 별도 제어 서버나 scrcpy helper를 추가하지 않는다.

@@ -1,5 +1,8 @@
 # DX Manager for macOS 사용 및 개발 가이드
 
+> macOS 2.1.0: open `.app` for the native GUI. Start with the [current package guide](PACKAGE_README_MACOS.md) and [GUI scope](MACOS_GUI_PARITY.md). The terminal instructions below also document the older 2.0.2 edition.
+> macOS 2.1.0은 `.app`에서 네이티브 GUI를 엽니다. [현재 사용법](PACKAGE_README_MACOS.md)과 [대응 범위](MACOS_GUI_PARITY.md)를 먼저 확인하세요. 아래 터미널 설명에는 이전 2.0.2의 기록도 포함됩니다.
+
 <p align="center">
   <b>Samsung DeX & 다중 가상 디스플레이 매니저 for macOS (.NET 8 Native Edition)</b>
 </p>

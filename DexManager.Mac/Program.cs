@@ -41,6 +41,8 @@ internal static class Program
         try
         {
             ConfigureBundledScrcpyEnvironment(new MacPathProvider());
+            if (args.FirstOrDefault() == "--gui-host")
+                return await GuiProtocol.RunAsync(Console.In, Console.Out, cts.Token);
             using var host = new InteractiveHost();
 
             if (args.Length > 0)
