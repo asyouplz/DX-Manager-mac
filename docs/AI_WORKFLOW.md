@@ -67,6 +67,48 @@ workflow는 `macos-15`와 `macos-15-intel`에서 두 패키지를 각각 빌드�
 PR artifact로 보관한다. `v*` 버전 태그에서는 두 ZIP과 체크섬을 다시 검증한 뒤
 Release 초안을 만들고, 유지관리자가 초안을 확인한 뒤 공개한다.
 
+### Unreleased macOS candidate verification
+
+`--include-app` adds an optional `DX Manager.app` to the portable ZIP; the
+candidate CI enables this option. Verify
+the native launcher, inner tools, bundle signature, checksum, and app data paths
+outside the bundle. Keep published release artifacts unchanged. A local
+ad hoc signature is not proof of Developer ID/notarization or browser-download
+Gatekeeper approval.
+
+Run settings isolation/save-failure tests. Verify that TUI `O` only displays
+shortcut help and does not launch a screen-control helper. For phone tests,
+focus the intended scrcpy window and check its native left `Option+O` and
+`Option+Shift+O` shortcuts, including an on/off sequence and normal cleanup.
+Capture the target model/firmware and the original overlay, stay-awake, and
+timeout settings, then verify restoration. Do not turn a single-device
+baseline into a cross-model claim or reuse previous preview checks for a new
+candidate revision.
+The candidate package smoke checks use `--version`, `--help`, app `--verify`,
+and a tampered-copy rejection check; they do not start the interactive TUI.
+Any separate TUI test must use an explicitly isolated or approved device
+environment. Non-device checks do not validate actual DeX or first-launch
+security approval.
+
+### 한국어
+
+`--include-app`은 포터블 ZIP에 선택형 `DX Manager.app`을 추가하며 후보 CI에서도
+이 옵션을 사용한다. 네이티브
+실행기·내부 도구·번들 서명·체크섬과 번들 밖 데이터 경로를 확인한다. 공개된
+릴리스 파일은 보존한다. 로컬 ad hoc 서명은 Developer ID·공증이나 브라우저
+다운로드의 Gatekeeper 승인을 검증한 결과가 아니다.
+
+설정 분리·저장 실패를 테스트하고 TUI `O`가 단축키 안내만 표시하며 화면 제어
+helper를 실행하지 않는지 확인한다. 기기 실기는 대상 scrcpy 창에 포커스를 두고
+왼쪽 `Option+O`·`Option+Shift+O`의 켜기·끄기 순서와 정상 종료를 확인한다.
+모델·펌웨어와 원래 overlay·stay-awake·timeout 값을 기록하고 종료 뒤 복원을
+재확인한다. 한 기기 결과를 다른 모델로 확대하거나 이전 preview의 검증을 새
+후보에 그대로 적용하지 않는다. 후보 패키지의 smoke
+검증은 `--version`·`--help`·앱 `--verify`와 변조 복사본 거부를 사용하며 대화형
+TUI를 시작하지 않는다. 별도 TUI 검증은 명시적으로 격리했거나 승인받은 기기
+환경에서 실행한다. 기기를 제어하지 않는 확인과 실제 DeX·최초 보안 승인을
+구분한다.
+
 시스템에 .NET Framework 4.6.2 Developer Pack이 없으면 참조 어셈블리 루트를
 `-TargetFrameworkRootPath`로 지정하거나 현재 셸의
 `DXM_TARGET_FRAMEWORK_ROOT` 환경 변수에 설정한다.
