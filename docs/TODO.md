@@ -1,5 +1,25 @@
 # TODO
 
+## Native Mac GUI preview — current work
+
+- [x] Native AppKit window and persistent C# host, without Terminal
+- [x] Device/mode-specific settings, original main controls and settings pages
+- [x] Settings isolation / invalid arguments / EOF cancellation tests
+- [x] Upstream source mapping and read-only update checker
+- [x] Native GUI-only verification after explicit app-launch approval: settings, navigation, validation, language/theme, logs and quit/relaunch
+- [x] Requested USB Galaxy GUI/desktop checks on SM-S942N / Android 17; exact review revisions and limits recorded in SESSION.md
+- [x] Mac key conversion, F8 capture and attached mini-bar implementation
+- [x] USB Galaxy: panel off/on, native Hangul/right Shift, whole/region/camera PNG plus phone hash match, Esc/timeout cancellation
+- [x] Mini-bar fullscreen/collapse/manager; Option+F8 session stop, baseline restoration and app quit
+- [x] Fit review: display-bound resize after right-edge placement, GUI Stop baseline restoration and Cmd+Q process cleanup
+- [ ] Physical F14 Enter toggle: current keyboard lacks F14/Scroll Lock; alternative input modes and other hardware remain unverified
+- [ ] GUI publication: no new commit / push / release requested yet
+
+한국어: 네이티브 창·기존 서비스 연결과 업데이트 점검 도구를 구현했다. 실제 창 실행은
+사용자 승인 후 확인했다. 후속 요청에 따라 키 변환·캡처·미니바를 추가했으며,
+macOS 권한 적용 후 실기 결과를 기록한다.
+
+
 ## macOS 2.0.2 publication / 공개 배포
 
 - [x] Submit personal-fork PR #2 and withdraw the earlier upstream PR #7.

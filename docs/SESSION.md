@@ -2,6 +2,206 @@
 
 마지막 갱신: 2026-10-12
 
+## 2026-10-12 — Desktop controls preview.3, local candidate with USB validation
+
+- User authorized key conversion, F8 capture and mini-bar implementation, followed by
+  Galaxy testing. This supersedes the earlier GUI-only test boundary. No new commit,
+  push, PR or release is authorized for this GUI work.
+- Implemented `DXDesktopControls`, `GuiDesktopSettings`, session PID snapshots and
+  private-pipe key/capture/stop actions. Native UI exposes settings and explicit OS
+  permission requests. Uses the current owned scrcpy process for screen actions.
+- User approved Accessibility and Screen Recording for the isolated review app and
+  completed Touch ID. Manual app addition plus restart showed both permissions allowed.
+- First actual GUI DeX start on USB SM-S942N / Android 17 exposed a native crash:
+  an unavailable SF Symbol passed nil to `NSButton buttonWithImage`. Crash stacks at
+  `makeBar` confirm the cause. Added usable text fallback and a native regression check.
+- Fixed review build: `dist/gui-desktop-review-fixed-arm64`, version
+  `2.0.3-gui.preview.3`. Native windowless checks 12/12 and multi-device 39/39 passed.
+  Managed xUnit tests 142/142 passed; Intel native compile passed with warnings as errors.
+- Updated isolated review app at `/private/tmp/dxm-gui-review/DX Manager GUI Review.app`;
+  previous crashing app archived separately. Rebuild changed the ad-hoc signature,
+  so the same OS permissions needed reapplying. Reusing the old identifier did not
+  update the current approval. The final review path is now
+  `/private/tmp/dxm-gui-review/DX Manager GUI Review Fixed.app`, identifier
+  `io.github.asyouplz.dxmanager.guireview.preview3fixed`. Manual addition and a verified
+  quit/relaunch showed both permissions allowed. User completed authentication and
+  authorized continuing after setting-window interaction.
+- The original process left across review renaming was verified by exact temporary
+  executable path and terminated; its child exited. No scrcpy session was active.
+- After reconnecting the phone, saved a fresh private baseline and started fixed DeX.
+  Both launcher/host and the owned scrcpy remained alive after mini-bar initialization.
+  User confirmed mini-bar phone panel off/on while Mac DeX remained usable. Right
+  Option language switching and right Shift release behavior passed on the physical keyboard.
+- F8 region, repeated-F8 whole-window and mini-bar camera captures produced nine PNGs.
+  All nine local SHA-256 values matched their phone copies in the isolated test folder.
+  Region dimensions were 2705x1336; whole-window captures were 2830x1656. Visual
+  review confirmed DeX content; full captures include the Mac window title bar.
+  User confirmed Esc and the configured 30-second test timeout cancel selection.
+- User then verified fullscreen, collapse/expand and manager opening. The size button
+  does resize, but on this M1 Pro MacBook the enlarged window extends beyond the
+  right edge. Upstream scrcpy 4.1 `sc_screen_resize_to_pixel_perfect` only sets size.
+  Added Mac-only post-resize display fitting, scoped to the still-focused owned PID
+  with one unambiguous AX window. Retains size when it fits; otherwise scales down,
+  respects menu/Dock usable area and negative-origin external-display coordinates.
+  Native checks are now 17/17, managed 142/142 and multi-device 39/39 pass.
+- User confirmed Option+F8 closed DeX. Read-only checks afterward matched the saved
+  baseline: overlay null, stay-awake 7, screen timeout 120000, phone awake; no owned
+  scrcpy remained. Cmd+Q then closed the native launcher and managed child.
+- Prepared the new isolated `/private/tmp/dxm-gui-review/DX Manager GUI Review Fit.app`,
+  bundle ID `io.github.asyouplz.dxmanager.guireview.preview3fit`. Old review copies are
+  retained, stopped. Auto-review rejected launching the new ad-hoc build, requesting
+  specific action-time consent. User subsequently explicitly approved this exact
+  review app and both permissions. Launched it, added the app to Accessibility and
+  Screen Recording, accepted the normal quit/reopen prompt, and verified both as
+  allowed in the app. Device selection through the previously unstable popup worked.
+  Saved `baseline-fit.json` privately: overlay null, stay-awake 7, timeout 120000,
+  awake. Started DeX on the same USB SM-S942N / Android 17. User confirmed that
+  shrinking/moving the window to the right and pressing the inward-arrow button
+  now keeps the entire window inside the Mac display, with DeX working normally.
+- Clicked the GUI Stop button: UI returned to connected/stopped and allowed Start.
+  Read-only phone checks matched `baseline-fit.json`: overlay null, stay-awake 7,
+  timeout 120000, awake; no owned scrcpy remained. Cmd+Q then closed the launcher
+  and host. Final process-name check found zero DXManager/scrcpy processes.
+  The review app is left closed; phone settings restored. No test files were removed.
+- This keyboard has neither F14 nor Scroll Lock. Physical Enter/Shift+Enter toggling
+  remains unverified; no synthetic input is being counted as a physical-key test.
+- Source also avoids rebuilding an unchanged device menu on each polling response;
+  this change has not yet been included in the running fixed review copy.
+- After the crashed session, read-only phone checks showed overlay null, stay-awake 7,
+  timeout 120000, awake; those match the saved test baseline. No remaining owned
+  DXManager/scrcpy processes were present before reopening the fixed review app.
+- Final-source package candidates in `dist/gui-desktop-final-arm64` and `...-x64`
+  passed re-extraction/CRC, SHA-256, architecture/executable permissions, required
+  guides/licenses, private-data exclusion and deep/strict signature checks. The
+  first sandboxed signature check reported an ADB failure; repeating the read-only
+  check outside the sandbox passed, with no re-signing or binary changes.
+  arm64 --verify/--version/--help passed without a GUI or phone session. Intel was
+  cross-packaged only. arm64 SHA-256:
+  `55cd2dcdbbb39f6cd36afb699f1e39fac48d87768fcf0c185e1d14a7da96fcd6`;
+  x64 SHA-256: `d2390f158f1541f61cf13edc72a322a463abba0160e158b34bb3a8d8dc189729`.
+  These are now superseded by `dist/gui-desktop-fit-arm64` / `...-x64` after the
+  reported overflow correction. Both new ZIPs passed CRC/extraction, SHA-256,
+  architecture/executable permissions, private-data exclusion and deep/strict
+  signatures. arm64 noninteractive launcher and package tamper-rejection checks
+  passed; Intel execution is unverified. Corrected hashes:
+  arm64 `71fbc22d11e879be5de9e54ff5c2a536854afdae65bff030734052909977c32c`
+  (132165300 bytes); x64
+  `bc44aa3b355192faf13d4b4b7abeb493407b5c6b7c9c51748068495e0d8e2559`
+  (147770824 bytes). Local handoff directory is
+  `/Users/tslee/Documents/program/DX-Manager-mac/dist/macos-gui-2.0.3-preview.3`,
+  with the corrected arm64 app, both ZIPs and checksums. This is a local candidate,
+  not a public release. Physical resize correction and GUI Stop restoration passed
+  in the isolated review copy of this build after explicit launch/permission consent.
+  Earlier Fixed-copy tests cover unchanged key/capture/minibar code. The final Fit
+  copy specifically rechecked permission setup, device selection, DeX start, resize,
+  GUI Stop and quit. Do not use older candidate ZIPs or claim every prior test was
+  repeated on the Fit copy. F14, alternative ADB key modes, wireless, simultaneous
+  phones, single-window hardware, external displays and Intel hardware are unverified.
+
+### 한국어
+
+- 사용자가 키 변환·F8 캡처·미니바 구현 후 휴대폰 시험을 승인했다. 이전 GUI만
+  확인한다는 범위는 이번 요청으로 변경됐다. 구현과 자동 검증을 실기와 구분한다.
+- 권한 두 개를 허용한 뒤 실제 시작에서 미니바 아이콘 누락 충돌을 확인하고
+  글자 버튼 대체와 회귀 검사를 추가했다. 수정 검토 앱에 권한을 다시 적용했다.
+- USB SM-S942N / Android 17에서 미니바 화면 끄기·켜기, 오른쪽 Option 한/영 전환,
+  오른쪽 Shift 해제를 사용자와 확인했다. 전체·영역·미니바 캡처 PNG 9개의 휴대폰
+  사본 해시가 일치했다. Esc·30초 취소도 사용자 확인을 받았다.
+- 전체화면·접기·설정 창 열기는 정상이다. 크기 버튼이 화면 밖으로 창을 키우는
+  사용자 보고를 받아 Mac 화면 경계 보정을 추가했다. 네이티브 검사 17개가 통과했다.
+- Option+F8 종료와 폰 설정 복원, 이후 Cmd+Q 프로세스 정리를 확인했다. F14·Scroll
+  Lock이 없는 키보드라 Enter 전환 실기는 미확인이다.
+- 새 Fit 검토 앱 실행이 처음에는 자동 승인 검토에서 차단됐으나, 이후 사용자가
+  정확한 앱 실행과 두 권한 적용을 명시적으로 승인했다. 앱을 실행하고 macOS
+  설정 추가·재시작 후 두 권한 허용을 확인했다. 같은 Galaxy에서 수정본 DeX를
+  시작했고, 사용자가 오른쪽에 둔 작은 창에서 버튼을 누르면 창 전체가 화면 안에
+  들어오며 DeX도 정상임을 확인했다. GUI 중지 뒤 폰 설정이 시작 전 값으로 돌아왔고,
+  Cmd+Q 뒤 DX Manager/scrcpy 프로세스가 남지 않았다. 검토 앱은 종료 상태다.
+- 두 아키텍처 후보 ZIP의 무결성·서명·개인 데이터 제외 검사가 통과했다. 전달 폴더와
+  최종 해시는 위에 기록했다. 앞선 키·캡처 시험과 마지막 Fit 앱의 크기·중지 시험을
+  구분한다. 실제 Intel·외부 모니터·무선·복수 기기·F14 전환 등은 미확인이다.
+  새 커밋·PR·릴리스는 하지 않았다.
+
+## 2026-10-12 — Native Mac GUI preview, local and uncommitted
+
+- User requested the original's buttons/checkboxes, `.app` startup without Terminal,
+  and a structure that can track upstream changes. Work is in the existing managed
+  worktree on `codex/macos-native-gui`, based on personal main `a68630d`.
+- AppKit `GuiApp.m` now runs a persistent C# `--gui-host` through private pipes.
+  Device/mode settings, DeX and three app slots, app lists/profiles, wireless/pairing,
+  general preferences, transfer options/status, diagnostics/logs and selected-device
+  Companion operations are connected to existing services. Core HID flags are no
+  longer discarded on Mac. Windows source under `DexManager/` is unchanged.
+- GUI runtime bundles are keyed by physical identity. Requests are serialized.
+  Quit/EOF cancels launches and stops owned sessions. A final source review replaced
+  the untracked-overlay shutdown fallback with owned-session stop/deferred retry:
+  opening an app list must not cause another app's overlay to be removed on quit.
+- Original main settings limits are retained. GUI settings isolation/invalid inputs
+  and IPC exception/EOF/quit behavior are tested. Final managed Release build passed
+  with zero warnings/errors; xUnit 133/133 and multi-device tests 39/39 passed.
+  Native arm64 and x86_64 compile passed with warnings treated as errors.
+- Final package source includes the native-window lifetime and bounded per-message
+  autorelease fixes. Both ZIPs have 73 entries and passed re-extraction, CRC, checksum,
+  architecture, executable permission, required guides/licenses, private-data exclusion
+  and deep/strict signature checks. arm64 no-window --verify/--version/--help and
+  tamper rejection passed. Intel execution remains untested; this is cross-packaging.
+- Final delivery directory in the original checkout:
+  `dist/macos-gui-2.0.3-preview.2/`, containing the arm64 `DX Manager.app`, two ZIPs,
+  and checksums. Runtime/package version: `2.0.3-gui.preview.2` (app marketing version 2.0.3).
+  arm64 ZIP: 132,113,376 bytes; SHA-256
+  `fefd826fb31d1e5fdc0456cf8d1c7a4b7c922b934d56d725afe1240bd20e20d5`.
+  x64 ZIP: 147,714,846 bytes; SHA-256
+  `4e6ae91013a40495dace4298fd925126c313a8406944a9f1f312ba5ada240058`.
+- Separate review copy: `/private/tmp/dxm-gui-review/DX Manager GUI Review.app`.
+  It has a distinct bundle identifier and `DXM_GUI_DATA_HOME` pointing to an isolated
+  test home. These review overrides are absent from delivery packages. The user
+  explicitly approved local review-app execution after the initial approval block.
+- Actual AppKit GUI-only verification passed: DeX settings save, separate slot 1/2
+  values, dirty-field navigation, invalid resolution rejection, English/Korean and
+  light/dark switching, all settings pages, log window and quit/relaunch persistence.
+  The first light-theme check exposed stale CGColor backgrounds; drawing dynamic
+  AppKit colors fixed this. Run/save controls now stay outside the scroll area,
+  selected navigation is marked, slot titles include their number, menus relocalize,
+  and detached page controls are removed from the action registry.
+- Cmd+Q with the log window open closed both the native launcher and C# child;
+  an actual-context process-name check showed no remaining DXManager/scrcpy rows.
+  The final review app was then refreshed from preview.2, re-signed/verified and
+  reopened. It is left open on the Korean DeX page, no device selected. Test values
+  and logs remain only in the isolated review home; they are not shipped.
+- The user explicitly chose **GUI only; phone tests later**. No phone-control
+  actions, wireless/Companion operations, login registration or existing terminal
+  app termination were performed. Read-only device monitoring ran in the host.
+  Do not count GUI/package tests as Galaxy or Intel hardware verification.
+- GUI parity is bounded in `MACOS_GUI_PARITY.md`: Windows global key conversion,
+  F8 capture and attached mini bar are not implemented; Mac Dock replaces tray,
+  portable tools stay bundle-owned. Do not describe complete Windows feature parity.
+- Upstream base `2a1ec107450d8755e3691e9fa52aa086ed034e8d` and 67 source mappings
+  are in `scripts/upstream/macos-source-map.json`. Read-only `Check-Mac-Upstream.py`
+  reports source/platform/UI-review changes; baseline comparison yielded zero,
+  parent-ref smoke comparison yielded 19 changes. No automatic merging or schedule.
+- No new commit, push, PR, merge, tag or release was performed. Public 2.0.2 remains
+  unchanged. Earlier `dist/gui-*` artifacts are intermediate builds; use only the
+  final delivery directory and hashes above. Original source checkout remains untouched.
+
+### 한국어
+
+- 원작의 메인 설정 흐름을 AppKit GUI로 연결하고 Terminal 실행을 제거한 로컬
+  미리보기를 만들었다. 설정·종료 통신 테스트 133개와 다중 기기 테스트 39개,
+  두 아키텍처 빌드·패키지 검사가 통과했다. 최종 파일과 해시는 위에 기록했다.
+- GUI가 만든 세션만 종료하도록 정리 경로를 보완했다. Windows 원본 소스는
+  수정하지 않았고, 원본 업데이트 대응표와 비교 도구를 추가했다.
+- 사용자 승인 후 별도 설정 홈으로 GUI를 실행했다. 설정 저장·슬롯 분리·메뉴
+  이동·잘못된 입력 차단·언어와 테마 전환·로그 창·종료와 재실행을 확인했다.
+  밝은 테마 배경, 스크롤 밖 실행·저장 버튼, 선택 메뉴와 슬롯 번호 표시,
+  메뉴 언어 갱신을 보완한 preview.2를 두 아키텍처로 다시 패키징했다.
+- 로그 창이 열린 상태의 Cmd+Q 종료 후 실행기와 서비스가 남지 않은 것을 확인했다.
+  최종 검토용 앱은 다시 열어 두었고 기기는 선택하지 않았다. 테스트 설정·로그는
+  검토 전용 폴더에만 있으며 전달 앱과 ZIP에는 포함하지 않았다.
+- 사용자는 휴대폰 시험을 나중에 하기로 했다. 이번에는 실제 DeX·단일창·무선·전송·
+  Companion 동작을 시험하지 않았으며 기존 앱도 종료하지 않았다.
+- 전역 키 변환·F8 캡처·붙는 미니바는 미구현이며 완전한 원작 동일판이라고 부르지 않는다.
+  커밋·PR·공개 릴리스는 하지 않았고 기존 2.0.2는 유지했다.
+
 ## 2026-10-12 - macOS 2.0.2 published and personal-fork PR merged
 
 - User authorized PR submission and release replacement after the preview.2 physical test.

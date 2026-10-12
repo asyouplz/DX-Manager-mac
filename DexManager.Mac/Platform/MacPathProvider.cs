@@ -55,12 +55,7 @@ public sealed class MacPathProvider : IPathProvider
     {
         get
         {
-            var pictures = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-            if (string.IsNullOrWhiteSpace(pictures) || !Directory.Exists(pictures))
-            {
-                var userHome = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-                pictures = Path.Combine(userHome, "Pictures");
-            }
+            var pictures = Path.Combine(_userHome, "Pictures");
             return Path.Combine(pictures, "DXManager");
         }
     }

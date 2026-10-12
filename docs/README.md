@@ -35,3 +35,5 @@ macOS 커뮤니티 배포 기준 갱신: 2026-10-12. 현재 포크의 배포 상
 `docs/USER_GUIDE_EN.md`, `docs/USER_GUIDE_KO.md`를 사용한다. 자주 묻는
 질문은 독립 문서인 `docs/FAQ_EN.md`, `docs/FAQ_KO.md`에서 관리하고 각
 사용 설명서와 README에서 링크한다.
+
+- `MACOS_GUI_PARITY.md`: Native GUI scope, platform differences and upstream update procedure / GUI 대응 범위와 원본 반영 절차

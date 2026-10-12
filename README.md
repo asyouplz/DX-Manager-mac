@@ -24,6 +24,25 @@
   <a href="DexManager/licenses/THIRD_PARTY_NOTICES.md">Third-party notices</a>
 </p>
 
+## Unreleased Mac GUI preview
+
+The current development branch adds a native `.app` control window with DeX / three
+single-window modes and device-specific settings. It does not open Terminal.
+The published 2.0.2 downloads below remain the terminal edition. See
+[GUI scope and upstream maintenance](docs/MACOS_GUI_PARITY.md). Mac key conversion,
+F8 full-window/region capture and a floating mini bar are implemented. Accessibility
+and Screen Recording permissions are requested explicitly. Hardware validation is
+tracked separately from automated tests in `docs/SESSION.md`.
+
+## 미공개 Mac GUI 미리보기
+
+현재 개발 브랜치는 Terminal 없이 여는 `.app` 설정 창을 추가합니다. DeX·단일창
+3개와 기기별 설정을 버튼·체크박스로 조작합니다. 아래 공개 2.0.2 파일은 여전히
+터미널 버전입니다. [GUI 대응 범위와 원본 업데이트 절차](docs/MACOS_GUI_PARITY.md)를
+참고하세요. Mac 키 변환·F8 전체/영역 캡처·미니바를 구현했으며 필요한 손쉬운 사용·
+화면 기록 권한은 명시적으로 요청합니다. 실기 결과는 자동 테스트와 구분해
+`docs/SESSION.md`에 기록합니다.
+
 ## macOS downloads — community distribution
 
 This fork distributes macOS builds of [maze-mei/DX-Manager](https://github.com/maze-mei/DX-Manager),

@@ -1,5 +1,40 @@
 # Changelog
 
+## macOS GUI resize correction / 창 크기 보정
+
+The mini-bar original-size command now constrains the owned scrcpy window to the
+current Mac display's usable area after resizing. It retains 1:1 size when it fits.
+
+미니바 원래 크기 조정 후 창이 화면 오른쪽으로 벗어나는 사용자 보고에 따라,
+해당 scrcpy 창의 위치와 필요한 경우 크기를 현재 Mac 화면 안으로 맞춘다.
+
+
+## Unreleased — macOS native GUI preview
+
+- Add an AppKit control window launched directly by `.app`, with a private C# host.
+- Add device/mode settings, original main checkboxes, connection/settings/diagnostic
+  pages, per-app profiles and existing service integration.
+- Add upstream source mapping and read-only change review tooling.
+- Native GUI-only checks passed after launch approval: isolated settings save, invalid
+  input rejection, slot separation, language/theme, logs and graceful quit/relaunch.
+- Fix live appearance colors, pin run/save controls outside the scroll area, update
+  menu language and identify the active mode.
+- Add focused-session key conversion, configurable F8 capture and attached mini bars.
+  Keep injected modifier presses/releases balanced and revalidate the captured device.
+  Add explicit Accessibility/Screen Recording permission controls.
+- Fix a real-device startup crash caused by an unavailable mini-bar SF Symbol: fall
+  back to a text button. Include the nil-image case in native regression checks.
+- The user subsequently authorized phone testing; record its current results in SESSION.md.
+  Windows-specific key differences remain documented.
+
+한국어: Terminal 없이 여는 네이티브 GUI 미리보기와 기기별 설정·원본 업데이트
+점검 도구를 추가했다. 사용자 승인 후 실제 창의 설정 저장·입력 검증·슬롯 분리·
+언어·테마·로그·종료와 재실행을 확인했다. 밝은 테마의 배경과 고정 실행 버튼,
+모드 표시를 보완했다. 후속 요청으로 키 변환·F8 캡처·미니바와 권한 요청 화면을
+추가했다. 실제 DeX 시작에서 확인한 미니바 아이콘 누락 충돌을 글자 버튼 대체로
+수정했다. 실기 결과와 Windows 키 차이는 별도 기록하며 아직 공개하지 않았다.
+
+
 세부 변경은 Git 이력을 사용하고 여기에는 큰 이정표만 적는다.
 
 ## 2026-10-12 - macOS 2.0.2 community release

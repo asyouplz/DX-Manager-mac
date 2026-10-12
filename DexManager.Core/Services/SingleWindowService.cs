@@ -114,6 +114,21 @@ namespace DexManager.Services
             }
         }
 
+        // Atomic owned-process snapshot for native Mac window routing.
+        public bool TryGetNativeSession(int slot, out int processId, out string serial, out int displayId)
+        {
+            lock (_syncRoot)
+            {
+                processId = 0; serial = string.Empty; displayId = 0;
+                Process process;
+                if (!_processes.TryGetValue(slot, out process) || !IsProcessRunning(process)) return false;
+                if (!_targetSerials.TryGetValue(slot, out serial)) return false;
+                _displayIds.TryGetValue(slot, out displayId);
+                try { processId = process.Id; return true; }
+                catch (InvalidOperationException) { return false; }
+            }
+        }
+
         public int RunningCount
         {
             get
@@ -620,8 +635,8 @@ namespace DexManager.Services
                 arguments.Add(
                     settings.MaxFps.ToString(CultureInfo.InvariantCulture));
             }
-            if (settings.UseHidKeyboard && OperatingSystem.IsWindows()) arguments.Add("-K");
-            if (settings.UseHidMouse && OperatingSystem.IsWindows()) arguments.Add("-M");
+            if (settings.UseHidKeyboard) arguments.Add("-K");
+            if (settings.UseHidMouse) arguments.Add("-M");
             if (settings.StayAwake)
                 arguments.Add(_runtimeInfo.StayAwakeArgument);
             if (settings.FlexDisplay)

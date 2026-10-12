@@ -5,7 +5,7 @@ set -euo pipefail
 script_directory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repository_root="$(cd "$script_directory/.." && pwd)"
 
-version="2.0.2"
+version="2.0.3-gui.preview.3"
 rid=""
 output_directory="$repository_root/dist"
 scrcpy_archive=""
@@ -27,7 +27,7 @@ Usage:
   scripts/Package-Mac-Release.sh --rid osx-arm64|osx-x64 [options]
 
 Options:
-  --version VERSION          Package version (default: 2.0.2)
+  --version VERSION          Package version (default: 2.0.3-gui.preview.3)
   --output-dir DIRECTORY    Generated ZIP directory (default: ./dist)
   --scrcpy-archive FILE     Use an already downloaded official scrcpy archive
   --skip-tests              Skip the test suites (intended only after CI tests)
@@ -37,7 +37,7 @@ Options:
 
 Examples:
   scripts/Package-Mac-Release.sh --rid osx-arm64
-  scripts/Package-Mac-Release.sh --rid osx-x64 --version 2.0.2
+  scripts/Package-Mac-Release.sh --rid osx-x64 --version 2.0.3-gui.preview.3
 EOF
 }
 
@@ -213,6 +213,7 @@ trap cleanup EXIT
 output_staging="$(mktemp -d "$output_directory/.dx-manager-macos-output.XXXXXX")"
 
 if [[ $skip_tests -eq 0 ]]; then
+    "$repository_root/scripts/Test-MacDesktopControls.sh"
     dotnet test "$repository_root/DexManager.Tests/DexManager.Tests.csproj" \
         --configuration Release --nologo
     dotnet run --project "$repository_root/DexManager.MultiDeviceTests/DexManager.MultiDeviceTests.csproj" \
@@ -295,6 +296,7 @@ sed "s/<version>/$version/g" \
     "$repository_root/docs/PACKAGE_README_MACOS.md" > "$package_root/README.md"
 sed "s/<version>/$version/g" \
     "$repository_root/docs/MACOS_GUIDE.md" > "$package_root/docs/MACOS_GUIDE.md"
+cp "$repository_root/docs/MACOS_GUI_PARITY.md" "$package_root/docs/"
 cp "$repository_root/DexManager/config/README.txt" "$package_root/config/README.txt"
 cp "$repository_root/LICENSE" "$package_root/LICENSE"
 cp "$repository_root/DexManager/licenses/THIRD_PARTY_NOTICES_MACOS.md" \
@@ -432,8 +434,8 @@ if [[ $include_app -eq 1 ]]; then
 
     clang -fobjc-arc -fblocks -Wall -Wextra -Werror \
         -arch "$binary_arch" -mmacosx-version-min=14.0 \
-        -framework AppKit -framework Foundation \
-        "$repository_root/build/macos/AppLauncher.m" -o "$app_macos/DXManager.Launcher"
+        -framework AppKit -framework Foundation -framework ApplicationServices -framework ScreenCaptureKit -framework Carbon \
+        "$repository_root/build/macos/AppLauncher.m" "$repository_root/build/macos/GuiApp.m" "$repository_root/build/macos/DXDesktopControls.m" -o "$app_macos/DXManager.Launcher"
     cat > "$app_root/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -448,7 +450,7 @@ if [[ $include_app -eq 1 ]]; then
   <key>CFBundleExecutable</key><string>DXManager.Launcher</string>
   <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>LSMinimumSystemVersion</key><string>14.0</string>
-  <key>LSUIElement</key><true/>
+  <key>LSUIElement</key><false/>
   <key>NSHighResolutionCapable</key><true/>
   <key>NSHumanReadableCopyright</key><string>DX Manager by maze; macOS port by kimdongup; community distribution by asyouplz. MIT License.</string>
 </dict></plist>

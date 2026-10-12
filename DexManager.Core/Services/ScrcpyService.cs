@@ -274,6 +274,20 @@ namespace DexManager.Services
             }
         }
 
+        // Atomic owned-process snapshot for native Mac window routing.
+        public bool TryGetNativeSession(out int processId, out string serial, out int displayId)
+        {
+            lock (_syncRoot)
+            {
+                processId = 0; serial = string.Empty; displayId = 0;
+                var process = _process;
+                if (!IsProcessRunning(process)) return false;
+                serial = _targetSerial; displayId = _displayId;
+                try { processId = process.Id; return true; }
+                catch (InvalidOperationException) { return false; }
+            }
+        }
+
         public bool IsStayAwakeRequested
         {
             get
@@ -389,8 +403,8 @@ namespace DexManager.Services
                 "DX Manager - DeX Station",
                 DeviceDisplayName)));
 
-            if (settings.UseHidKeyboard && OperatingSystem.IsWindows()) arguments.Add("-K");
-            if (settings.UseHidMouse && OperatingSystem.IsWindows()) arguments.Add("-M");
+            if (settings.UseHidKeyboard) arguments.Add("-K");
+            if (settings.UseHidMouse) arguments.Add("-M");
             if (settings.StayAwake)
                 arguments.Add(_runtimeInfo.StayAwakeArgument);
             if (settings.TurnScreenOff)

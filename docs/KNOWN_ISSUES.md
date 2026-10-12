@@ -219,3 +219,33 @@ notarization 자격 증명이 구성되어 있지 않다. 브라우저로 받은
 확인한 기록이 있다. 이 기록은 `2.0.2-preview.1`이나 `2.0.2-preview.2` 후보의
 x64 실행 결과를 대신하지 않는다. 실제 Intel Mac의 전체 Galaxy DeX 흐름도
 별도 확인 대상이다.
+
+## Unreleased native Mac GUI preview / 미공개 Mac GUI 미리보기
+
+- Current GUI phone validation is recorded in SESSION.md. Old terminal-version
+  physical tests and automated routing tests do not establish GUI hardware behavior.
+- Mac key conversion requires Accessibility and capture requires Screen Recording.
+  Permission prompts may require manually adding the whole app in System Settings;
+  a rebuild or move may require another OS approval. No permission is silently granted.
+- Right Option / F14 substitute for Hangul / Scroll Lock. Right Command is normalized
+  to left Command, not Windows F24. External keyboard layouts, multiple monitors,
+  protected-content capture and Intel execution require separate validation.
+- Capture includes the Mac window as provided by ScreenCaptureKit; a dragged region
+  is cropped from the selection preview. Phone transfer can fail after local PNG save;
+  the message retains the local path. See `MACOS_GUI_PARITY.md` for exact differences.
+- The file chooser uses the existing direct ADB send and may replace same-name
+  destinations. Managed scrcpy drops use the existing coordinator; its queue state
+  and cancellation are exposed separately. Physical transfer behavior is unverified.
+- Login startup requires the whole `.app` to be in a stable location; App Translocation
+  paths are rejected. No Developer ID signing or notarization was added.
+- Multiple GUI instances sharing a data directory are rejected. The older terminal
+  edition does not share this GUI lock; avoid running both against the same phone.
+
+한국어: 새 GUI의 실기 결과는 SESSION.md에 기록한다. 키 변환에는 손쉬운 사용,
+캡처에는 화면 기록 권한이 필요하며 운영체제에서 앱을 직접 추가해야 할 수 있다.
+Mac의 오른쪽 Option·F14·Command 대응, 외장 키보드·복수 모니터·보호 콘텐츠와
+Intel 실기의 차이를 구분한다. 캡처는 Mac 창 기준이며 폰 전송에 실패해도 저장된
+로컬 PNG 경로를 안내한다. 파일 선택 전송은 기존 ADB 직접 전송이므로
+동일 이름 파일을 바꿀 수 있으며, 관리형 드래그 전송의 상태·취소와 구분한다.
+기존 터미널 앱과 새 GUI를 같은 휴대폰에 동시에 사용하지 않는다. 최초 보안 승인과
+Apple 공증의 제약은 그대로다.

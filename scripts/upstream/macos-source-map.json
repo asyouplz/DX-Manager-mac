@@ -1,0 +1,274 @@
+{
+  "upstream": "https://github.com/maze-mei/DX-Manager",
+  "upstream_base": "2a1ec107450d8755e3691e9fa52aa086ed034e8d",
+  "files": [
+    {
+      "upstream": "DexManager/Models/AdbDeviceInfo.cs",
+      "mac": "DexManager.Core/Models/AdbDeviceInfo.cs"
+    },
+    {
+      "upstream": "DexManager/Models/AppSettings.Types.cs",
+      "mac": "DexManager.Core/Models/AppSettings.Types.cs"
+    },
+    {
+      "upstream": "DexManager/Models/AppSettings.cs",
+      "mac": "DexManager.Core/Models/AppSettings.cs"
+    },
+    {
+      "upstream": "DexManager/Models/DevicePresentationOrder.cs",
+      "mac": "DexManager.Core/Models/DevicePresentationOrder.cs"
+    },
+    {
+      "upstream": "DexManager/Models/DeviceRegistrySnapshot.cs",
+      "mac": "DexManager.Core/Models/DeviceRegistrySnapshot.cs"
+    },
+    {
+      "upstream": "DexManager/Models/DeviceRuntimeRegistrySnapshot.cs",
+      "mac": "DexManager.Core/Models/DeviceRuntimeRegistrySnapshot.cs"
+    },
+    {
+      "upstream": "DexManager/Models/DeviceRuntimeSessionSnapshot.cs",
+      "mac": "DexManager.Core/Models/DeviceRuntimeSessionSnapshot.cs"
+    },
+    {
+      "upstream": "DexManager/Models/DeviceState.cs",
+      "mac": "DexManager.Core/Models/DeviceState.cs"
+    },
+    {
+      "upstream": "DexManager/Models/DeviceTransportInfo.cs",
+      "mac": "DexManager.Core/Models/DeviceTransportInfo.cs"
+    },
+    {
+      "upstream": "DexManager/Models/DeviceVersionDiagnostic.cs",
+      "mac": "DexManager.Core/Models/DeviceVersionDiagnostic.cs"
+    },
+    {
+      "upstream": "DexManager/Models/DisplayInfo.cs",
+      "mac": "DexManager.Core/Models/DisplayInfo.cs"
+    },
+    {
+      "upstream": "DexManager/Models/EnvironmentCheckItem.cs",
+      "mac": "DexManager.Core/Models/EnvironmentCheckItem.cs"
+    },
+    {
+      "upstream": "DexManager/Models/FileTransferProgress.cs",
+      "mac": "DexManager.Core/Models/FileTransferProgress.cs"
+    },
+    {
+      "upstream": "DexManager/Models/LastSuccessSettings.cs",
+      "mac": "DexManager.Core/Models/LastSuccessSettings.cs"
+    },
+    {
+      "upstream": "DexManager/Models/ManagedDisplaySession.cs",
+      "mac": "DexManager.Core/Models/ManagedDisplaySession.cs"
+    },
+    {
+      "upstream": "DexManager/Models/PhoneTransferProgress.cs",
+      "mac": "DexManager.Core/Models/PhoneTransferProgress.cs"
+    },
+    {
+      "upstream": "DexManager/Models/PhysicalDeviceInfo.cs",
+      "mac": "DexManager.Core/Models/PhysicalDeviceInfo.cs"
+    },
+    {
+      "upstream": "DexManager/Models/ProcessResult.cs",
+      "mac": "DexManager.Core/Models/ProcessResult.cs"
+    },
+    {
+      "upstream": "DexManager/Models/ScrcpyAppInfo.cs",
+      "mac": "DexManager.Core/Models/ScrcpyAppInfo.cs"
+    },
+    {
+      "upstream": "DexManager/Models/VirtualDisplayLease.cs",
+      "mac": "DexManager.Core/Models/VirtualDisplayLease.cs"
+    },
+    {
+      "upstream": "DexManager/Resources/Strings.ko.resx",
+      "mac": "DexManager.Core/Resources/Strings.ko.resx"
+    },
+    {
+      "upstream": "DexManager/Resources/Strings.resx",
+      "mac": "DexManager.Core/Resources/Strings.resx"
+    },
+    {
+      "upstream": "DexManager/Services/AdbCommandBuilder.cs",
+      "mac": "DexManager.Core/Services/AdbCommandBuilder.cs"
+    },
+    {
+      "upstream": "DexManager/Services/AdbService.cs",
+      "mac": "DexManager.Core/Services/AdbService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/BundledProcessCleanupService.cs",
+      "mac": "DexManager.Core/Services/BundledProcessCleanupService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/CaptureService.cs",
+      "mac": "DexManager.Core/Services/CaptureService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/CompanionGuardianProtocol.cs",
+      "mac": "DexManager.Core/Services/CompanionGuardianProtocol.cs"
+    },
+    {
+      "upstream": "DexManager/Services/CompanionGuardianService.cs",
+      "mac": "DexManager.Core/Services/CompanionGuardianService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/DeviceFolderService.cs",
+      "mac": "DexManager.Core/Services/DeviceFolderService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/DeviceMonitorService.cs",
+      "mac": "DexManager.Core/Services/DeviceMonitorService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/DeviceRuntimeServiceFactory.cs",
+      "mac": "DexManager.Core/Services/DeviceRuntimeServiceFactory.cs"
+    },
+    {
+      "upstream": "DexManager/Services/DeviceRuntimeServiceSet.cs",
+      "mac": "DexManager.Core/Services/DeviceRuntimeServiceSet.cs"
+    },
+    {
+      "upstream": "DexManager/Services/DeviceRuntimeSessionRegistry.cs",
+      "mac": "DexManager.Core/Services/DeviceRuntimeSessionRegistry.cs"
+    },
+    {
+      "upstream": "DexManager/Services/DeviceSerialScope.cs",
+      "mac": "DexManager.Core/Services/DeviceSerialScope.cs"
+    },
+    {
+      "upstream": "DexManager/Services/DeviceVersionDiagnosticService.cs",
+      "mac": "DexManager.Core/Services/DeviceVersionDiagnosticService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/DexOrchestrator.cs",
+      "mac": "DexManager.Core/Services/DexOrchestrator.cs"
+    },
+    {
+      "upstream": "DexManager/Services/DiagnosticReportService.cs",
+      "mac": "DexManager.Core/Services/DiagnosticReportService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/DisplayCleanupPermissionService.cs",
+      "mac": "DexManager.Core/Services/DisplayCleanupPermissionService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/EnvironmentCheckService.cs",
+      "mac": "DexManager.Core/Services/EnvironmentCheckService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/FileTransferCoordinator.Adb.cs",
+      "mac": "DexManager.Core/Services/FileTransferCoordinator.Adb.cs"
+    },
+    {
+      "upstream": "DexManager/Services/FileTransferCoordinator.Ipc.cs",
+      "mac": "DexManager.Core/Services/FileTransferCoordinator.Ipc.cs"
+    },
+    {
+      "upstream": "DexManager/Services/FileTransferCoordinator.Processing.cs",
+      "mac": "DexManager.Core/Services/FileTransferCoordinator.Processing.cs"
+    },
+    {
+      "upstream": "DexManager/Services/FileTransferCoordinator.Progress.cs",
+      "mac": "DexManager.Core/Services/FileTransferCoordinator.Progress.cs"
+    },
+    {
+      "upstream": "DexManager/Services/FileTransferCoordinator.Remote.cs",
+      "mac": "DexManager.Core/Services/FileTransferCoordinator.Remote.cs"
+    },
+    {
+      "upstream": "DexManager/Services/FileTransferCoordinator.State.cs",
+      "mac": "DexManager.Core/Services/FileTransferCoordinator.State.cs"
+    },
+    {
+      "upstream": "DexManager/Services/FileTransferCoordinator.cs",
+      "mac": "DexManager.Core/Services/FileTransferCoordinator.cs"
+    },
+    {
+      "upstream": "DexManager/Services/FileTransferExecutionModels.cs",
+      "mac": "DexManager.Core/Services/FileTransferExecutionModels.cs"
+    },
+    {
+      "upstream": "DexManager/Services/FileTransferPlanner.cs",
+      "mac": "DexManager.Core/Services/FileTransferPlanner.cs"
+    },
+    {
+      "upstream": "DexManager/Services/LocalizationService.cs",
+      "mac": "DexManager.Core/Services/LocalizationService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/LogService.cs",
+      "mac": "DexManager.Core/Services/LogService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/PathService.cs",
+      "mac": "DexManager.Core/Services/PathService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/PhoneTransferProtocol.cs",
+      "mac": "DexManager.Core/Services/PhoneTransferProtocol.cs"
+    },
+    {
+      "upstream": "DexManager/Services/PhoneTransferReceiver.cs",
+      "mac": "DexManager.Core/Services/PhoneTransferReceiver.cs"
+    },
+    {
+      "upstream": "DexManager/Services/PhysicalDeviceRegistry.cs",
+      "mac": "DexManager.Core/Services/PhysicalDeviceRegistry.cs"
+    },
+    {
+      "upstream": "DexManager/Services/ScrcpyLaunchCoordinator.cs",
+      "mac": "DexManager.Core/Services/ScrcpyLaunchCoordinator.cs"
+    },
+    {
+      "upstream": "DexManager/Services/ScrcpyService.cs",
+      "mac": "DexManager.Core/Services/ScrcpyService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/ScreenOffService.cs",
+      "mac": "DexManager.Core/Services/ScreenOffService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/SettingsService.cs",
+      "mac": "DexManager.Core/Services/SettingsService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/SingleWindowService.cs",
+      "mac": "DexManager.Core/Services/SingleWindowService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/VirtualDisplayService.cs",
+      "mac": "DexManager.Core/Services/VirtualDisplayService.cs"
+    },
+    {
+      "upstream": "DexManager/Services/WirelessAdbService.cs",
+      "mac": "DexManager.Core/Services/WirelessAdbService.cs"
+    },
+    {
+      "upstream": "DexManager/Utils/AdbVersionParser.cs",
+      "mac": "DexManager.Core/Utils/AdbVersionParser.cs"
+    },
+    {
+      "upstream": "DexManager/Utils/AdminHelper.cs",
+      "mac": "DexManager.Core/Utils/AdminHelper.cs"
+    },
+    {
+      "upstream": "DexManager/Utils/ApkSigningCertificateReader.cs",
+      "mac": "DexManager.Core/Utils/ApkSigningCertificateReader.cs"
+    },
+    {
+      "upstream": "DexManager/Utils/DeviceLogFormatter.cs",
+      "mac": "DexManager.Core/Utils/DeviceLogFormatter.cs"
+    },
+    {
+      "upstream": "DexManager/Utils/ProcessRunner.cs",
+      "mac": "DexManager.Core/Utils/ProcessRunner.cs"
+    },
+    {
+      "upstream": "DexManager/Utils/WindowsVersionHelper.cs",
+      "mac": "DexManager.Core/Utils/WindowsVersionHelper.cs"
+    }
+  ]
+}

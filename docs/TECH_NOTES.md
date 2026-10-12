@@ -404,3 +404,50 @@ Scrcpy 주 창과 단일창 서비스에는 프로세스 종료, 출력 drain, �
 규칙이 다르고 과거 종료 경합 회귀가 있었으므로 단순 공통 helper 추출은 하지 않는다.
 공통화는 비정상 분리·사용자 창 닫기·동시 종료를 검증하는 전용 테스트를 먼저 만든
 뒤 진행한다.
+
+## Mac GUI host / Mac GUI 실행 구조
+
+`AppLauncher.m` validates the bundle then runs `GuiApp.m` (AppKit). `DXBridge`
+launches exactly the bundled `DXManager.Mac --gui-host` with NSTask argument arrays,
+redirected stdin/stdout/stderr and no shell. `GuiProtocol` is version-1 newline JSON;
+only replies use stdout. UI operations run off the native main thread. Quit/EOF
+cancels the managed lifetime and waits for runtime cleanup before AppKit exits.
+`InteractiveHost.Gui.cs` maps devices to existing runtime service sets and keeps
+all targets explicit. `GuiRunSettings` validates and applies a cloned candidate
+through `SettingsService.UpdateAndSave`. State polling does not reload editable fields.
+
+한국어: 화면은 AppKit 메인 스레드에서, 기기 명령은 별도 C# 프로세스에서 처리한다.
+상태 조회는 편집 중인 필드를 덮어쓰지 않는다. 파일·진단 대화상자도 Terminal을
+사용하지 않는다. `DXM_GUI_DATA_HOME`은 개발 검토 앱의 설정을 격리할 때만 지정하며
+배포 `Info.plist`에는 포함하지 않는다. 원본 대응표·업데이트 명령은
+`MACOS_GUI_PARITY.md`를 확인한다.
+
+## Mac desktop controls / 키·캡처·미니바
+
+`DXDesktopControls.m` receives `{device, mode, pid, displayId}` snapshots from
+`TryGetNativeSession` under each service's existing process lock. A 200 ms refresh
+matches owned visible windows; ambiguous multiple windows per PID are skipped.
+Panels follow the focused scrcpy window without taking keyboard focus. Missing
+SF Symbols use text buttons rather than passing nil to AppKit's image factory.
+`GuiDesktopSettings` saves existing key/capture/mini-bar settings transactionally.
+`key-input` permits only fixed Shift+Space / Shift+Enter actions on the owned display.
+`session-stop` validates local ownership even if USB is disconnected; capture transfer
+requires current physical identity and serial. Stale session requests are rejected.
+
+한국어: 프로세스 잠금 안에서 얻은 기기·모드·PID·display ID를 네이티브 창 감지에
+사용한다. 미니바는 키보드 포커스를 빼앗지 않으며 아이콘이 없으면 글자로 표시한다.
+설정은 기존 파일에 트랜잭션으로 저장한다. ADB 입력은 정해진 두 조합만 허용한다.
+USB가 끊겨도 로컬 창 정리는 허용하지만 캡처 전송은 현재 기기 identity를 검증한다.
+
+### Mac mini-bar resize boundary
+
+The original-size mini button sends scrcpy MOD+G, then applies a bounded Mac window
+fit after SDL processes the resize. Use the original window's largest intersecting
+display and its usable frame in logical points. Keep 1:1 size if it fits; otherwise
+scale down and clamp position. AX operations require the current owned PID, focus,
+one unambiguous window and Accessibility permission; fullscreen is left alone.
+Do not generalize the M1 Pro built-in-display test to external display layouts.
+
+한국어: 원래 크기 버튼은 scrcpy 크기 명령 후 현재 Mac 화면 안에 창을 맞춘다.
+좌표는 Retina 배율과 분리된 논리 좌표로 계산하며, 소유·포커스·단일 창 여부를
+확인한 뒤에만 위치·크기를 조정한다. 내장 화면 실기와 외부 화면 검증은 구분한다.

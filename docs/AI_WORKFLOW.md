@@ -154,3 +154,26 @@ Android 앱은 문서화된 복구 설정 이외의 설정이나 임의 shell �
 - 큰 이정표는 `CHANGELOG.md`
 
 문서에 추측을 사실처럼 적지 않는다.
+
+### Native GUI preview
+
+Build/package using `scripts/Create-AppBundle.sh --rid osx-arm64 --output-dir dist/gui-arm64`
+and `scripts/Package-Mac-Release.sh --rid osx-x64 --include-app --output-dir dist/gui-x64`.
+Read `MACOS_GUI_PARITY.md` before calling the GUI equivalent to the Windows edition.
+Check the actual native window, dirty-field navigation, device selection, each
+settings page and graceful quit. Keep phone actions deferred when requested.
+For isolated native UI checks, use a separate review app identifier and
+`DXM_GUI_DATA_HOME` in the review copy's `LSEnvironment`, then re-sign that copy.
+Never include those review overrides, test identities, settings or logs in delivery.
+Run `GuiRunSettingsTests`, `GuiDesktopSettingsTests` and `GuiProtocolTests` with the
+existing suite. `scripts/Test-MacDesktopControls.sh` exercises windowless native
+routing, injection guards, key release and missing-symbol fallback without installing
+a hook or sending keys. Packaging runs it before the managed tests.
+After explicit OS permission approval, test F8 full/region/cancel/timeout, local/phone
+PNG equality, mini-bar buttons/collapse/side, key modes and normal-stop restoration.
+Record physical keyboard/model/OS results separately from windowless tests.
+
+한국어: 새 GUI는 실제 창·편집 값 저장·기기 선택·각 설정 페이지·정상 종료를 확인한다.
+사용자가 휴대폰 시험을 보류하면 시작·중지·무선·Companion 버튼을 시험하지 않는다.
+별도 검토 앱의 데이터 홈과 식별자는 공개 패키지에 넣지 않는다. 구체적인 소스 대응과
+미지원 기능을 확인한 뒤 공개 설명을 작성한다.
