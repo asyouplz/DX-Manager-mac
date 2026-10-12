@@ -6,24 +6,50 @@ namespace DexManager.Mac.Platform;
 public sealed class MacPathProvider : IPathProvider
 {
     private readonly bool _preferBundledTools;
+    private readonly string _baseDirectory;
+    private readonly string _userHome;
+    private readonly bool _isAppBundle;
 
     public MacPathProvider()
         : this(null)
     {
     }
 
-    internal MacPathProvider(bool? preferBundledTools)
+    internal MacPathProvider(
+        bool? preferBundledTools,
+        string baseDirectory = null,
+        string userHome = null)
     {
-        _preferBundledTools = preferBundledTools ?? File.Exists(
-            Path.Combine(BaseDirectory, "PORTABLE_PACKAGE.txt"));
+        _baseDirectory = Path.GetFullPath(baseDirectory ?? AppDomain.CurrentDomain.BaseDirectory);
+        _userHome = userHome ?? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var executableDirectory = new DirectoryInfo(_baseDirectory);
+        _isAppBundle = string.Equals(executableDirectory.Name, "MacOS", StringComparison.Ordinal) &&
+            string.Equals(executableDirectory.Parent?.Name, "Contents", StringComparison.Ordinal) &&
+            executableDirectory.Parent?.Parent?.Name.EndsWith(".app", StringComparison.OrdinalIgnoreCase) == true;
+        _preferBundledTools = preferBundledTools ?? (_isAppBundle || File.Exists(
+            Path.Combine(BaseDirectory, "PORTABLE_PACKAGE.txt")));
     }
 
     internal bool IsPortablePackage => _preferBundledTools;
+    internal bool IsAppBundle => _isAppBundle;
 
-    public string BaseDirectory => AppDomain.CurrentDomain.BaseDirectory;
+    internal string BundledScrcpyResourceDirectory => _isAppBundle
+        ? Path.GetFullPath(Path.Combine(BaseDirectory, "..", "Resources", "tools", "scrcpy"))
+        : Path.Combine(BaseDirectory, "tools", "scrcpy");
+
+    internal string BundledScrcpyServerPath => Path.Combine(BundledScrcpyResourceDirectory, "scrcpy-server");
+
+    public string BaseDirectory => _baseDirectory;
+
+    // A signed app bundle is immutable. Portable folders retain their existing
+    // local settings; app bundles use a separate user-owned directory and never
+    // copy or replace a portable installation's settings automatically.
+    public string SettingsDirectory => _isAppBundle
+        ? Path.Combine(_userHome, "Library", "Application Support", "DX Manager")
+        : BaseDirectory;
 
     public string DefaultSettingsFilePath =>
-        Path.Combine(BaseDirectory, "config", "settings.json");
+        Path.Combine(SettingsDirectory, "config", "settings.json");
 
     public string DefaultScreenshotFolder
     {
@@ -40,7 +66,9 @@ public sealed class MacPathProvider : IPathProvider
     }
 
     public string DefaultLogDirectory =>
-        Path.Combine(BaseDirectory, "logs");
+        _isAppBundle
+            ? Path.Combine(_userHome, "Library", "Logs", "DX Manager")
+            : Path.Combine(BaseDirectory, "logs");
 
     public string DefaultProxyExecutablePath
     {

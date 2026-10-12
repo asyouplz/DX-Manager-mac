@@ -28,6 +28,7 @@ public sealed class InteractiveHost : IDisposable
     private readonly DiagnosticReportService _diagnosticReportService;
 
     private readonly AppSettings _settings;
+    private readonly MacRunSettingsStore _runSettings;
     private DeviceRuntimeServiceFactory _runtimeFactory;
     private DeviceRuntimeServiceSet _activeRuntime;
     private string _selectedDeviceSerial;
@@ -48,8 +49,9 @@ public sealed class InteractiveHost : IDisposable
         _logService = new LogService();
         _logService.SetLogDirectory(_pathProvider.DefaultLogDirectory);
 
-        _settingsService = new SettingsService(_logService, _pathProvider.BaseDirectory);
+        _settingsService = new SettingsService(_logService, _pathProvider.SettingsDirectory);
         _settings = _settingsService.Load();
+        _runSettings = new MacRunSettingsStore(_settingsService, _settings);
 
         _processRunner = new ProcessRunner(_logService);
         _pathService = new PathService(
@@ -255,6 +257,10 @@ public sealed class InteractiveHost : IDisposable
                     case "9":
                         ManageSettings();
                         break;
+                    case "O":
+                        AnsiConsole.SubHeader("PHONE SCREEN SHORTCUTS (HELP ONLY)");
+                        PrintScreenOffGuidance();
+                        break;
                     case "S":
                         SelectTargetDevice();
                         break;
@@ -272,7 +278,7 @@ public sealed class InteractiveHost : IDisposable
                         _isRunning = false;
                         break;
                     default:
-                        AnsiConsole.Warning($"Unknown command: '{input}'. Enter 1-9, S, L, C, or Q.");
+                        AnsiConsole.Warning($"Unknown command: '{input}'. Enter 1-9, O, S, L, C, or Q.");
                         Thread.Sleep(800);
                         break;
                 }
@@ -317,12 +323,15 @@ public sealed class InteractiveHost : IDisposable
             var activeDevice = GetSelectedDevice();
             var activeSerial = GetPrimarySerial(activeDevice);
             var activeName = activeDevice != null ? $"{activeDevice.DisplayName} ({activeSerial})" : "None";
+            var settingsIdentity = GetSettingsIdentity(activeDevice);
+            var runSettings = _runSettings.GetSnapshot(settingsIdentity);
 
             Console.WriteLine();
             AnsiConsole.KeyValue("Selected Device", activeName, AnsiConsole.BrightCyan, AnsiConsole.Bold + AnsiConsole.BrightWhite);
-            AnsiConsole.KeyValue("Resolution / DPI", $"{_settings.VirtualDisplay.Width}x{_settings.VirtualDisplay.Height} @ {_settings.VirtualDisplay.Dpi} DPI");
-            AnsiConsole.KeyValue("Stream Bitrate/FPS", $"{_settings.Scrcpy.BitRate} / {_settings.Scrcpy.MaxFps} FPS");
-            AnsiConsole.KeyValue("Screen Off / Awake", $"ScreenOff={_settings.Scrcpy.TurnScreenOff}, StayAwake={_settings.Scrcpy.StayAwake}");
+            AnsiConsole.KeyValue("Settings For", settingsIdentity == null ? "Common defaults (new devices)" : activeDevice.DisplayName);
+            AnsiConsole.KeyValue("Resolution / DPI", $"{runSettings.VirtualDisplay.Width}x{runSettings.VirtualDisplay.Height} @ {runSettings.VirtualDisplay.Dpi} DPI");
+            AnsiConsole.KeyValue("Stream Bitrate/FPS", $"{runSettings.Scrcpy.BitRate} / {runSettings.Scrcpy.MaxFps} FPS");
+            AnsiConsole.KeyValue("Screen Off / Awake", $"ScreenOff={runSettings.Scrcpy.TurnScreenOff}, StayAwake={runSettings.Scrcpy.StayAwake}");
 
             AnsiConsole.SubHeader("OPERATIONS MENU");
             Console.WriteLine($"  {AnsiConsole.BrightGreen}[1]{AnsiConsole.Reset} Start DeX Mode                {AnsiConsole.BrightRed}[2]{AnsiConsole.Reset} Stop DeX Mode");
@@ -330,6 +339,7 @@ public sealed class InteractiveHost : IDisposable
             Console.WriteLine($"  {AnsiConsole.BrightCyan}[5]{AnsiConsole.Reset} Wireless ADB Management       {AnsiConsole.BrightCyan}[6]{AnsiConsole.Reset} File Transfer Coordinator");
             Console.WriteLine($"  {AnsiConsole.BrightCyan}[7]{AnsiConsole.Reset} Diagnostics & Environment     {AnsiConsole.BrightCyan}[8]{AnsiConsole.Reset} DX Companion Guardian");
             Console.WriteLine($"  {AnsiConsole.BrightMagenta}[9]{AnsiConsole.Reset} Settings & Configuration      {AnsiConsole.BrightYellow}[S]{AnsiConsole.Reset} Select Active Device");
+            Console.WriteLine($"  {AnsiConsole.BrightCyan}[O]{AnsiConsole.Reset} Phone screen shortcuts (help only)");
             Console.WriteLine($"  {AnsiConsole.BrightBlack}[L]{AnsiConsole.Reset} View Recent Logs              {AnsiConsole.BrightRed}[Q]{AnsiConsole.Reset} Exit DX Manager");
         }
 
@@ -364,6 +374,14 @@ public sealed class InteractiveHost : IDisposable
         {
             if (device == null) return null;
             return device.SelectPreferredTransport(_selectedDeviceSerial)?.Serial;
+        }
+
+        private static string GetSettingsIdentity(PhysicalDeviceInfo device)
+        {
+            return device != null && !string.IsNullOrWhiteSpace(device.Identity) &&
+                !PhysicalDeviceRegistry.IsTemporaryIdentity(device.Identity)
+                ? device.Identity
+                : null;
         }
 
         private DeviceRuntimeServiceSet GetOrCreateRuntime()
@@ -488,6 +506,7 @@ public sealed class InteractiveHost : IDisposable
                     runtime.Dex.CurrentSession?.DeviceIdentity ??
                     device.Identity;
                 AnsiConsole.Success("DeX successfully started!");
+                PrintScreenOffGuidance();
                 await Task.Delay(1000);
                 return true;
             }
@@ -615,19 +634,8 @@ public sealed class InteractiveHost : IDisposable
             try
             {
                 AnsiConsole.Info($"Launching Window #{slot} ({appPackage}) for {device.DisplayName}...");
-                var slotSettings = new SingleWindowSlotSettings
-                {
-                    Slot = slot,
-                    Width = _settings.VirtualDisplay.Width,
-                    Height = _settings.VirtualDisplay.Height,
-                    Dpi = _settings.VirtualDisplay.Dpi,
-                    BitRate = _settings.Scrcpy.BitRate,
-                    MaxFps = _settings.Scrcpy.MaxFps,
-                    StayAwake = _settings.Scrcpy.StayAwake,
-                    TurnScreenOff = _settings.Scrcpy.TurnScreenOff,
-                    StartAppPackage = appPackage,
-                    AdditionalArguments = _settings.Scrcpy.AdditionalArguments
-                };
+                var slotSettings = _runSettings.CreateSingleWindowSettings(
+                    GetSettingsIdentity(device), slot, appPackage);
 
                 runtime.SingleWindows.Start(slot, slotSettings, serial);
                 AnsiConsole.Success($"Single window #{slot} launched!");
@@ -658,6 +666,14 @@ public sealed class InteractiveHost : IDisposable
             }
 
             await Task.Delay(800);
+        }
+
+        private static void PrintScreenOffGuidance()
+        {
+            AnsiConsole.Info("Focus the DeX/scrcpy window: left Option+O turns the phone panel OFF; left Option+Shift+O turns it ON.");
+            AnsiConsole.Info("These shortcuts keep mirroring active. Turning the panel off does not lock or unlock the phone.");
+            AnsiConsole.Info("Avoid the power/lock button for panel OFF. The power button, folding the phone, or a security lock may also lock DeX. Unlock the phone to resume.");
+            AnsiConsole.Info("In the interactive menu, O displays this help only; it does not change screen power.");
         }
 
         public async Task ManageWirelessAdbAsync()
@@ -877,54 +893,81 @@ public sealed class InteractiveHost : IDisposable
 
         public void ManageSettings()
         {
-            AnsiConsole.Header("SETTINGS & PREFERENCES");
-            AnsiConsole.KeyValue("1. Display Width", _settings.VirtualDisplay.Width.ToString());
-            AnsiConsole.KeyValue("2. Display Height", _settings.VirtualDisplay.Height.ToString());
-            AnsiConsole.KeyValue("3. Display DPI", _settings.VirtualDisplay.Dpi.ToString());
-            AnsiConsole.KeyValue("4. Bitrate", _settings.Scrcpy.BitRate);
-            AnsiConsole.KeyValue("5. Max FPS", _settings.Scrcpy.MaxFps.ToString());
-            AnsiConsole.KeyValue("6. Turn Screen Off", _settings.Scrcpy.TurnScreenOff.ToString());
-            AnsiConsole.KeyValue("7. Stay Awake", _settings.Scrcpy.StayAwake.ToString());
-            AnsiConsole.KeyValue("8. Scrcpy Path", _settings.Paths.ScrcpyPath ?? "(auto)");
-            AnsiConsole.KeyValue("9. ADB Path", _settings.Paths.AdbPath ?? "(auto)");
+            var device = GetSelectedDevice();
+            var identity = GetSettingsIdentity(device);
+            if (device != null && identity == null)
+            {
+                AnsiConsole.Warning("Wait for a stable device identity before changing device settings.");
+                return;
+            }
+
+            var scope = device?.DisplayName ?? "Common defaults for new devices";
+            var runSettings = _runSettings.GetSnapshot(identity);
+            AnsiConsole.Header($"SETTINGS & PREFERENCES ({scope})");
+            AnsiConsole.KeyValue("1. Display Width", runSettings.VirtualDisplay.Width.ToString());
+            AnsiConsole.KeyValue("2. Display Height", runSettings.VirtualDisplay.Height.ToString());
+            AnsiConsole.KeyValue("3. Display DPI", runSettings.VirtualDisplay.Dpi.ToString());
+            AnsiConsole.KeyValue("4. Bitrate", runSettings.Scrcpy.BitRate);
+            AnsiConsole.KeyValue("5. Max FPS", runSettings.Scrcpy.MaxFps.ToString());
+            AnsiConsole.KeyValue("6. Turn Screen Off", runSettings.Scrcpy.TurnScreenOff.ToString());
+            AnsiConsole.KeyValue("7. Stay Awake", runSettings.Scrcpy.StayAwake.ToString());
+            AnsiConsole.KeyValue("Scrcpy Path (read only)", _settings.Paths.ScrcpyPath ?? "(auto)");
+            AnsiConsole.KeyValue("ADB Path (read only)", _settings.Paths.AdbPath ?? "(auto)");
+            AnsiConsole.Info("Saved changes apply when DeX or a single-app window is started again.");
+            PrintScreenOffGuidance();
 
             Console.Write("\nEnter setting # to modify (or Enter to go back): ");
             var opt = Console.ReadLine()?.Trim();
             if (string.IsNullOrWhiteSpace(opt)) return;
 
+            Action<DeviceRunSettingsProfile> update = null;
             switch (opt)
             {
                 case "1":
                     Console.Write("Enter Width (e.g. 1920, 2560): ");
-                    if (int.TryParse(Console.ReadLine(), out var w)) _settings.VirtualDisplay.Width = w;
+                    if (int.TryParse(Console.ReadLine(), out var w)) update = settings => settings.VirtualDisplay.Width = w;
                     break;
                 case "2":
                     Console.Write("Enter Height (e.g. 1080, 1440): ");
-                    if (int.TryParse(Console.ReadLine(), out var h)) _settings.VirtualDisplay.Height = h;
+                    if (int.TryParse(Console.ReadLine(), out var h)) update = settings => settings.VirtualDisplay.Height = h;
                     break;
                 case "3":
                     Console.Write("Enter DPI (e.g. 160, 200, 240): ");
-                    if (int.TryParse(Console.ReadLine(), out var dpi)) _settings.VirtualDisplay.Dpi = dpi;
+                    if (int.TryParse(Console.ReadLine(), out var dpi)) update = settings => settings.VirtualDisplay.Dpi = dpi;
                     break;
                 case "4":
                     Console.Write("Enter Bitrate (e.g. 16M, 24M, 32M): ");
                     var br = Console.ReadLine()?.Trim();
-                    if (!string.IsNullOrWhiteSpace(br)) _settings.Scrcpy.BitRate = br;
+                    if (!string.IsNullOrWhiteSpace(br)) update = settings => settings.Scrcpy.BitRate = br;
                     break;
                 case "5":
                     Console.Write("Enter Max FPS (e.g. 60, 120): ");
-                    if (int.TryParse(Console.ReadLine(), out var fps)) _settings.Scrcpy.MaxFps = fps;
+                    if (int.TryParse(Console.ReadLine(), out var fps)) update = settings => settings.Scrcpy.MaxFps = fps;
                     break;
                 case "6":
-                    _settings.Scrcpy.TurnScreenOff = !_settings.Scrcpy.TurnScreenOff;
+                    update = settings => settings.Scrcpy.TurnScreenOff = !settings.Scrcpy.TurnScreenOff;
                     break;
                 case "7":
-                    _settings.Scrcpy.StayAwake = !_settings.Scrcpy.StayAwake;
+                    update = settings => settings.Scrcpy.StayAwake = !settings.Scrcpy.StayAwake;
                     break;
             }
 
-            _settingsService.Save(_settings);
-            AnsiConsole.Success("Settings updated and saved.");
+            if (update == null)
+            {
+                AnsiConsole.Warning("No valid setting change was entered.");
+                return;
+            }
+
+            try
+            {
+                _runSettings.UpdateAndSave(identity, update);
+                AnsiConsole.Success($"Settings saved for {scope}. They apply to newly started windows.");
+            }
+            catch (Exception ex)
+            {
+                _logService.Error("Could not save macOS run settings.", ex);
+                AnsiConsole.Error($"Settings were not changed because saving failed: {ex.Message}");
+            }
             Thread.Sleep(800);
         }
 

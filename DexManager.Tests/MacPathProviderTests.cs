@@ -46,6 +46,68 @@ namespace DexManager.Tests
             Assert.StartsWith(_provider.BaseDirectory, path);
         }
 
+        [Theory]
+        [InlineData("/Applications/DX Manager.app/Contents/MacOS")]
+        [InlineData("/Volumes/Test Folder/한글 앱.app/Contents/MacOS/")]
+        public void AppBundle_StoresUserDataOutsideTheSignedBundle(string executableDirectory)
+        {
+            var provider = new MacPathProvider(true, executableDirectory, "/Users/test-user");
+
+            Assert.Equal("/Users/test-user/Library/Application Support/DX Manager", provider.SettingsDirectory);
+            Assert.Equal("/Users/test-user/Library/Application Support/DX Manager/config/settings.json", provider.DefaultSettingsFilePath);
+            Assert.Equal("/Users/test-user/Library/Logs/DX Manager", provider.DefaultLogDirectory);
+            Assert.Equal(Path.GetFullPath(executableDirectory), provider.BaseDirectory);
+            Assert.Contains(provider.BaseDirectory, provider.DefaultProxyExecutablePath);
+            Assert.Equal(
+                Path.GetFullPath(Path.Combine(executableDirectory, "..", "Resources", "tools", "scrcpy", "scrcpy-server")),
+                provider.BundledScrcpyServerPath);
+            Assert.True(new MacPathProvider(null, executableDirectory, "/Users/test-user").IsPortablePackage);
+        }
+
+        [Theory]
+        [InlineData("/Users/test-user/Downloads/DX Manager")]
+        [InlineData("/Users/test-user/Downloads/not-an-app/Contents/MacOS")]
+        public void PortableDirectory_RetainsItsExistingSettingsAndLogLocations(string executableDirectory)
+        {
+            var provider = new MacPathProvider(true, executableDirectory, "/Users/test-user");
+
+            Assert.Equal(Path.GetFullPath(executableDirectory), provider.SettingsDirectory);
+            Assert.Equal(Path.Combine(provider.BaseDirectory, "config", "settings.json"), provider.DefaultSettingsFilePath);
+            Assert.Equal(Path.Combine(provider.BaseDirectory, "logs"), provider.DefaultLogDirectory);
+            Assert.Equal(Path.Combine(provider.BaseDirectory, "tools", "scrcpy", "scrcpy-server"), provider.BundledScrcpyServerPath);
+        }
+
+        [Fact]
+        public void AppBundle_SavingSettingsLeavesBundleAndExistingPortableSettingsUntouched()
+        {
+            var root = Path.Combine(Path.GetTempPath(), "dx-manager-app-path-test-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                var portableDirectory = Path.Combine(root, "portable");
+                var portableSettings = Path.Combine(portableDirectory, "config", "settings.json");
+                Directory.CreateDirectory(Path.GetDirectoryName(portableSettings));
+                File.WriteAllText(portableSettings, "preserve existing portable settings");
+                var bundleExecutableDirectory = Path.Combine(root, "DX Manager.app", "Contents", "MacOS");
+                Directory.CreateDirectory(bundleExecutableDirectory);
+                var provider = new MacPathProvider(true, bundleExecutableDirectory, Path.Combine(root, "user"));
+                var log = new LogService();
+                log.SetLogDirectory(provider.DefaultLogDirectory);
+                var settings = new SettingsService(log, provider.SettingsDirectory);
+
+                settings.Save(AppSettings.CreateDefault());
+                log.SaveSession(Path.Combine(provider.DefaultLogDirectory, "path-test.log"));
+
+                Assert.True(File.Exists(provider.DefaultSettingsFilePath));
+                Assert.True(File.Exists(Path.Combine(provider.DefaultLogDirectory, "path-test.log")));
+                Assert.Empty(Directory.GetFileSystemEntries(bundleExecutableDirectory));
+                Assert.Equal("preserve existing portable settings", File.ReadAllText(portableSettings));
+            }
+            finally
+            {
+                if (Directory.Exists(root)) Directory.Delete(root, true);
+            }
+        }
+
         [Fact]
         public void DefaultScreenshotFolder_ContainsPicturesDXManager()
         {
