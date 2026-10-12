@@ -1,10 +1,10 @@
-# DX Manager for macOS — GUI preview
+# DX Manager for macOS 2.1.0
 
 ## English
 
-This package is an **unreleased GUI preview**, based on the community macOS
-2.0.2 runtime. The published 2.0.2 `.app` opens Terminal; this candidate's
-`.app` opens a native Mac control window instead. macOS 14 or later is required.
+This is the **community macOS 2.1.0 release**, adding a native Mac control
+window to the 2.0.2 runtime. Open `.app` to use buttons and checkboxes without
+Terminal. macOS 14 or later is required.
 Use arm64 for Apple Silicon and x64 for Intel. Both ZIPs contain the runtime,
 ADB, scrcpy 4.1, proxy and notices; no Homebrew or separate .NET is needed.
 
@@ -13,7 +13,7 @@ Applications. Keep its internal files intact. In Finder, select the ZIP and
 matching checksum file from the same build; the checksum can be verified with:
 
 ```bash
-release_version="<version>"
+release_version="2.1.0"
 shasum -a 256 -c "DX-Manager-v${release_version}-macos-arm64.zip.sha256"
 ```
 
@@ -65,8 +65,8 @@ The app does not silently install a Companion APK or add one to this package.
 
 ## 한국어
 
-이 패키지는 커뮤니티 Mac 2.0.2 실행 코드를 바탕으로 한 **미공개 GUI 미리보기**입니다.
-공개된 2.0.2의 `.app`은 Terminal을 열지만, 이 후보의 `.app`은 Mac 설정 창을 엽니다.
+이 패키지는 기존 2.0.2 실행 코드를 바탕으로 네이티브 GUI를 추가한 **커뮤니티
+macOS 2.1.0 배포본**입니다. `.app`을 열면 Terminal 없이 버튼·체크박스로 설정합니다.
 macOS 14 이상에서 M 시리즈는 arm64, Intel은 x64를 사용합니다. 실행에 필요한
 런타임·ADB·scrcpy 4.1·proxy·라이선스가 포함되어 Homebrew나 .NET은 필요하지 않습니다.
 

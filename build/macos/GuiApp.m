@@ -243,7 +243,7 @@ typedef void (^DXReply)(id data, NSString *error);
     [self label:L(@"SETTINGS", @"설정") frame:NSMakeRect(16, 300, 156, 20) font:11 parent:sidebar];
     NSArray *pages = @[L(@"General", @"기본"), L(@"Connection", @"연결"), L(@"Paths / Transfers", @"경로 / 파일 전송"), L(@"Keyboard", @"키 입력"), L(@"Diagnostics", @"진단 / Companion"), L(@"About", @"정보")];
     for (NSInteger i = 0; i < (NSInteger)pages.count; i++) { NSButton *b = [self button:pages[i] action:@selector(navigate:) frame:NSMakeRect(8, 332 + i * 39, 174, 34) parent:sidebar]; b.tag = i + 10; [b setButtonType:NSButtonTypePushOnPushOff]; [self.navigationButtons addObject:b]; }
-    NSTextField *edition = [self label:@"macOS · GUI preview" frame:NSMakeRect(18, sidebar.bounds.size.height - 40, 164, 22) font:11 parent:sidebar]; edition.autoresizingMask = NSViewMinYMargin;
+    NSTextField *edition = [self label:@"macOS · 2.1.0" frame:NSMakeRect(18, sidebar.bounds.size.height - 40, 164, 22) font:11 parent:sidebar]; edition.autoresizingMask = NSViewMinYMargin;
     NSTextField *title = [self label:@"DX Manager" frame:NSMakeRect(224, 18, 370, 38) font:29 parent:self.root]; title.font = [NSFont boldSystemFontOfSize:29];
     self.deviceBox = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(588, 23, 332, 30) pullsDown:NO];
     self.deviceBox.target = self; self.deviceBox.action = @selector(selectDevice:); self.deviceBox.accessibilityLabel = L(@"Selected device", @"선택 기기"); [self.root addSubview:self.deviceBox]; [self rebuildDevices];
@@ -515,7 +515,7 @@ typedef void (^DXReply)(id data, NSString *error);
 }
 - (void)renderAbout {
     DXFlippedView *card = [self card:L(@"DX Manager for macOS", @"Mac용 DX Manager") y:0 height:435];
-    [self label:L(@"Community macOS edition based on maze-mei/DX-Manager.\n\nThe native Mac window uses the same C# device and DeX services as the portable edition. Settings remain outside the signed app bundle.\n\nThis GUI is a local preview. Focused-window key conversion, capture and a mini control bar use macOS permissions. Device and Intel hardware validation are tracked separately.\n\nAd-hoc signed; not Apple notarized. macOS may require approval in Privacy & Security.", @"maze-mei/DX-Manager 기반의 커뮤니티 Mac 버전입니다.\n\nMac 창은 기존 포터블 버전의 C# 기기·DeX 서비스를 사용합니다. 설정은 서명된 앱 밖에 보관합니다.\n\n현재 GUI는 로컬 미리보기입니다. 키 변환·캡처·미니 컨트롤바는 macOS 권한을 사용합니다. 기기·Intel 실기 확인은 별도입니다.\n\n무결성 확인용 ad-hoc 서명이며 Apple 공증은 없습니다. 개인정보 보호 및 보안에서 실행 승인이 필요할 수 있습니다.") frame:NSMakeRect(20, 50, 645, 320) font:14 parent:card];
+    [self label:L(@"Community macOS edition based on maze-mei/DX-Manager.\n\nThe native Mac window uses the same C# device and DeX services as the portable edition. Settings remain outside the signed app bundle.\n\nVersion 2.1.0 provides a native Mac GUI. Focused-window key conversion, capture and a mini control bar use macOS permissions. Device and Intel hardware validation are tracked separately.\n\nAd-hoc signed; not Apple notarized. macOS may require approval in Privacy & Security.", @"maze-mei/DX-Manager 기반의 커뮤니티 Mac 버전입니다.\n\nMac 창은 기존 포터블 버전의 C# 기기·DeX 서비스를 사용합니다. 설정은 서명된 앱 밖에 보관합니다.\n\n2.1.0은 Mac 네이티브 GUI를 제공합니다. 키 변환·캡처·미니 컨트롤바는 macOS 권한을 사용합니다. 기기·Intel 실기 확인은 별도입니다.\n\n무결성 확인용 ad-hoc 서명이며 Apple 공증은 없습니다. 개인정보 보호 및 보안에서 실행 승인이 필요할 수 있습니다.") frame:NSMakeRect(20, 50, 645, 320) font:14 parent:card];
     [self button:L(@"Project releases", @"프로젝트 릴리스") action:@selector(openProject:) frame:NSMakeRect(20, 382, 290, 32) parent:card];
 }
 - (void)resolution:(NSPopUpButton *)sender {

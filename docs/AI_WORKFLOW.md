@@ -155,7 +155,7 @@ Android 앱은 문서화된 복구 설정 이외의 설정이나 임의 shell �
 
 문서에 추측을 사실처럼 적지 않는다.
 
-### Native GUI preview
+### Native GUI release validation
 
 Build/package using `scripts/Create-AppBundle.sh --rid osx-arm64 --output-dir dist/gui-arm64`
 and `scripts/Package-Mac-Release.sh --rid osx-x64 --include-app --output-dir dist/gui-x64`.

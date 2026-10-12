@@ -1,6 +1,6 @@
 # TODO
 
-## Native Mac GUI preview — current work
+## Native Mac GUI 2.1.0 — current work
 
 - [x] Native AppKit window and persistent C# host, without Terminal
 - [x] Device/mode-specific settings, original main controls and settings pages
@@ -13,7 +13,7 @@
 - [x] Mini-bar fullscreen/collapse/manager; Option+F8 session stop, baseline restoration and app quit
 - [x] Fit review: display-bound resize after right-edge placement, GUI Stop baseline restoration and Cmd+Q process cleanup
 - [ ] Physical F14 Enter toggle: current keyboard lacks F14/Scroll Lock; alternative input modes and other hardware remain unverified
-- [ ] GUI publication: no new commit / push / release requested yet
+- [ ] 2.1.0 commit / personal-fork PR / release publication: explicitly authorized on 2026-10-12
 
 한국어: 네이티브 창·기존 서비스 연결과 업데이트 점검 도구를 구현했다. 실제 창 실행은
 사용자 승인 후 확인했다. 후속 요청에 따라 키 변환·캡처·미니바를 추가했으며,

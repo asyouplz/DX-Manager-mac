@@ -2,6 +2,25 @@
 
 마지막 갱신: 2026-10-12
 
+## 2026-10-12 — macOS 2.1.0 release preparation
+
+- User explicitly authorized committing the tested GUI, opening a PR in the existing
+  personal repository and publishing it as 2.1.0. Target: `asyouplz/DX-Manager-mac`.
+  PR merge was not requested in this instruction; release the reviewed PR source
+  under its own `macos-v2.1.0` tag and retain the PR for review.
+- GUI implementation committed as `0f7c880`. Release changes set runtime/package/UI
+  labels to 2.1.0, update English/Korean guides and add native desktop checks to both
+  CI architectures. Functional phone behavior remains that of the verified Fit copy.
+- Git author is the currently linked asyouplz noreply identity; existing upstream
+  history is preserved. Private device identifiers, credentials, settings, captures,
+  logs and distribution archives were excluded from the source commit.
+- Local build, personal-fork PR CI, exact-source tag and public asset verification
+  are pending. No public 2.1.0 release is claimed until those finish.
+
+한국어: 사용자가 검증한 GUI의 커밋·개인 저장소 PR·2.1.0 릴리스를 승인했다.
+기능 커밋 후 버전·문서·두 아키텍처 CI를 정리한다. PR 병합은 별도이며,
+태그와 배포 파일을 같은 검증된 소스에 맞춘다. 공개 결과는 후속 기록으로 확인한다.
+
 ## 2026-10-12 — Desktop controls preview.3, local candidate with USB validation
 
 - User authorized key conversion, F8 capture and mini-bar implementation, followed by

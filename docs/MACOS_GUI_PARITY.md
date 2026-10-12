@@ -1,4 +1,4 @@
-# macOS GUI parity and upstream maintenance
+# macOS 2.1.0 GUI parity and upstream maintenance
 
 ## English
 

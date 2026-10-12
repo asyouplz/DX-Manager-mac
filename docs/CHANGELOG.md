@@ -1,5 +1,17 @@
 # Changelog
 
+## macOS 2.1.0 — native GUI release
+
+Open `.app` without Terminal, configure devices/modes with native controls, use
+Mac key conversion, F8 capture and the attached mini bar, and track upstream changes
+with the source map. Includes the missing-icon crash fix and display-bound resize.
+Validation and remaining platform differences are documented in the release notes.
+
+`.app`에서 Terminal 없이 기기·모드 설정, Mac 키 변환·F8 캡처·미니바를 사용한다.
+아이콘 누락 충돌과 화면 밖 크기 조정을 보정했고, 원본 대응표와 업데이트 검사
+도구를 포함한다. 검증 범위와 남은 차이는 2.1.0 릴리스 설명에 기록한다.
+
+
 ## macOS GUI resize correction / 창 크기 보정
 
 The mini-bar original-size command now constrains the owned scrcpy window to the

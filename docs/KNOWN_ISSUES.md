@@ -220,7 +220,7 @@ notarization 자격 증명이 구성되어 있지 않다. 브라우저로 받은
 x64 실행 결과를 대신하지 않는다. 실제 Intel Mac의 전체 Galaxy DeX 흐름도
 별도 확인 대상이다.
 
-## Unreleased native Mac GUI preview / 미공개 Mac GUI 미리보기
+## Native Mac GUI 2.1.0 / Mac GUI 2.1.0
 
 - Current GUI phone validation is recorded in SESSION.md. Old terminal-version
   physical tests and automated routing tests do not establish GUI hardware behavior.
