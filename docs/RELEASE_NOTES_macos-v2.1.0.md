@@ -48,6 +48,11 @@ Recording**, using the buttons in Keyboard settings. Add the whole `.app` manual
 if macOS does not list it, and restart when requested. These are separate from
 first-launch approval. The package does not remove quarantine or weaken Mac security.
 
+Both Apple Silicon and Intel jobs in [release CI](https://github.com/asyouplz/DX-Manager-mac/actions/runs/38224784614) passed against source
+[`0a9e843`](https://github.com/asyouplz/DX-Manager-mac/commit/0a9e8437f46be54de8affe8a7cdb67e259063820).
+The attached files are those CI artifacts. [PR #3](https://github.com/asyouplz/DX-Manager-mac/pull/3)
+contains the source change and remains open for review.
+
 Automated validation covers **142 managed tests, 39 multi-device tests and 17 native
 checks**, plus dual-architecture packaging, signatures, executable permissions,
 checksums, archive integrity and private-data exclusion. Physical checks on an
@@ -110,6 +115,11 @@ Homebrew나 .NET 설치 없이 ZIP을 풀고 앱을 열면 됩니다. 앱 전체
 키 입력 화면의 버튼으로 **손쉬운 사용**과 **화면 기록** 권한을 요청합니다.
 자동 목록에 없으면 앱 전체를 직접 추가하고 macOS가 요구하면 재시작하세요.
 이는 최초 실행 승인과 별개입니다. quarantine이나 Mac 전체 보안 설정을 바꾸지 않습니다.
+
+[배포 CI](https://github.com/asyouplz/DX-Manager-mac/actions/runs/38224784614)의 Apple Silicon·Intel 작업이 같은 소스
+`0a9e843`에서 모두 통과했습니다. 첨부 파일은 그 CI 산출물입니다.
+소스 변경은 [PR #3](https://github.com/asyouplz/DX-Manager-mac/pull/3)에 있으며
+검토용으로 열어 두었습니다.
 
 자동 검증은 **관리형 테스트 142개·다중 기기 39개·네이티브 17개**, 두 아키텍처
 패키징과 서명·권한·체크섬·압축 무결성·개인 파일 제외를 포함합니다.

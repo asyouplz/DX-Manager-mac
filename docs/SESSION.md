@@ -2,24 +2,54 @@
 
 마지막 갱신: 2026-10-12
 
-## 2026-10-12 — macOS 2.1.0 release preparation
+## 2026-10-12 — macOS 2.1.0 published; GUI PR open
 
-- User explicitly authorized committing the tested GUI, opening a PR in the existing
-  personal repository and publishing it as 2.1.0. Target: `asyouplz/DX-Manager-mac`.
-  PR merge was not requested in this instruction; release the reviewed PR source
-  under its own `macos-v2.1.0` tag and retain the PR for review.
-- GUI implementation committed as `0f7c880`. Release changes set runtime/package/UI
-  labels to 2.1.0, update English/Korean guides and add native desktop checks to both
-  CI architectures. Functional phone behavior remains that of the verified Fit copy.
-- Git author is the currently linked asyouplz noreply identity; existing upstream
-  history is preserved. Private device identifiers, credentials, settings, captures,
-  logs and distribution archives were excluded from the source commit.
-- Local build, personal-fork PR CI, exact-source tag and public asset verification
-  are pending. No public 2.1.0 release is claimed until those finish.
+- User authorized committing the tested GUI, creating the personal-fork PR and
+  publishing 2.1.0. GUI feature commit `0f7c880`; release source commit
+  `0a9e8437f46be54de8affe8a7cdb67e259063820`. Both use the account-linked asyouplz
+  noreply author identity. Windows sources and original user settings are unchanged.
+- PR: https://github.com/asyouplz/DX-Manager-mac/pull/3, branch
+  `codex/macos-native-gui`, base personal `main`. It remains open; merging was not
+  part of this request. A subsequent documentation-only commit records this result;
+  the public release tag remains fixed to the tested source above.
+- Exact-source CI run `38224784614` passed Apple Silicon and Intel jobs. Each ran
+  142 managed + 39 multi-device + 17 native checks, built with zero warnings/errors
+  and verified its architecture's app/ZIP. Both uploaded artifacts report the source
+  SHA above. Intel/Galaxy physical behavior is still not established by Intel CI.
+- Published latest (not draft/prerelease) at 2026-10-12 17:45:29 KST:
+  https://github.com/asyouplz/DX-Manager-mac/releases/tag/macos-v2.1.0.
+  Annotated tag object `2e543db4b6d76e26000d7e8ee80994b8ff29861f` resolves to the release
+  source. The four assets are the CI ZIPs and checksums, not the local cross-build.
+- ARM64 ZIP: 140255503 bytes; SHA-256
+  `32d62e2375ccb049b9be55f07f4c46202088ee381319de8567144206ff21424d`.
+  Intel ZIP: 147773827 bytes; SHA-256
+  `ea231eb2c5fca69c8ea804d03b2a3c2f8d9ad697e35e7faf0942efba11937c58`.
+- Downloaded CI ZIPs passed CRC/extraction, version/bundle identity, signatures,
+  executable permissions, architecture, external-dependency checks, guides/licenses
+  and private-data exclusion. ARM64 launcher --verify/--version/--help passed.
+  GitHub's four uploaded digest/size values matched. All four public URLs then
+  returned HTTP 200 without authentication and downloaded bytes matched CI hashes;
+  both public ZIPs contain the 2.1.0 `.app` and passed CRC/checksum checks.
+- Final local copy of the CI release files and extracted ARM64 app:
+  `/Users/tslee/Documents/program/DX-Manager-mac/dist/macos-v2.1.0`.
+  The separate `dist/macos-2.1.0-local-arm64` is a local validation build, not the
+  uploaded asset set. Prior 2.0.1/2.0.2 releases, tags and files remain intact.
+- Physical validation remains the preceding Fixed/Fit review results below.
+  Final 2.1.0 changes labels/docs/CI packaging, not the tested phone behavior.
+  No additional GUI launch or phone action occurred during release publication.
+  App permissions and Developer ID/notarization limitations remain documented.
 
-한국어: 사용자가 검증한 GUI의 커밋·개인 저장소 PR·2.1.0 릴리스를 승인했다.
-기능 커밋 후 버전·문서·두 아키텍처 CI를 정리한다. PR 병합은 별도이며,
-태그와 배포 파일을 같은 검증된 소스에 맞춘다. 공개 결과는 후속 기록으로 확인한다.
+### 한국어
+
+- 검증한 GUI를 커밋하고 개인 저장소 PR #3을 생성했다. 기능 커밋은 `0f7c880`,
+  릴리스 소스는 `0a9e843`이다. PR은 검토용으로 열어 두었으며 병합하지 않았다.
+- 같은 소스의 CI에서 ARM·Intel 각각 검사 198개와 경고·오류 없는 빌드·패키지
+  검증이 통과했다. CI 파일로 2.1.0 최신 공개 릴리스를 게시했다.
+- GitHub 업로드 해시·크기를 대조하고 로그인 없는 네 파일 다운로드 HTTP 200,
+  체크섬·ZIP 무결성·2.1.0 앱 포함을 재확인했다. 최종 로컬 경로와 해시는 위와 같다.
+- 앞선 검토 빌드 실기와 최종 버전 표기·배포 검증을 구분한다. 실제 Intel/Galaxy,
+  다른 모델·외부 화면·F14 등 미확인 범위와 Apple 공증 제약은 그대로다.
+  기존 2.0.1·2.0.2 파일과 사용자 설정은 보존했다.
 
 ## 2026-10-12 — Desktop controls preview.3, local candidate with USB validation
 
