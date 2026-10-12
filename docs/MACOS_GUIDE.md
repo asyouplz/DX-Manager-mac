@@ -7,6 +7,7 @@
 ---
 
 <a id="unreleased-macos-candidate"></a>
+
 ## macOS 2.0.2 release
 
 Version 2.0.2 adds selected-phone settings, phone-screen shortcut help, and an
