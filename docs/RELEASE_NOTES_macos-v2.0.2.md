@@ -2,7 +2,7 @@
 
 ## English
 
-This release replaces 2.0.1 as the current community macOS download. Original project: [maze-mei/DX-Manager](https://github.com/maze-mei/DX-Manager); macOS port: [kimdongup/DX-Manager-mac](https://github.com/kimdongup/DX-Manager-mac); distribution: [asyouplz/DX-Manager-mac](https://github.com/asyouplz/DX-Manager-mac). The changes are submitted in [upstream PR #7](https://github.com/maze-mei/DX-Manager/pull/7); this community release does not imply upstream approval or merge.
+This release replaces 2.0.1 as the current community macOS download. Original project: [maze-mei/DX-Manager](https://github.com/maze-mei/DX-Manager); macOS port: [kimdongup/DX-Manager-mac](https://github.com/kimdongup/DX-Manager-mac); distribution: [asyouplz/DX-Manager-mac](https://github.com/asyouplz/DX-Manager-mac). The changes are maintained in [personal-fork PR #2](https://github.com/asyouplz/DX-Manager-mac/pull/2). macOS is distributed separately from the original project's Windows releases.
 
 ### Download
 
@@ -28,7 +28,7 @@ Extract the entire ZIP and open **DX Manager.app**. You may move the whole app t
 ### Source and verification
 
 - Source is archived at [`macos-v2.0.2`](https://github.com/asyouplz/DX-Manager-mac/tree/macos-v2.0.2). It includes the native-tool selection prerequisite from still-open [PR #5](https://github.com/maze-mei/DX-Manager/pull/5).
-- [Upstream PR CI run 38210807278](https://github.com/maze-mei/DX-Manager/actions/runs/38210807278) passed on both Apple Silicon and Intel runners, including native package smoke checks. These are software checks without a connected Galaxy.
+- [Earlier CI run 38210807278 (withdrawn upstream PR)](https://github.com/maze-mei/DX-Manager/actions/runs/38210807278) passed on both Apple Silicon and Intel runners, including native package smoke checks. These are software checks without a connected Galaxy.
 - Final 2.0.2 local Release build: zero warnings/errors; xUnit **121/121**, multi-device tests **39/39**.
 - Both final packages: SHA-256, ZIP CRC, required files/licenses, executable permissions, architecture and private-data exclusion passed. Both app signatures passed deep/strict verification. Apple Silicon version/help/integrity checks passed; a tampered app copy was rejected. Intel was cross-packaged locally.
 - The same runtime was tested as **2.0.2-preview.2** on Apple Silicon with USB **SM-S942N**, Android 17 / SDK 37 / One UI property `90000`. The user confirmed normal DeX during phone-panel on/off. `2` and active-session `Q` restored the panel, overlay and original power settings, and exited without remaining DX Manager/scrcpy processes. Final 2.0.2 changes version metadata/documentation; it is not claimed as a second physical-device test.
@@ -50,7 +50,7 @@ For Intel, replace `arm64` with `x64`. The result must be `OK`.
 
 ## 한국어
 
-기존 2.0.1을 잇는 **macOS 2.0.2 커뮤니티 배포본**입니다. 원본은 [maze-mei/DX-Manager](https://github.com/maze-mei/DX-Manager), macOS 포팅은 [kimdongup/DX-Manager-mac](https://github.com/kimdongup/DX-Manager-mac)이며 이 포크에서 별도로 배포합니다. 수정은 [원작자 PR #7](https://github.com/maze-mei/DX-Manager/pull/7)에 제출했습니다. 이 릴리스 공개가 원작자의 승인·병합을 의미하지는 않습니다.
+기존 2.0.1을 잇는 **macOS 2.0.2 커뮤니티 배포본**입니다. 원본은 [maze-mei/DX-Manager](https://github.com/maze-mei/DX-Manager), macOS 포팅은 [kimdongup/DX-Manager-mac](https://github.com/kimdongup/DX-Manager-mac)이며 이 포크에서 별도로 배포합니다. 수정은 [개인 배포 저장소 PR #2](https://github.com/asyouplz/DX-Manager-mac/pull/2)에서 관리합니다. macOS 파일은 원본 프로젝트의 Windows 릴리스와 별도로 배포합니다.
 
 ### 다운로드와 실행
 
@@ -70,7 +70,7 @@ ZIP 전체를 풀고 **DX Manager.app**을 여십시오. 앱 전체를 응용 �
 
 ### 검증 범위
 
-[원작자 PR CI 38210807278](https://github.com/maze-mei/DX-Manager/actions/runs/38210807278)도 Apple Silicon·Intel 실행 환경 모두 통과했습니다. 각 환경의 패키지 실행 검사를 포함하며 휴대폰을 연결한 실기는 아닙니다.
+[철회한 원작자 PR의 기존 CI 38210807278](https://github.com/maze-mei/DX-Manager/actions/runs/38210807278)도 Apple Silicon·Intel 실행 환경 모두 통과했습니다. 각 환경의 패키지 실행 검사를 포함하며 휴대폰을 연결한 실기는 아닙니다.
 
 최종 2.0.2 로컬 빌드는 경고·오류 0, xUnit 121개와 다중 기기 테스트 39개를 통과했습니다. 두 ZIP의 체크섬·압축 무결성·필수 파일·라이선스·실행 권한·아키텍처·개인 파일 제외와 앱 서명을 확인했습니다. Apple Silicon에서 버전·도움말·무결성 검사는 정상이며, 변조한 복사본은 거부했습니다. Intel 파일은 로컬에서 교차 패키징했습니다.
 

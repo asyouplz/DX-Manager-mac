@@ -2,16 +2,21 @@
 
 마지막 갱신: 2026-10-12
 
-## 2026-10-12 - macOS 2.0.2 published and upstream PR submitted
+## 2026-10-12 - macOS 2.0.2 published and personal-fork PR submitted
 
 - User authorized PR submission and release replacement after the preview.2 physical test.
-- Upstream PR: https://github.com/maze-mei/DX-Manager/pull/7, open and mergeable;
-  not merged. Head `92cab640be0367a718a574c34ddf22a14afacec0` is on
-  `asyouplz:codex/macos-first-run-upstream`, based on still-open PR #5.
-  Personal distribution README/release records are excluded from that PR.
+- Current PR: https://github.com/asyouplz/DX-Manager-mac/pull/2, open and not
+  merged. It compares `codex/macos-screen-first-run` against personal-fork
+  `main` (`8fea894`), which already contains the earlier macOS prerequisites.
+  The diff contains these improvements and distribution documentation only.
+- The user's target selection arrived after upstream PR #7 was created.
+  That PR was withdrawn/closed without merging, and its description links to
+  personal-fork PR #2. Its successful CI remains historical validation evidence.
 - Latest public release: https://github.com/asyouplz/DX-Manager-mac/releases/tag/macos-v2.0.2.
-  Annotated tag `macos-v2.0.2` resolves to the same upstream PR head above.
-  Runtime, packaging inputs and embedded guides match that source. The final
+  Annotated tag `macos-v2.0.2` remains at
+  `92cab640be0367a718a574c34ddf22a14afacec0`. Runtime, packaging inputs and
+  embedded guides match the personal PR; distribution records differ. The PR
+  target correction did not change the published tag or any release asset. The final
   version metadata is 2.0.2; the runtime behavior is unchanged from tested preview.2.
 - Final local Release build passed with zero warnings/errors, xUnit 121/121
   and multi-device 39/39. Upstream CI run `38210807278` passed both Apple
@@ -39,9 +44,11 @@
 
 ### 한국어
 
-- 사용자가 PR·릴리스 갱신을 승인하여 원작자 PR #7을 제출했다. 현재 open이며
-  병합하지 않았다. 선행 PR #5 기반이고 개인 배포 README·릴리스 운영 문서는
-  원작자 PR에서 제외했다. 소스 head와 배포 태그 대상은 위 SHA와 같다.
+- 사용자의 대상 선택에 맞춰 개인 저장소 PR #2를 제출했다. `main`에는 앞선
+  macOS 변경이 이미 있어 이번 개선과 배포 문서만 비교된다. 현재 open이며
+  병합하지 않았다. 대상 선택 전에 만든 원작자 PR #7은 새 PR 링크를 남겨 닫았다.
+- 릴리스 태그·첨부파일은 그대로다. 개인 PR과 공개 소스의 실행·패키징·내장 안내는
+  동일하며 배포 기록 문서만 다르다. 기존 원작자 PR CI 성공은 검증 이력으로 남긴다.
 - 개인 포크의 최신 공개 릴리스를 `macos-v2.0.2`로 갱신했다. 기존 2.0.1 태그·파일은
   유지하고 기존 릴리스 페이지 상단에 2.0.2 링크를 넣어 공유 주소를 보존했다.
 - 최종 로컬 빌드 경고·오류 0, xUnit 121개·다중 기기 39개 통과. 원작자 CI도

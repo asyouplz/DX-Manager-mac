@@ -2,19 +2,19 @@
 
 ## macOS 2.0.2 publication / 공개 배포
 
-- [x] Submit upstream PR #7, keeping the pending PR #5 dependency explicit.
+- [x] Submit personal-fork PR #2 and withdraw the earlier upstream PR #7.
 - [x] Pass Apple Silicon and Intel CI run `38210807278`.
 - [x] Publish `macos-v2.0.2` as latest and verify all four unauthenticated downloads.
 - [x] Keep the shared 2.0.1 URL working with a link to the new release.
-- [ ] Upstream maintainer review/merge (not performed by this task).
+- [ ] Review/merge personal-fork PR #2 (not performed by this task).
 
 ### 한국어
 
-- [x] 원작자 PR #7 제출, 선행 PR #5 의존 관계 명시
+- [x] 개인 저장소 PR #2 제출, 앞서 만든 원작자 PR #7 철회
 - [x] Apple Silicon·Intel 원격 CI 통과
 - [x] 2.0.2 최신 공개 릴리스와 로그인 없는 네 다운로드 검증
 - [x] 기존 2.0.1 공유 페이지에 새 버전 안내 추가
-- [ ] 원작자 검토·병합 대기. 이 작업에서는 병합하지 않음
+- [ ] 개인 저장소 PR #2 검토·병합 대기. 이 작업에서는 병합하지 않음
 
 ## 2.0.2 runtime validation history / 실행 코드 검증 기록
 
