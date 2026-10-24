@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 using DexManager.Services;
@@ -36,6 +36,15 @@ namespace DexManager.Forms
     internal sealed class DesktopDialog : Form
     {
         private readonly RoundedPanel _surface;
+        public void SetPrimaryButtonText(string text)
+        {
+            foreach (Control section in _surface.Controls)
+                foreach (Control control in section.Controls)
+                {
+                    var button = control as Button;
+                    if (button != null && button.DialogResult == DialogResult.OK) button.Text = text;
+                }
+        }
         public DesktopDialog(string title,string text,bool acknowledgment,MessageBoxButtons buttons,MessageBoxDefaultButton defaultButton)
         {
             Font=UiFonts.Pixels(14);Icon=AppIconProvider.Current;Text=title;
@@ -69,7 +78,8 @@ namespace DexManager.Forms
                 var check=new UiCheckBox {Text=StoreUiText.Get("FirstRunDialogCheck","I have read the above."),Font=UiFonts.Pixels(14),Bounds=new Rectangle(24,80+contentHeight,width-48,40),ForeColor=ThemeColors.Current.TextPrimary,BackColor=ThemeColors.Current.CardBackground};
                 primary.Enabled=false;check.CheckedChanged+=delegate {primary.Enabled=check.Checked;};_surface.Controls.Add(check);
             }
-            if(defaultButton==MessageBoxDefaultButton.Button2 && secondary.Visible)Shown+=delegate {secondary.Focus();};
+            // The parent is still hidden during construction. Focus the default after showing.
+            if(defaultButton==MessageBoxDefaultButton.Button2 && cancel)Shown+=delegate {secondary.Focus();};
         }
     }
 }

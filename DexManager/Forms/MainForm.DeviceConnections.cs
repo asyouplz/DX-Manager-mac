@@ -430,6 +430,14 @@ namespace DexManager.Forms
                 var runSettings = GetDeviceRunSettings(
                     _settings,
                     context.Identity);
+                runSettings = new DeviceRunSettingsProfile
+                {
+                    DeviceIdentity = context.Identity,
+                    VirtualDisplay = AppSettings.CloneVirtualDisplay(runSettings.VirtualDisplay),
+                    Scrcpy = AppSettings.CloneScrcpy(runSettings.Scrcpy)
+                };
+                if (!await ConfirmExperimentalFrameRateAsync(runSettings.Scrcpy.MaxFps) ||
+                    !IsContextLaunchCurrent(context, serial, generation) || context.Runtime.Dex.IsShutdownRequested) return;
                 if (runSettings.Scrcpy.TurnScreenOff)
                     RememberManagedSerial(serial);
 
@@ -449,7 +457,7 @@ namespace DexManager.Forms
                     "Starting DeX automatically for " +
                     GetContextDisplayName(context) + " (" + serial + ").");
                 context.PendingSessionStarts++;
-                try { await context.Runtime.Dex.StartAsync(serial); }
+                try { await context.Runtime.Dex.StartAsync(serial, runSettings, true); }
                 finally { context.PendingSessionStarts--; }
 
                 if (_exitInProgress ||

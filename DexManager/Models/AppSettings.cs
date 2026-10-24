@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -10,7 +10,7 @@ namespace DexManager.Models
     [DataContract]
     public sealed class AppSettings
     {
-        public const int CurrentSchemaVersion = 27;
+        public const int CurrentSchemaVersion = 28;
         public const int MaximumRecentCustomResolutions = 5;
 
         [DataMember(Order = 1)] public int SchemaVersion { get; set; }
@@ -458,6 +458,15 @@ namespace DexManager.Models
             NormalizeRecentCustomResolutions();
             NormalizeDeviceRunSettingsProfiles(defaults);
             NormalizeDeviceWirelessConnectionProfiles(defaults);
+            FrameRateRules.Normalize(Scrcpy);
+            foreach (var slot in SingleWindowSlots) FrameRateRules.Normalize(slot);
+            foreach (var profile in SingleWindowAppProfiles) FrameRateRules.Normalize(profile);
+            foreach (var device in DeviceRunSettingsProfiles)
+            {
+                FrameRateRules.Normalize(device.Scrcpy);
+                foreach (var slot in device.SingleWindowSlots) FrameRateRules.Normalize(slot);
+                foreach (var profile in device.SingleWindowAppProfiles) FrameRateRules.Normalize(profile);
+            }
             if (string.IsNullOrWhiteSpace(Paths.Win7AdbPath))
                 Paths.Win7AdbPath = defaults.Paths.Win7AdbPath;
             if (string.IsNullOrWhiteSpace(Paths.ScrcpyPath))
@@ -637,6 +646,7 @@ namespace DexManager.Models
                     System.StringComparison.OrdinalIgnoreCase) &&
                 slot.MaxFps == profile.MaxFps &&
                 slot.TurnScreenOff == profile.TurnScreenOff &&
+                slot.TurnScreenOffBeforeHighFps == profile.TurnScreenOffBeforeHighFps &&
                 slot.StayAwake == profile.StayAwake &&
                 slot.UseHidKeyboard == profile.UseHidKeyboard &&
                 slot.UseHidMouse == profile.UseHidMouse &&
@@ -670,6 +680,7 @@ namespace DexManager.Models
             slot.BitRate = profile.BitRate;
             slot.MaxFps = profile.MaxFps;
             slot.TurnScreenOff = profile.TurnScreenOff;
+            slot.TurnScreenOffBeforeHighFps = profile.TurnScreenOffBeforeHighFps;
             slot.StayAwake = profile.StayAwake;
             slot.UseHidKeyboard = profile.UseHidKeyboard;
             slot.UseHidMouse = profile.UseHidMouse;
@@ -1147,7 +1158,7 @@ namespace DexManager.Models
                     System.Math.Min(640, profile.Dpi));
                 if (string.IsNullOrWhiteSpace(profile.BitRate))
                     profile.BitRate = defaults.BitRate;
-                if (profile.MaxFps != 30 && profile.MaxFps != 60)
+                if (!FrameRateRules.IsSupported(profile.MaxFps))
                     profile.MaxFps = defaults.MaxFps;
                 profile.AdditionalArguments =
                     (profile.AdditionalArguments ?? string.Empty).Trim();
@@ -1204,6 +1215,7 @@ namespace DexManager.Models
                 MaxFps = source.MaxFps,
                 WindowTitle = source.WindowTitle,
                 TurnScreenOff = source.TurnScreenOff,
+                TurnScreenOffBeforeHighFps = source.TurnScreenOffBeforeHighFps,
                 UseHidKeyboard = source.UseHidKeyboard,
                 UseHidMouse = source.UseHidMouse,
                 ForceStopStartApp = source.ForceStopStartApp,
@@ -1238,6 +1250,7 @@ namespace DexManager.Models
                 BitRate = source.BitRate,
                 MaxFps = source.MaxFps,
                 TurnScreenOff = source.TurnScreenOff,
+                TurnScreenOffBeforeHighFps = source.TurnScreenOffBeforeHighFps,
                 StayAwake = source.StayAwake,
                 UseHidKeyboard = source.UseHidKeyboard,
                 UseHidMouse = source.UseHidMouse,
@@ -1270,6 +1283,7 @@ namespace DexManager.Models
                     BitRate = profile.BitRate,
                     MaxFps = profile.MaxFps,
                     TurnScreenOff = profile.TurnScreenOff,
+                    TurnScreenOffBeforeHighFps = profile.TurnScreenOffBeforeHighFps,
                     StayAwake = profile.StayAwake,
                     UseHidKeyboard = profile.UseHidKeyboard,
                     UseHidMouse = profile.UseHidMouse,

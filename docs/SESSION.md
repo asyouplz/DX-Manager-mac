@@ -1,5 +1,59 @@
 ﻿# Session Handoff
 
+## 2026-10-24 local final package and authorized commit
+
+The maintainer authorized a local Git commit and final upload-file preparation, without GitHub publication.
+Final archive: E:\vs\dex system\dist\DX-Manager-win-x64.zip; one DX Manager v2.5.0 folder,39 verified files.
+ZIP SHA256: EBB91A332B603C4096B1B1FB6D179F4D45B55F5A63FC657F8B989BEA8DE08764.
+EXE SHA256: D3342F2A2B80DC5945D069CF408412A4DEDEBB6C0A54C78795485CB5DAD5FC19; identical to the702-check English UI preview, so functional/update checks were not repeated.
+First-run consent state, personal settings/logs/captures, source guides/screenshots, test binaries and signing material are excluded.
+Required runtime resources, notices and the short package README remain. Official Companion2.1.6 and scrcpy5.0.1 are unchanged.
+The old version-named ZIP was backed up under .build-tools/release250-ready and removed from dist to avoid duplicate delivery names.
+Existing source config/settings.json was checked as a tracked empty-default template and is not shipped in the ZIP.
+An obsolete font-lab helper's personal interpreter path was replaced with python.exe. No product executable changes.
+The user chose no single-window photos, diagnostics before the check, the newly captured Companion photos and the default-size connection image.
+Full README/guide/screenshot updates are deferred at the maintainer's request. Public-source shared-Companion closure and remote-main/macOS preservation remain pre-publication gates.
+No push/tag/merge/release, old GitHub asset renaming, external messages or Store changes.
+
+
+## 2026-10-24 English UI audit and preview
+
+- The maintainer found Korean initial diagnostics text and clipped English Help text while capturing screenshots.
+- Both diagnostics fallback calls and the14px Help font already exist in HEAD8b19906. The preceding header/button patch did not change them; English initial state was missing from the earlier fixture.
+- Added EN/KO diagnostics initial/report resources with English-safe fallbacks. The embedded English FAQ's Korean navigation label now reads Korean FAQ.
+- Only English Help uses13px instead of14px, before font fitting. Korean Help and other sidebar fonts retain their sizes.
+- Reviewed955 resource call sites,647 Store/792 general English resources, matched Korean keys and English embedded help. The only intentional Korean values are language-selector names.
+- Filled missing USB/Wi-Fi entries and the wireless-device-mismatch log resource; no connection/input logic changes.
+- Added the English UI fixture to the standard verifier: all main modes,7 expanded Settings pages before/after diagnostics,5 Help topics, guide/FAQ, transfers, logs, update outcomes and both themes.5458 resource/control texts scanned. English Help fits1184/1200/1600 widths; Korean font parity checked.
+- Release build0 warnings/errors;702 Windows checks passed, including36 English-localization checks. Internal captures visually reviewed.
+- Fixed preview updated;9 user files preserved. EXE SHA256: D3342F2A2B80DC5945D069CF408412A4DEDEBB6C0A54C78795485CB5DAD5FC19.
+- Prior diagnostics repair remains covered. October19 final EXE/ZIP, official APK and Store hashes unchanged. No commit/push/tag/publication; include both October24 fixes in final packaging.
+
+
+## 2026-10-24 diagnostics button preview fix
+
+- The maintainer reported a clipped Refresh button after Settings > Diagnostics > Environment check.
+- Reproduced with the actual pre-fix UI: full-width header labels covered the reparented header button.
+- StoreSettingCard now reserves the same header action space for expanded environment results; the result body keeps its full width. No font/rendering, ADB, Companion, Store or update-notification behavior changes.
+- Added long-path, 520/716/900-width, fully visible header button and repeated-click regression checks in both themes.
+- .NET Framework4.6.2 x64 Release:0 warnings/errors. Windows666 checks passed (desktop196). Actual UI captures were visually reviewed. These are internal fixtures, not real-phone documentation photos.
+- Fixed preview updated in place;9 user files preserved. Preview EXE SHA256: AF99EEA385F8E7CF84FF643AA597258983E7B75522FB226D6B5DE7856A10BF59.
+- Existing October19 final EXE/ZIP, Store upload and official APK hashes remain unchanged. The preview fix must be included when the maintainer later requests final release packaging. No commit/push/tag/publication.
+
+
+## 2026-10-19 portable 120 FPS preparation
+
+The maintainer authorized implementing the Store handoff in the portable product
+and rebuilding the fixed preview/final ZIP locally. Store is read-only; reference
+commit11050e7822c43ec409d7d943ece5d9884d997b99 is not merged.
+Added default60/experimental120, one fail-closed warning before every120 start,
+exact screen-off preference restoration, per-phone mixed-session screen policy
+and local version-scoped change notes. scrcpy5.0.1 and signed Companion2.1.6 are
+unchanged. No AI app detection, Android changes, commit/push/tag or publication.
+See PORTABLE_120FPS_2026-10-19.md for implementation and fresh verification.
+October16 scan evidence remains historical; the new EXE needs a fresh user scan.
+
+
 ## 2026-10-01 Reported UI defects
 
 메이님이 9월 30일과 10월 1일에 지적한 UI 문제를 수정했다. 최종 크기 기준 창 중앙 배치,
@@ -884,3 +938,92 @@ Local commit is the final action of this task; its hash is recorded by Git rathe
 ## 2026-10-11 local checkpoint
 
 메이님이 마지막 프리뷰에 반영된 버전을 로컬 Git에 커밋하도록 요청했고, 새 브랜치는 만들지 말고 커밋만 하라고 확인했다. 현재 코드의 Release 실행 파일과 고정 프리뷰 실행 파일 해시는56D2D1AB...로 일치한다. F2 AntiAlias 복원·20px 아이콘/대비·Store 실행 버튼/도움말 높이·고정 프리뷰 및 기존 테스트 도구/문서를 현재 브랜치의 체크포인트로 저장한다. 버전2.5.0 유지, Store/APK 및 미커밋 사용자 데이터/빌드 산출물은 포함하지 않는다. 새 브랜치/태그/푸시/업로드를 하지 않으며, 실제 커밋 해시는 Git 기록에서 확인한다.
+
+## 2026-10-12 shared official Companion migration
+User-approved GitHub workroom migration: official Android source/APK now in E:\vs\DX Companion Shared.
+2.1.5/code12 bytes/signature unchanged; common metadata and build/package wrappers integrated.
+Old source archived, signing materials preserved. See SHARED_COMPANION_2026-10-12.md.
+No product UI, submission, public upload or commit performed by this migration.
+
+## 2026-10-15 official2.5.0 acceptance and update notifications
+
+User authorized the official port after reporting the private test works. scrcpy5.0.1 full runtime,
+explicit auto decoding, accepted non-AI UI/tray/slot/TLS/wireless fixes and shared official APK2.1.5
+are included. Foreground accessibility/app caches/AI Enter/WebAPK rules/private identity are excluded.
+Official protocol1 and legacy Scroll Lock remain. Updates run automatically once per local day,
+with failed attempts persisted, a5-second overall background deadline, no retry loop, manual About
+button, themed banner/tray/manual result and full selected scrcpy version diagnostics.
+See OFFICIAL_250_UPDATE_2026-10-15.md for scope, verification, fixed output and field boundaries.
+No Store/private/shared-Android edits, commit or publication.
+
+Official2.5.0 fixed preview completed. Final Release0 warnings/errors;475 checks passed.
+Actual GitHub client returned Current in373ms. Both themed manual dialogs/main native banner,
+About action and full scrcpy diagnostics inspected. All16 runtime files match;11 preserved
+data/artifact hashes and Store status unchanged. No AI tracking types or private APK/ports.
+EXE SHA256: 49A409F2255971FBDF25252A5A1AA7A1BB4D915E5C8B3FA29E8B626407D2FBB2
+Current delivery is E:\vs\dex system\dist\DX Manager Preview\DXManager.exe.
+Offline actual-dialog preview is under .build-tools/official250/update-ui-preview.
+No commit/ZIP/upload. Final phone/Windows-shutdown validation and virus scan remain user checks.
+## 2026-10-16 About update action placement
+
+User requested the manual update button beside third-party notices. The About footer now
+places both 200x40 actions in one row with a12px gap, notices first and update check second.
+No update-check behavior changed: automatic available updates use the in-main banner
+(and a tray notification when hidden); manual checks use the themed result dialog.
+Automatic Current/Failed results show no result dialog. A previously known, undismissed
+newer release can retain its banner while offline.
+Release x64/net462:0 warnings/errors; existing actual-assembly desktop/UI checks176 passed.
+Light/dark About screenshots inspected. Fixed Preview replaced;6 configuration hashes
+preserved. EXE SHA256: 9FB35D153B8F515AC7616997DF810993B0FD0ABCFCF1025606818B8F96D239B4.
+No new dist folder/ZIP, commit or publication. Store/private/shared Android unchanged.
+
+## 2026-10-16 Automatic update banner lower-right placement
+
+User prefers the same lower-right area as action/error notices. The persistent update banner
+now uses the existing32/28 desktop-scaled right/bottom margins. While another notice is visible,
+it sits12 desktop-scaled pixels above it and returns when that notice closes or is hidden.
+It remains a nonmodal child panel: uncovered main controls remain usable. There is no expiry
+timer; X hides/dismisses this release, while the GitHub action only opens the release page.
+Release x64/net462:0 warnings/errors; existing actual-assembly desktop/UI checks176 passed.
+Native main-window light/dark captures inspected. Fixed Preview replaced;6 configuration
+hashes preserved. No Store/shared Android/private product changes, commit or publication.
+EXE SHA256: 58E53660113F94349B159181B1B8F2FD4FA33EC69B401CC24D12F47D3626241B
+## 2026-10-16 final2.5.0 distribution / Companion2.1.6
+
+User accepted key input and requested the final portable build and APK fix. Shared official2.1.6/code13
+now stops idle protection after PC disconnect when overlay/stay-awake are verified inactive; startup
+and stale-callback guards preserve live/new sessions. Android34 and signed Release/lint passed
+(lint0 errors/70 warnings). Official signature/package/protocol1 unchanged; phone notification check pending.
+Final Windows Release0 warnings/errors;505 checks passed, including30 real consent UI checks.
+The GUI fixture now carries the product's executable config to match .NET4.6.2 runtime semantics.
+Fresh39-file2.5.0 distribution has no docs/images, saved consent/settings, logs, PDBs or private test tools.
+Previous final (including user data) backed up under .build-tools/final250/previous-final; fixed Preview
+updated with6 config hashes preserved and obsolete managed docs/images removed. No ZIP/commit/upload.
+EXE SHA256: BBFFA0F93E82B7D535B4E049DD0DFB0E8A3C21A81FFD101F370550AFE13FC918
+APK SHA256: 904491111341D46458BB9CE9B342D9210A20BB923BC0F605484D6AF7B90DFCC9
+Current delivery: E:\vs\dex system\dist\DX Manager v2.5.0\DXManager.exe.
+Details and physical verification boundaries: FINAL_250_2026-10-16.md.
+## 2026-10-16 upload archive
+
+User requested confirmation of an upload-ready ZIP after the folder-only final build.
+Created E:\vs\dex system\dist\DX-Manager-v2.5.0-win-x64.zip (20,790,867 bytes).
+SHA256: 5DD69CD55157CA27DD9027BE5955DE60AAAEBA01B9BF1ABFF5B21A9F11616791
+All39 ZIP files match the verified final manifest; Companion2.1.6 is included.
+No personal settings, saved consent, logs, external guides/screenshots or developer files.
+The archive uses a single DX Manager v2.5.0 root folder. No GitHub upload/commit performed.
+Evidence: .build-tools/final250/upload-archive.json. Existing final/preview user state was not modified.
+## 2026-10-16 local GitHub documentation audit
+
+User explicitly stopped publication and then requested a complete GitHub document/screenshot review.
+No commit/push/tag/release or remote page edits are authorized by the scan result or this documentation task.
+Public main snapshot2a1ec107450d8755e3691e9fa52aa086ed034e8d:40 document/configuration paths,
+6 historical release descriptions, no wiki. Full read-only originals are in .build-tools/documentation-250.
+Updated README, both full guides, both FAQs and developer/source/resource guidance for2.5.0/5.0.1/2.1.6.
+Preserved historical release/license facts. Current local link/image/anchor check:40 Markdown files,
+104 local references,7 image references,0 issues before this status update.
+All9 provided Store originals at E:\vs\소스\스토어판 매뉴얼용 스샷 were visually inspected; app screenshots
+need current portable captures. Existing6 Android-setting examples can remain;17 old app images are
+kept on disk but detached from current instructions. No binaries or image pixels were changed.
+Open publication preparation: new screenshots, standalone public shared-Companion dependency/setup,
+and preservation of remote-only macOS material during future integration.
+See DOCUMENTATION_AUDIT_2026-10-16.md and SCREENSHOT_PLAN_v2.5.0.md for exact file actions and shot names.

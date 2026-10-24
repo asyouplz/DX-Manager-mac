@@ -16,6 +16,23 @@ namespace DexManager.Services
             [DataMember] public int FirstRunNoticeVersion { get; set; }
         }
         public PortableOnboardingService(string directory) { _path = Path.Combine(directory, "onboarding.json"); }
+        public bool HasAcceptedAnyFirstRunNotice
+        {
+            get
+            {
+                try
+                {
+                    using (var stream = File.OpenRead(_path))
+                    {
+                        var state = (State)new DataContractJsonSerializer(typeof(State)).ReadObject(stream);
+                        return state != null && state.FirstRunNoticeVersion > 0;
+                    }
+                }
+                catch (IOException) { return false; }
+                catch (SerializationException) { return false; }
+                catch (UnauthorizedAccessException) { return false; }
+            }
+        }
         public bool ShouldShowNoticeForLaunch() { return RepeatNoticeForUiReview || RequiresNotice(); }
         public bool RequiresNotice()
         {

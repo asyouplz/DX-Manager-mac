@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -117,16 +117,13 @@ namespace DexManager.Services
                 () => _companionVerifier.Inspect(serial))
                 .ConfigureAwait(false);
             if (_shutdown.IsCancellationRequested) return;
-            if ((verification.State != DisplayCleanupPermissionState.Ready &&
-                 verification.State != DisplayCleanupPermissionState.Granted) ||
-                verification.VersionCode < 3 ||
-                !string.Equals(
-                    verification.Serial,
-                    serial,
-                    StringComparison.OrdinalIgnoreCase))
+            if (!CanConfigureTransfer(verification, serial))
             {
                 _logService.Info(
-                    "Phone-to-PC transfer is unavailable because the verified DX Companion is not installed on the selected device.");
+                    "Phone-to-PC transfer setup was skipped for device " + serial +
+                    " (verification=" + verification.State +
+                    ", versionCode=" + verification.VersionCode +
+                    ", required=" + DisplayCleanupPermissionService.BundledVersionCode + ").");
                 return;
             }
 
@@ -199,6 +196,17 @@ namespace DexManager.Services
             _logService.Info(
                 "Phone-to-PC transfer receiver is ready for device " +
                 serial + ".");
+        }
+
+        internal static bool CanConfigureTransfer(
+            DisplayCleanupPermissionStatus verification, string serial)
+        {
+            return verification != null &&
+                (verification.State == DisplayCleanupPermissionState.Ready ||
+                 verification.State == DisplayCleanupPermissionState.Granted) &&
+                verification.VersionCode >= DisplayCleanupPermissionService.BundledVersionCode &&
+                !string.IsNullOrWhiteSpace(serial) &&
+                string.Equals(verification.Serial, serial, StringComparison.OrdinalIgnoreCase);
         }
 
         public async Task DetachAsync(string serial)

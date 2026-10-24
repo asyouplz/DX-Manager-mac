@@ -1,6 +1,34 @@
 ﻿# DX Manager 새 작업 인수인계
 
-마지막 갱신: 2026-08-22
+## 2026-10-19 portable 120 FPS preparation
+
+The maintainer authorized implementing the Store handoff in the portable product
+and rebuilding the fixed preview/final ZIP locally. Store is read-only; reference
+commit11050e7822c43ec409d7d943ece5d9884d997b99 is not merged.
+Added default60/experimental120, one fail-closed warning before every120 start,
+exact screen-off preference restoration, per-phone mixed-session screen policy
+and local version-scoped change notes. scrcpy5.0.1 and signed Companion2.1.6 are
+unchanged. No AI app detection, Android changes, commit/push/tag or publication.
+See PORTABLE_120FPS_2026-10-19.md for implementation and fresh verification.
+October16 scan evidence remains historical; the new EXE needs a fresh user scan.
+
+
+## Current state — 2026-10-16
+
+- Latest public Windows release:2.0.1. Prepared local Windows build:2.5.0; not published.
+- Active portable branch: feature/portable-backport-v2.0.1-20260928, local HEAD8b19906 plus accepted uncommitted work.
+- scrcpy 5.0.1; official shared Companion 2.1.6/code13/protocol1; Android 13 minimum.
+- New launches USB-first; live serials stay captured. Companion management has its own Settings page.
+- First-run consent is saved once; updates check daily in the background with offline failure recorded.
+- The exact release ZIP/EXE/APK have been built and the maintainer reports clean antivirus results.
+- Current work is local GitHub-documentation/screenshot preparation; no release approval has been given.
+- Standalone public-source shared-component closure, remote macOS preservation and new portable captures
+  are tracked in DOCUMENTATION_AUDIT_2026-10-16.md and SCREENSHOT_PLAN_v2.5.0.md.
+
+See PROJECT_BRIEF.md, BUILDING.md and VERIFICATION_v2.5.0.md for the current contracts and boundaries.
+Older dated implementation notes below describe earlier stages; their old version pins are historical.
+
+마지막 현재 상태 확인: 2026-10-16
 
 이 문서는 긴 개발 대화를 보지 못한 새 Codex 작업에서도 DX Manager를 안전하게
 이어가기 위한 현재 기준점이다. 자주 바뀌는 세부 진행 기록은 `SESSION.md`, 남은
@@ -21,10 +49,10 @@
 ## 2. 기준점과 현재 작업
 
 - 제품 이름: **DX Manager**
-- 마지막 기록된 공개 릴리스 기준: **v2.0.0** (`cec74a9`)
+- 마지막 공개 Windows 릴리스: **v2.0.1**
 - 과거 GitHub 업로드 후보: **v2.0.1**
 - Windows 앱 기준 버전: Assembly/File/Informational version `2.5.0`
-- 현재 portable Companion: **DX Companion 2.1.4**, versionCode `11`, min SDK `33`
+- 현재 portable Companion: **DX Companion 2.1.6**, versionCode `13`, min SDK `33`
 - 현재 portable 작업 브랜치: `feature/portable-backport-v2.0.1-20260928`
 - 브랜치 기준: 로컬 `v2.0.1` 태그 `2a4aff2`
 - Store 제품 코드: 별도 `E:\vs\dex system-store` 작업 폴더, 읽기 전용 비교만 허용
@@ -34,7 +62,7 @@
 - v2.0.1은 최초 물리 기기 결속 뒤 DeX 기기별 설정이 공통 기본값으로 표시되던
   UI 동기화 회귀만 수정한 유지보수 릴리스다.
 
-이 포터블 역이식은 미완료 작업이며 아직 커밋·push·업로드하지 않았다. 실제 브랜치와
+현재 최종 바이너리는 준비됐으며 문서·배포 소스 준비는 진행 중이다. 최신 변경은 아직 커밋·push·업로드하지 않았다. 실제 브랜치와
 파일 상태는 문서보다 `git status`와 `git log`로 확인한다. GitHub 원격의 상태는 로컬
 태그나 작업 브랜치와 별도로 취급한다.
 
@@ -49,7 +77,7 @@ DX Manager는 Windows에서 Samsung DeX overlay 가상 디스플레이와 Scrcpy
 - Windows 런타임: C# WinForms, .NET Framework 4.6.2, x64
 - IDE/빌드 기준: Visual Studio 2019 MSBuild
 - 외부 NuGet 패키지: 없음
-- 번들 Scrcpy: 4.1
+- 번들 Scrcpy: 5.0.1
 - Android companion: Java 17, min SDK 33, compile/target SDK 36
 - DeX 모드 확인 기준: Android 16 / One UI 8.x의 New DeX 지원 Galaxy
 - One UI 7.x 이하 및 Classic DeX 계열: DeX 모드는 검은 화면 등 정상 동작을
@@ -278,3 +306,11 @@ powershell -NoProfile -ExecutionPolicy Bypass `
 ## 2026-10-05 v2.5.0 final handoff
 
 현재 Windows 최종 준비본은2.5.0, Companion은2.1.4/code11이다. 사용자가 실기 정상 동작과 로컬 커밋을 승인했다. 매 실행 동의창 검토 설정은 해제했고 기존 동의 기록은 보존한다. 최종 ZIP은 E:\vs\dex system\dist\DX-Manager-v2.5.0-win-x64.zip이며 SHA256은 RELEASE_NOTES_v2.5.0.md를 따른다. 바이러스 검사 후 메이님이 올리자고 지시할 때까지 GitHub 업로드/push/tag/release를 실행하지 않는다.
+
+## Current official2.5.0 review candidate (2026-10-15)
+
+See OFFICIAL_250_UPDATE_2026-10-15.md. The current official worktree consolidates accepted
+non-AI changes with pinned scrcpy 5.0.1, shared Companion2.1.5/protocol1 and daily update checks.
+Use scripts/Build-PortablePreview.ps1 for E:\vs\dex system\dist\DX Manager Preview.
+Old frozen2.5.0/hash records above describe the historical candidate. No private accessibility,
+foreground-app caches or AI rules should enter the official project. No commit/upload performed.

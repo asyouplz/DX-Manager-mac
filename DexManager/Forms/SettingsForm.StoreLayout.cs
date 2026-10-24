@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -86,10 +86,10 @@ namespace DexManager.Forms {
    _storeEditors["BrowseFileTransferTargetButton"]=StoreAction("PathsChoosePhoneTargetButton","휴대폰에서 선택",delegate {BrowseDeviceFolder(_fileTransferTargetFolderBox);SaveStorePaths();});
    _storeEditors["BrowsePhoneToPcReceiveFolderButton"]=StoreAction("PathsChoosePcReceiveButton","선택",delegate {BrowseStorePcPath(_phoneToPcReceiveFolderBox);});
    _storeEditors["@LogButton_Click"]=StoreAction("DiagnosticsOpenLogButton","로그 창 열기",delegate {if(_showLogs!=null)_showLogs();});
-   _storeEditors["DiagnosticEnvironmentText"]=new UiLabel {Text=StoreUiText.Get("DiagnosticsEnvironmentText.Text","검사를 시작하지 않았습니다.")};
+   _storeEditors["DiagnosticEnvironmentText"]=new UiLabel {Text=StoreUiText.Get("DiagnosticsEnvironmentText.Text","The environment check has not started.")};
    _storeEditors["RefreshDiagnosticsButton"]=StoreAction("DiagnosticsRefreshButton","새로고침",delegate {RefreshStoreEnvironment();RefreshDeviceDiagnosticsAsync();});
    _storeEditors["DiagnosticDeviceCardsGrid"]=devices;
-   _storeEditors["DiagnosticReportStatusText"]=new UiLabel {Text=StoreUiText.Get("DiagnosticsReportStatusText.Text","민감한 값을 가린 보고서를 저장합니다.")};
+   _storeEditors["DiagnosticReportStatusText"]=new UiLabel {Text=StoreUiText.Get("DiagnosticsReportStatusText.Text","Save a report with private data masked.")};
    _storeEditors["SaveDiagnosticReportButton"]=_diagnosticReportButton;
    _storeEditors["ResetSettingsButton"]=StoreAction("DiagnosticsResetButton","기본값 초기화",ResetDefaultsButton_Click);
   }
@@ -164,14 +164,17 @@ namespace DexManager.Forms {
    stack.Controls.Add(new UiLabel {Text="DX Manager v"+Application.ProductVersion,Font=UiFonts.Pixels(15,true),AutoSize=true,Tag="primary",Margin=new Padding(0,0,0,12)});
    foreach(var key in new[]{"AboutSummaryText.Text","AboutDeveloperText.Text","AboutCopyrightText.Text","AboutLicenseText.Text","AboutScrcpyText.Text","AboutLibrariesText.Text","AboutSamsungText.Text","AboutDisclaimerText.Text"})stack.Controls.Add(new UiLabel {Text=StoreUiText.Get(key,""),Font=UiFonts.Pixels(14),AutoSize=true,MaximumSize=new Size(CardWidth-40,0),Margin=new Padding(0,0,0,12)});
    var contact=new UiLinkLabel {Text="dxmanager.support@gmail.com",AutoSize=true,Font=UiFonts.Pixels(14),Margin=new Padding(0,0,0,12)};contact.LinkClicked+=delegate {try{System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("mailto:dxmanager.support@gmail.com"){UseShellExecute=true});}catch(Exception ex){ShowStoreFailure(ex.Message);}};stack.Controls.Add(contact);
-   var notices=StoreAction("AboutOpenNoticesButton","제3자 라이선스 보기",delegate {OpenThirdPartyNotices();});notices.Width=200;stack.Controls.Add(notices);card.Controls.Add(stack);page.Controls.Add(card);
+   var actions=new FlowLayoutPanel {Name="AboutActionsRow",AutoSize=true,AutoSizeMode=AutoSizeMode.GrowAndShrink,FlowDirection=FlowDirection.LeftToRight,WrapContents=false,BackColor=Color.Transparent,Margin=Padding.Empty};
+   var notices=StoreAction("AboutOpenNoticesButton","제3자 라이선스 보기",delegate {OpenThirdPartyNotices();});notices.Width=200;notices.Margin=new Padding(0,0,12,0);actions.Controls.Add(notices);
+   var updateButton=new ThemedButton {Name="CheckForUpdatesButton",Text=LocalizationService.Get("Update.CheckButton"),Font=UiFonts.Pixels(14),Width=200,Height=40,Margin=Padding.Empty};updateButton.Click+=delegate {if(UpdateCheckRequested!=null)UpdateCheckRequested(this);};actions.Controls.Add(updateButton);
+   stack.Controls.Add(actions);card.Controls.Add(stack);page.Controls.Add(card);
   }
   private void BrowseStorePcPath(ThemedTextControl box) {using(var dialog=new FolderBrowserDialog()){if(System.IO.Directory.Exists(box.Text))dialog.SelectedPath=box.Text;if(dialog.ShowDialog(this)==DialogResult.OK){box.Text=dialog.SelectedPath;SaveStorePaths();}}}
   private string ResolveStoreTargetSerial() {
    if(!_storeUiReady)return _mainSelectedSerial==null?"":_mainSelectedSerial();
    var option=GetSelectedWirelessDeviceOption();if(option==null)return "";
    var profile=_settings.FindDeviceWirelessConnection(option.DeviceIdentity);
-   return profile!=null && profile.Mode==AdbConnectionMode.Wireless?option.FindAuthorizedWirelessSerial(WirelessAdbService.BuildEndpoint(profile.WirelessHost,profile.WirelessPort)):option.UsbSerial;
+   var usb=option.UsbSerial;if(!string.IsNullOrWhiteSpace(usb))return usb; return option.FindAuthorizedWirelessSerial(profile==null?"":WirelessAdbService.BuildEndpoint(profile.WirelessHost,profile.WirelessPort));
   }
   private string ResolveStoreTargetIdentity() {var option=GetSelectedWirelessDeviceOption();return _storeUiReady?(option==null?"":option.DeviceIdentity):(_mainSelectedIdentity==null?"":_mainSelectedIdentity());}
   private void SynchronizeStoreSelectors() {

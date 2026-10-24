@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
@@ -31,8 +31,11 @@ namespace DexManager.Forms
         }
 
         private void HideToTray() { HideToTray(true); }
+        private bool _hiddenToTray;
         private void HideToTray(bool showBalloon)
         {
+            _hiddenToTray = true;
+            CloseAttachedWindowsForTray();
             Hide();
             ShowInTaskbar = false;
             if (showBalloon)
@@ -41,13 +44,50 @@ namespace DexManager.Forms
                     LocalizationService.Get("Main.TrayContinues"));
         }
 
+        private void CloseAttachedWindowsForTray()
+        {
+            var windows = new List<Form>();
+            foreach (Form window in Application.OpenForms)
+            {
+                // scrcpy windows are outside this process; its mini bars remain separately managed.
+                if (!ReferenceEquals(window, this) && !(window is MiniControlBarForm))
+                    windows.Add(window);
+            }
+            for (var index = windows.Count - 1; index >= 0; index--)
+            {
+                var window = windows[index];
+                if (window.IsDisposed || window.Disposing) continue;
+                if (window.InvokeRequired)
+                    window.BeginInvoke((Action)delegate { if (!window.IsDisposed) window.Close(); });
+                else
+                {
+                    var hint = window as CaptureHintOverlayForm;
+                    if (hint != null) hint.HideHint();
+                    else window.Close();
+                }
+            }
+        }
+        private bool _explicitShowRequested;
+
+        internal void RequestWindowActivation()
+        {
+            RunOnUi(delegate
+            {
+                if (_exitInProgress || _systemShutdownInProgress || IsDisposed || Disposing) return;
+                ShowMainWindow();
+            });
+        }
+
         private void ShowMainWindow()
         {
             RunOnUi(delegate
             {
+                _explicitShowRequested = true;
+                _hiddenToTray = false;
                 _autoHideService.ResetIdleHideState();
                 ShowInTaskbar = true;
                 Show();
+                RefreshUpdateBanner();
                 WindowState = FormWindowState.Normal;
                 Activate();
             });
@@ -93,6 +133,7 @@ namespace DexManager.Forms
                         delegate { return new EnvironmentCheckService(_adbService, _scrcpyService, _pathService, _logService, _settingsService, _settings, delegate { return _settingsForm == null ? GetSelectedDeviceSerial() : _settingsForm.GetSettingsSelectedSerial(); }).Run(); });
                     _settingsForm.FormClosed += delegate { _settingsForm = null; };
                 }
+                _settingsForm.UpdateCheckRequested = ShowUpdateCheckDialog;
                 if (!_settingsForm.Visible) _settingsForm.Show();
                 _settingsForm.WindowState = FormWindowState.Normal;
                 _settingsForm.BringToFront();
@@ -217,10 +258,6 @@ namespace DexManager.Forms
 
         private void HideApplicationForIdle()
         {
-            if (_helpForm != null && !_helpForm.IsDisposed) _helpForm.Hide();
-            if (_logForm != null && !_logForm.IsDisposed) _logForm.Hide();
-            if (_settingsForm != null && !_settingsForm.IsDisposed) _settingsForm.Hide();
-            if (_environmentCheckForm != null && !_environmentCheckForm.IsDisposed) _environmentCheckForm.Hide();
             HideToTray(false);
         }
 

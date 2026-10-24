@@ -2,49 +2,65 @@
 
 ## English
 
-Final local portable build prepared at the user's request. GitHub publication waits for the user's virus check and explicit upload instruction.
+Added 2026-10-19: experimental maximum120 FPS (default60), one mandatory
+warning per actual120 start, prior screen-off preference restoration, same-phone
+120-screen-on priority, and local per-version EN/KO change notes for existing users.
+A new EXE/ZIP has been prepared; the October16 antivirus result applies only to
+the previous exact files. The official Companion2.1.6 and scrcpy5.0.1 are unchanged.
 
-### Changes
+Final portable release prepared 2026-10-16. Windows 7 SP1,8.1,10 and 11 x64;
+.NET Framework 4.6.2 or later. The maintainer reports completed clean antivirus checks; publication still awaits an explicit instruction.
 
-- Renewed light/dark Windows7-compatible interface with Fluent Regular icons, settings cards, local help and diagnostics. Product logo and custom phone artwork retained.
-- First-run consent respects the saved acknowledgement; the temporary every-launch review override is disabled.
-- Same-phone USB/Wi-Fi/both connection display, including mini-bars. New manual/automatic launches prefer authorized USB; running sessions retain captured serials.
-- USB loss stops its sessions without immediately starting over Wi-Fi. Reconnection follows the existing DeX auto-start preference.
-- Single windows require a selected app before any launch-related ADB/wake-up; DeX can start without a selected app.
-- Device-scoped app catalogues/recent profiles, custom resolutions, transfer/capture/process safety, diagnosis and UI alignment/scroll/notice fixes.
-- Bundled officially signed DX Companion2.1.4/code11, Android13+. Includes queued-request shutdown cleanup and per-parent normalized-name collision disambiguation; original content URIs and DXMR v1 are preserved.
+- Bundle scrcpy 5.0.1 and select hardware decoding automatically for DeX and all three single windows.
+- Refresh the light/dark UI, Fluent icons, transfer windows, help layout and text rendering.
+- Keep USB-first new launches and independent per-phone DeX/single-window/transfer state.
+- Restore the main window when its EXE is opened again; close auxiliary windows when hiding to tray.
+- Keep missing-app notices scoped to their device and single-window slot; improve wireless/TLS state handling.
+- Check stable GitHub updates once per local day, with a background deadline and no offline retry loop.
+  Manual checking is beside third-party notices; automatic notices use a nonmodal lower-right banner.
+- Show the selected scrcpy executable's full version in environment inspection.
+- Include the officially signed shared Companion 2.1.6/code13, Android13+. It retains duplicate-share
+  protection and stops session protection once the PC disconnects and recovery settings are verified inactive.
+  Connected sessions and settings that still need recovery retain protection.
+- Require checked first-run consent until accepted; retain acknowledgement on later launches.
+- Ship runtime files, required licenses and a short README. Usage and FAQ are embedded in the app;
+  source guides/screenshots, personal settings, saved consent, logs, debug symbols and test tools are excluded.
+- Automatic AI app detection/keymaps and the private Companion are intentionally excluded.
 
-### Package and verification
-
-Windows7 SP1,8.1,10,11 x64; .NET Framework4.6.2 or later; bundled scrcpy4.1. Keep the complete portable folder together. Companion is optional and is not installed automatically.
-The user reported successful real-device validation. Local Release62 regressions, Android20 tests/lint/signed-build checks, and UI/connection/mini-bar fixtures passed during this work. These results do not constitute a virus scan or independent coverage of every OS, provider or rare termination failure.
-
-### Remaining follow-up
-
-A rare direct-transfer ADB process surviving Kill remains an unreproduced follow-up candidate. Store Edition changes are documented separately and are not bundled into this portable release. Virus scan and GitHub publication remain pending user action.
+The existing Companion must be updated through Settings > Companion for the new behavior.
+The package does not install APKs automatically. See FINAL_250_2026-10-16.md for final hashes,
+verification evidence and remaining physical-test boundaries.
 
 ## 한국어
 
-메이님 실기 확인 후 요청한 포터블 최종 준비 버전입니다. 바이러스 검사 후 메이님이 업로드를 지시할 때 GitHub에 게시합니다.
+2026-10-19 추가: 최대120 FPS 실험적 옵션(기본60), 실제120 실행마다 경고,
+이전 화면 끄기 값 복원과 같은 폰의120 화면 켜짐 우선, 기존 사용자의 로컬
+버전별 한·영 변경사항 안내를 넣었습니다. 새 EXE/ZIP은 다시 검사해야 하며
+10월16일 검사 결과는 이전 파일에 대한 기록입니다. 공용 APK와 scrcpy는 동일합니다.
 
-### 변경 사항
+2026-10-16 준비한 정식2.5.0 포터블입니다. Windows 7 SP1·8.1·10·11 x64,
+.NET Framework 4.6.2 이상을 지원하며, 사용자가 바이러스 검사 완료를 보고했으며 메이님의 명시적 배포 지시를 기다립니다.
 
-- 밝음·다크 UI, Fluent Regular 아이콘, 설정·로컬 도움말·진단 개선. 제품 로고와 큰 휴대폰 그림 유지.
-- 동의창을 첫 실행 동의가 저장될 때까지만 표시하며, 이후 실행에서는 반복하지 않음.
-- 메인·미니바의 USB/Wi-Fi/동시 연결 표시. 새 실행은 USB 우선, 기존 세션은 캡처한 연결 유지.
-- USB 해제 직후 남은 Wi-Fi로 자동 재실행하지 않으며, 실제 재연결은 DeX 자동 실행 설정을 따름.
-- 단일창 앱 미선택 시 실행용 ADB/wake-up 전에 차단. DeX는 시작 앱 미선택으로도 실행 가능.
-- 기기별 앱 목록·최근 앱/프로필, 사용자 해상도, 전송·캡처·프로세스 정리 및 UI 배치·스크롤·오류 안내 보강.
-- 공식 서명 DX Companion2.1.4/code11(Android13+) 포함. 대기 전송 종료 정리와 이름 정리 후 형제 항목 충돌을 분리함.
+- scrcpy 5.0.1을 포함하고 DeX·단일창 세 슬롯에서 하드웨어 디코딩을 자동 선택합니다.
+- 밝음·다크 UI, Fluent 아이콘, 전송창, 도움말 배치와 글자 렌더링을 정리했습니다.
+- 새 실행의 USB 우선 선택과 휴대폰별 독립 세션을 유지합니다.
+- EXE 재실행 시 메인창 복원, 트레이 숨김 시 부속 창 종료, 슬롯별 앱 미선택 알림을 반영했습니다.
+- 무선/TLS 연결 상태 처리를 개선하고 환경 검사에서 scrcpy 전체 버전을 표시합니다.
+- 업데이트는 하루 한 번 백그라운드에서 확인하며 오프라인 재시도 반복은 하지 않습니다.
+  수동 버튼은 제3자 라이선스 옆, 자동 안내는 메인 오른쪽 아래 배너입니다.
+- 공식 서명 공용 Companion 2.1.6/code13(Android13+)을 포함합니다. 중복 공유 방지를 유지하며,
+  PC 연결이 끊기고 가상 화면·잠자기 방지가 모두 정리됐음을 확인하면 감시와 알림을 종료합니다.
+  정상 연결 중이거나 복구할 항목이 남아 있으면 보호 기능을 유지합니다.
+- 첫 실행 동의는 확인란을 선택해야 진행할 수 있으며 동의 후 재실행에서는 반복하지 않습니다.
+- 실행 파일·필수 라이선스·짧은 README만 배포합니다. 도움말과 FAQ는 앱에 내장돼 있으며,
+  저장소 문서·스크린샷·개인 설정·동의 기록·로그·디버그 파일·테스트 도구는 포함하지 않습니다.
+- 개인 테스트판의 AI 앱 자동 감지·키맵과 테스트 APK는 포함하지 않습니다.
 
-### 검증·업데이트
+새 동작을 사용하려면 설정 > Companion에서 동봉된 정식 APK로 업데이트하세요.
+APK는 자동 설치하지 않습니다. 최종 해시·검증 범위는 FINAL_250_2026-10-16.md에 기록합니다.
 
-Windows7 SP1~11 x64/.NET4.6.2 이상, scrcpy4.1을 사용합니다. 전체 포터블 폴더를 함께 유지하세요. Companion은 자동 설치하지 않습니다. 기존 config를 백업·이전하면 기기 설정과 동의 기록을 유지합니다.
-사용자는 실기 검증 후 정상 작동을 보고했습니다. Release 회귀62개, Android20개 및 lint/공식 서명 검사, UI·연결·미니바 컨트롤 검증 기록이 있습니다. 바이러스 검사 결과는 아직 기록하지 않았습니다.
-드문 ADB 강제 종료 실패의 재현/보강은 후속 후보로 남깁니다. Store 제품과 개발선은 분리하며 GitHub 업로드는 별도 지시 후 진행합니다.
+## SHA-256 and verification / 해시·검증
 
-## Local artifact SHA256
-
-- DX-Manager-v2.5.0-win-x64.zip: `B2064404BB45B65FA863558C82898C5B1BFFAC46CB7035BA5E55CEA2892765E0`
-- DXManager.exe: `BACEA6027137EC0ACE770133034F258EF36F68CA977FD03FF9395F58717D3632`
-- Bundled DX-Companion.apk: `95DAF4E734FD36FE07AD8388FE8E4C98D96D1EFA0A8E359D8C8E3E27383B6536`
+The exact EXE, proxy, APK and ZIP hashes and the scope of the supplied antivirus evidence are in
+[VERIFICATION_v2.5.0.md](VERIFICATION_v2.5.0.md). The October19 rebuild has new EXE/ZIP hashes and requires a fresh maintainer scan.
+10월19일 재빌드 파일은 다시 검사해야 합니다. 이전 검사본은 개발 기록으로 보관했고 배포는 아직 하지 않았습니다.

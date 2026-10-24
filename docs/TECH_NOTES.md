@@ -1,4 +1,46 @@
-# Technical Notes
+﻿# Technical Notes
+
+## 2026-10-24 English fallback coverage
+
+DiagnosticsEnvironmentText.Text and DiagnosticsReportStatusText.Text lacked StoreStrings entries, exposing Korean fallbacks. Add matched EN/KO entries and English-safe fallbacks while retaining Korean wording. The955-call-site audit also found missing USB/Wi-Fi entries and Log.Wireless.DeviceMismatch; these are filled. Concatenated resource prefixes were checked against actual members.
+
+InitializeDesktopLayout sets13px only for English Help after the common14px assignment and before RememberDesktopFonts. Existing font fitting preserves that choice; no renderer/global font change. LocalizationUiIntegrationTests checks full text fit at three window sizes and Korean Help parity. The English FAQ uses an English cross-language link label; language selection intentionally keeps the native 한국어 name.
+
+The fixture selects English before creating forms on a Korean UI culture. User/device/app/file names, vendor output, native OS dialog language and third-party license content are not rewritten as application translations.
+
+
+## 2026-10-24 diagnostics header layout
+
+RefreshStoreEnvironment reparents RefreshDiagnosticsButton from EditorHost to HeaderSurface, then enables WideContent. Reflow previously expanded TitleLabel and DescriptionLabel across that button's rectangle, so the labels painted over most of it. Reserve178px of header text space for the wide DiagnosticsEnvironmentCard, matching its160px action plus margin. Keep EditorHost full-width for wrapped paths. Tests reproduce the old overlap and check expanded header/button bounds at520/716/900px and actual repeat clicks in light/dark themes.
+
+
+## 2026-10-19 portable 120 FPS preparation
+
+The maintainer authorized implementing the Store handoff in the portable product
+and rebuilding the fixed preview/final ZIP locally. Store is read-only; reference
+commit11050e7822c43ec409d7d943ece5d9884d997b99 is not merged.
+Added default60/experimental120, one fail-closed warning before every120 start,
+exact screen-off preference restoration, per-phone mixed-session screen policy
+and local version-scoped change notes. scrcpy5.0.1 and signed Companion2.1.6 are
+unchanged. No AI app detection, Android changes, commit/push/tag or publication.
+See PORTABLE_120FPS_2026-10-19.md for implementation and fresh verification.
+October16 scan evidence remains historical; the new EXE needs a fresh user scan.
+
+
+## Current state — 2026-10-16
+
+- Latest public Windows release:2.0.1. Prepared local Windows build:2.5.0; not published.
+- Active portable branch: feature/portable-backport-v2.0.1-20260928, local HEAD8b19906 plus accepted uncommitted work.
+- scrcpy 5.0.1; official shared Companion 2.1.6/code13/protocol1; Android 13 minimum.
+- New launches USB-first; live serials stay captured. Companion management has its own Settings page.
+- First-run consent is saved once; updates check daily in the background with offline failure recorded.
+- The exact release ZIP/EXE/APK have been built and the maintainer reports clean antivirus results.
+- Current work is local GitHub-documentation/screenshot preparation; no release approval has been given.
+- Standalone public-source shared-component closure, remote macOS preservation and new portable captures
+  are tracked in DOCUMENTATION_AUDIT_2026-10-16.md and SCREENSHOT_PLAN_v2.5.0.md.
+
+See PROJECT_BRIEF.md, BUILDING.md and VERIFICATION_v2.5.0.md for the current contracts and boundaries.
+Older dated implementation notes below describe earlier stages; their old version pins are historical.
 
 ## 주요 구조
 

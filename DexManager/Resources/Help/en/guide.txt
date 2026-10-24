@@ -1,4 +1,4 @@
-DX Manager User Guide
+﻿DX Manager User Guide
 
 1. Requirements
 
@@ -62,7 +62,7 @@ scrcpy starts.
 
 Do not copy DXManager.exe by itself. Keep the complete distribution,
 including the tools directory, scrcpy DLLs, scrcpy-server, and license
-files. Version 2.0.0 bundles scrcpy 4.1.
+files. Version 2.5.0 bundles scrcpy 5.0.1.
 
 > [!IMPORTANT]
 > Keep the phone connected and use Stop DeX, press Left Alt+F8, or
@@ -113,7 +113,23 @@ Display Settings
 - Resolution: select a preset or enter a custom size
 - DPI: controls Android display scaling
 - Bitrate: controls video quality and network usage
-- Maximum FPS: select 30 or 60fps
+- Maximum FPS: 30, 60 (default), or 120 (Experimental).
+
+120 FPS requires the phone screen to stay on. Screen-off is disabled at 120;
+switching back to 30/60 restores the exact previous preference, including an
+explicit preference to keep the screen on. The value is saved per phone, mode
+and app profile. If any 120 FPS window is running on a phone, other windows on
+that phone temporarily defer their screen-off requests.
+
+A warning appears once before every actual 120 FPS start, including saved
+settings, tray/automatic starts and restarts when applying settings. Selecting
+120 alone does not show a warning. Canceling blocks the start. Heat, battery
+use and permanent OLED burn-in risk can increase; avoid prolonged or unattended
+use and stop if the phone overheats. Actual FPS depends on the phone, app and
+activity. The option does not guarantee a constant 120 FPS.
+
+The advanced arguments cannot override --max-fps or the managed screen-off
+options. Set the limit using the FPS selector.
 
 A lower DPI value makes Android UI elements smaller, allowing more information
 to fit on the screen.
@@ -356,7 +372,7 @@ below use left Alt, one of scrcpy's default shortcut modifiers.
 | Alt+V | Synchronize the PC clipboard and paste |
 | Ctrl+V | Send Ctrl+V to the active Android app (app-dependent) |
 
-Other official scrcpy 4.1 shortcuts
+Other official scrcpy 5.0.1 shortcuts
 may work, but some Android system shortcuts can do nothing or act on the
 phone's primary display instead of the simulated DeX display.
 
@@ -632,3 +648,9 @@ Developer and Project
 - Copyright © 2026 maze
 
 DX Manager is a personally and independently developed project.
+
+
+After updating, existing users see local release notes once before device startup.
+Fresh installs show only the safety consent. Release notes use no Internet and
+keep a separate update-notice.json checkpoint, independent of settings reset.
+The daily GitHub update check and its offline behavior are unchanged.

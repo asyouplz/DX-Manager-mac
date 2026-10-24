@@ -11,6 +11,21 @@ namespace DexManager.Forms
 {
     public sealed partial class MainForm : Form
     {
+        private string GetTransferDeviceName(object service)
+        {
+            lock (_deviceContextsSync)
+            {
+                foreach (var context in _deviceContexts.Values)
+                {
+                    if (context.Runtime != null &&
+                        (ReferenceEquals(service, context.Runtime.FileTransfers) ||
+                         ReferenceEquals(service, context.Runtime.PhoneTransfers)))
+                        return GetContextDisplayName(context);
+                }
+            }
+            return StoreUiText.Get("CommonConnectedPhone", "Connected phone");
+        }
+
         private const int WmQueryEndSession = 0x0011;
         private const int WmEndSession = 0x0016;
 
@@ -48,7 +63,7 @@ namespace DexManager.Forms
             if (coordinator == null) return;
             RunOnUi(delegate
             {
-                if (_exitInProgress || IsDisposed) return;
+                if (_exitInProgress || IsDisposed || _hiddenToTray) return;
                 if (!ReferenceEquals(
                         _fileTransferStatusSource,
                         coordinator))
@@ -77,7 +92,7 @@ namespace DexManager.Forms
                 {
                     _fileTransferStatusForm = new FileTransferStatusForm(
                         coordinator,
-                        _settings.Theme);
+                        _settings.Theme, GetTransferDeviceName(coordinator));
                     _fileTransferStatusForm.PositionUpdateRequested +=
                         FileTransferStatusForm_PositionUpdateRequested;
                 }
@@ -106,7 +121,7 @@ namespace DexManager.Forms
             if (receiver == null) return;
             RunOnUi(delegate
             {
-                if (_exitInProgress || IsDisposed) return;
+                if (_exitInProgress || IsDisposed || _hiddenToTray) return;
                 if (!ReferenceEquals(_phoneTransferStatusSource, receiver))
                 {
                     if (_phoneTransferStatusForm != null)
@@ -125,7 +140,7 @@ namespace DexManager.Forms
                     _phoneTransferStatusForm.IsDisposed)
                 {
                     _phoneTransferStatusForm =
-                        new PhoneTransferStatusForm(_settings.Theme);
+                        new PhoneTransferStatusForm(_settings.Theme, GetTransferDeviceName(receiver));
                 }
                 var shouldShow = !_phoneTransferStatusForm.Visible;
                 _phoneTransferStatusForm.UpdateProgress(e.Progress);

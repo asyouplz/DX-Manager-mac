@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using DexManager.Models;
 using System.Drawing;
 using System.Windows.Forms;
@@ -184,6 +184,7 @@ namespace DexManager.Forms
             _helpSidebarButton.Click += delegate { ShowDesktopHelp(); };
             _sidebar.Controls.Add(_helpSidebarButton);
             foreach (var button in new[] { _dexModeButton, _singleModeButton1, _singleModeButton2, _singleModeButton3, _settingsSidebarButton, _helpSidebarButton }) button.Font = UiFonts.Pixels(14F);
+            _helpSidebarButton.Font = UiFonts.Pixels(LocalizationService.IsKorean ? 14F : 13F);
             RememberDesktopFonts(this);
             _desktopLayoutReady = true;
             Resize += delegate { LayoutDesktopContent(); };

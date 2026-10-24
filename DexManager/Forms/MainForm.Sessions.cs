@@ -130,6 +130,12 @@ namespace DexManager.Forms
             {
                 var serial = GetSelectedLaunchSerial();
                 var appDeviceIdentity = _selectedDeviceIdentity;
+                var launchContext = _selectedDeviceContext;
+                var orchestrator = _orchestrator;
+                var launchDirtyState = _modeSettingsDirty;
+                var launchSettings = CaptureSelectedRunSettings();
+                var scrcpySettings = launchSettings.Scrcpy;
+                if (!await ConfirmExperimentalFrameRateAsync(scrcpySettings.MaxFps)) return;
                 if (string.IsNullOrWhiteSpace(serial))
                 {
                     throw new InvalidOperationException(
@@ -137,25 +143,23 @@ namespace DexManager.Forms
                             "Error.Dex.NoAuthorizedDevice"));
                 }
                 if (!await WaitForDeviceStartDelayAsync(serial)) return;
-                var scrcpySettings =
-                    GetSelectedDeviceRunSettings().Scrcpy;
+
                 if (scrcpySettings.TurnScreenOff)
                     RememberManagedSerial(serial);
-                var launchContext = _selectedDeviceContext;
                 if (launchContext != null)
                 {
                     launchContext.RequireManualStartAfterTransportLoss = false;
                     launchContext.AutoStartBlockedSerial = string.Empty;
                     launchContext.PendingSessionStarts++;
                 }
-                try { await _orchestrator.StartAsync(serial); }
+                try { await orchestrator.StartAsync(serial, launchSettings, true); }
                 finally { if (launchContext != null) launchContext.PendingSessionStarts--; }
-                if (_exitInProgress || !_orchestrator.IsRunning) return;
+                if (_exitInProgress || !orchestrator.IsRunning) return;
                 RememberStartedApp(
                     appDeviceIdentity,
                     scrcpySettings.StartAppPackage,
                     scrcpySettings.StartAppName);
-                _modeSettingsDirty[0] = false;
+                launchDirtyState[0] = false;
             }
             catch (Exception ex)
             {
@@ -227,9 +231,13 @@ namespace DexManager.Forms
                 LocalizationService.Get("Main.SinglePreparing"));
             try
             {
-                var settings = GetSingleWindowSettings(slot);
+                var settings = AppSettings.CloneSingleWindowSlot(GetSingleWindowSettings(slot));
                 var serial = GetSelectedLaunchSerial();
                 var appDeviceIdentity = _selectedDeviceIdentity;
+                var launchContext = _selectedDeviceContext;
+                var service = _singleWindowService;
+                var launchDirtyState = _modeSettingsDirty;
+                if (!await ConfirmExperimentalFrameRateAsync(settings.MaxFps)) return;
                 if (string.IsNullOrWhiteSpace(serial))
                 {
                     throw new InvalidOperationException(
@@ -239,23 +247,21 @@ namespace DexManager.Forms
                 if (!await WaitForDeviceStartDelayAsync(serial)) return;
                 if (settings.TurnScreenOff)
                     RememberManagedSerial(serial);
-                var launchContext = _selectedDeviceContext;
-                var service = _singleWindowService;
                 if (launchContext != null)
                 {
                     launchContext.RequireManualStartAfterTransportLoss = false;
                     launchContext.AutoStartBlockedSerial = string.Empty;
                     launchContext.PendingSessionStarts++;
                 }
-                try { await Task.Run(delegate { service.Start(slot, settings, serial); }); }
+                try { await Task.Run(delegate { service.Start(slot, settings, serial, true); }); }
                 finally { if (launchContext != null) launchContext.PendingSessionStarts--; }
                 if (_exitInProgress ||
-                    !_singleWindowService.IsRunning(slot)) return;
+                    !service.IsRunning(slot)) return;
                 RememberStartedApp(
                     appDeviceIdentity,
                     settings.StartAppPackage,
                     settings.StartAppName);
-                _modeSettingsDirty[slot] = false;
+                launchDirtyState[slot] = false;
             }
             catch (Exception ex)
             {

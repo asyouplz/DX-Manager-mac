@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
@@ -61,7 +61,11 @@ namespace DexManager.Forms
             int right=_expander?58:18;
             bool stacked=WideContent || Width<left+EditorWidth+right+118;
             int textWidth=stacked?Width-left-20:Math.Max(100,Width-left-EditorWidth-right-18);
-            if(Tag as string == "DiagnosticsDeviceCard") textWidth=Math.Max(100,textWidth-178);
+            // Wide diagnostics results keep their button in the header, outside EditorHost.
+            // Reserve that space so the sibling labels cannot paint over the button.
+            var cardId=Tag as string;
+            if(cardId=="DiagnosticsDeviceCard" || (WideContent && cardId=="DiagnosticsEnvironmentCard"))
+                textWidth=Math.Max(100,textWidth-178);
             int titleHeight=Math.Max(22,TitleLabel.GetPreferredSize(new Size(textWidth,0)).Height);
             int descHeight=string.IsNullOrWhiteSpace(DescriptionLabel.Text)?0:Math.Max(18,DescriptionLabel.GetPreferredSize(new Size(textWidth,0)).Height);
             int topHeight=Math.Max(68,16+titleHeight+descHeight+14);

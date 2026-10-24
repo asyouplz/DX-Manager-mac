@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
@@ -90,13 +90,22 @@ namespace DexManager.Forms {
    if(text!=null)text.Text=LocalizationService.IsKorean?"검사 중…":"Checking…";
    try {
     if(_runStoreEnvironment==null){if(_showEnvironmentCheck!=null)_showEnvironmentCheck();return;}
-    var entries=await Task.Run(_runStoreEnvironment);if(IsDisposed)return;
-    if(text!=null)text.Text=string.Join("\n",System.Linq.Enumerable.Select(entries,item=>item.Name+": "+item.Message));
-    StoreSettingCard card;if(text!=null && _storeCards.TryGetValue("DiagnosticsEnvironmentCard",out card)) {
-     var refresh=_storeEditors["RefreshDiagnosticsButton"];refresh.Parent=card.HeaderSurface;refresh.Anchor=AnchorStyles.Top|AnchorStyles.Right;refresh.Bounds=new Rectangle(card.Width-178,14,160,40);
-     card.WideContent=true;text.Location=Point.Empty;card.Reflow();
+    var entries=await Task.Run(_runStoreEnvironment).ConfigureAwait(false);
+    Action apply=delegate {
+     if(IsDisposed || Disposing)return;
+     if(text!=null)text.Text=string.Join("\n",System.Linq.Enumerable.Select(entries,item=>item.Name+": "+item.Message));
+     StoreSettingCard card;if(text!=null && _storeCards.TryGetValue("DiagnosticsEnvironmentCard",out card)) {
+      var refresh=_storeEditors["RefreshDiagnosticsButton"];refresh.Parent=card.HeaderSurface;refresh.Anchor=AnchorStyles.Top|AnchorStyles.Right;refresh.Bounds=new Rectangle(card.Width-178,14,160,40);
+      card.WideContent=true;text.Location=Point.Empty;card.Reflow();
+     }
+    };
+    if(!IsDisposed && IsHandleCreated) {if(InvokeRequired)BeginInvoke(apply);else apply();}
+   }catch(Exception ex){
+    if(!IsDisposed && IsHandleCreated) {
+     Action failure=delegate {if(!IsDisposed)ShowStoreFailure(ex.Message);};
+     try {if(InvokeRequired)BeginInvoke(failure);else failure();}catch(InvalidOperationException){}
     }
-   }catch(Exception ex){if(!IsDisposed)ShowStoreFailure(ex.Message);}
+   }
   }
   internal string GetSettingsSelectedSerial() {return ResolveStoreTargetSerial();}
   private void RestoreStoreExpansion() {

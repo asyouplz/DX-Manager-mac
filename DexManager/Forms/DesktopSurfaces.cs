@@ -31,7 +31,7 @@ namespace DexManager.Forms
         private static void PaintSurface(Graphics graphics, Control surface)
         {
             if(surface is Form) {
-                if(surface is MainForm || surface is SettingsForm || surface is HelpForm || surface is DocumentationForm || surface is LogForm)Paint(graphics,surface.ClientRectangle);
+                if(surface is MainForm || surface is SettingsForm || surface is HelpForm || surface is DocumentationForm || surface is LogForm || surface is FileTransferStatusForm || surface is PhoneTransferStatusForm)Paint(graphics,surface.ClientRectangle);
                 else using(var brush=new SolidBrush(surface.BackColor))graphics.FillRectangle(brush,surface.ClientRectangle);
                 return;
             }

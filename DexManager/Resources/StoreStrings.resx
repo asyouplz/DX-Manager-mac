@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -622,7 +622,7 @@
   <data name="AboutDeveloperText.Text" xml:space="preserve"><value>Developer: maze</value></data>
   <data name="AboutCopyrightText.Text" xml:space="preserve"><value>Copyright © 2026 maze</value></data>
   <data name="AboutLicenseText.Text" xml:space="preserve"><value>DX Manager is provided under the MIT License.</value></data>
-  <data name="AboutScrcpyText.Text" xml:space="preserve"><value>This program includes and uses scrcpy 4.1, open-source software distributed by Genymobile and Romain Vimont under the Apache License 2.0.</value></data>
+  <data name="AboutScrcpyText.Text" xml:space="preserve"><value>This program includes and uses scrcpy 5.0.1, open-source software distributed by Genymobile and Romain Vimont under the Apache License 2.0.</value></data>
   <data name="AboutLibrariesText.Text" xml:space="preserve"><value>Bundled FFmpeg libraries are distributed under LGPL v2.1 or later, SDL3 under the zlib license, and libusb under LGPL v2.1 or later. See the third-party licenses for details.</value></data>
   <data name="AboutSamsungText.Text" xml:space="preserve"><value>This program works with Samsung DeX features on compatible Samsung devices, but is not produced, sponsored, endorsed, or distributed by Samsung Electronics. Samsung and Samsung DeX are trademarks of their respective owner.</value></data>
   <data name="AboutDisclaimerText.Text" xml:space="preserve"><value>Users are responsible for complying with applicable laws, device warranty terms, and organizational policies when using Android Developer options or ADB or changing device settings through DX Manager. To the extent permitted by law, the developer is not liable for data loss, configuration changes, device malfunction, or other direct or indirect damages arising from the use or misuse of this application.</value></data>
@@ -639,4 +639,22 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="ExperimentalFpsWarningTitle" xml:space="preserve"><value>120 FPS warning</value></data>
+  <data name="ExperimentalFpsWarningAccept" xml:space="preserve"><value>Use 120 FPS</value></data>
+  <data name="ExperimentalFpsScreenWarning" xml:space="preserve"><value>120 FPS mode requires the phone screen to stay on. “Turn phone screen off” is automatically disabled and cannot be used in this mode.</value></data>
+  <data name="ExperimentalFpsRiskWarning" xml:space="preserve"><value>This mode increases heat and battery consumption. Displaying static images on an OLED screen for extended periods can cause permanent burn-in.</value></data>
+  <data name="ExperimentalFpsCareWarning" xml:space="preserve"><value>Avoid prolonged use or leaving the screen on unattended. Stop using this mode if the phone overheats.</value></data>
+  <data name="ExperimentalFpsLimitWarning" xml:space="preserve"><value>This is an experimental maximum FPS setting. Actual FPS may be lower depending on the device, app and input activity. A constant 120 FPS is not guaranteed.</value></data>
+  <data name="UpdateNoticeTitle" xml:space="preserve"><value>What's new in DX Manager {0}</value></data>
+  <data name="UpdateNoticeIntro" xml:space="preserve"><value>Here are the main changes in this version. Your existing settings are preserved.</value></data>
+  <data name="UpdateNoticeFps" xml:space="preserve"><value>• Added an experimental maximum 120 FPS option. The default remains 60 FPS. Heat, battery and burn-in warnings appear before every 120 FPS start.</value></data>
+  <data name="UpdateNoticeScreenOff" xml:space="preserve"><value>• 120 FPS disables phone screen-off; switching back to 30/60 FPS restores your previous setting. Actual FPS depends on the device, app and input activity.</value></data>
+  <data name="UpdateNoticeScrcpy" xml:space="preserve"><value>• Updated scrcpy to 5.0.1, including official fixes for Windows H.265 hardware decoding and other decoding issues.</value></data>
+  <data name="UpdateNoticeCompanion" xml:space="preserve"><value>• Included DX Companion: {0}. Install or update it on your phone manually through Settings.</value></data>
+  <data name="UpdateNoticeConfirm" xml:space="preserve"><value>OK</value></data>
+  <data name="ExperimentalFpsOption" xml:space="preserve"><value>120 (Experimental)</value></data>
+  <data name="ConnectionUsb.Content" xml:space="preserve"><value>USB</value></data>
+  <data name="ConnectionWireless.Content" xml:space="preserve"><value>Wi-Fi</value></data>
+  <data name="DiagnosticsEnvironmentText.Text" xml:space="preserve"><value>The environment check has not started.</value></data>
+  <data name="DiagnosticsReportStatusText.Text" xml:space="preserve"><value>Save a report with private data masked.</value></data>
 </root>

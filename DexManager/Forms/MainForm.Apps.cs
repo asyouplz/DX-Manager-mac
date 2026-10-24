@@ -19,6 +19,8 @@ namespace DexManager.Forms
         private bool _missingStartAppNotice;
         private int _missingStartAppNoticeSlot;
         private string _missingStartAppNoticeDevice;
+        private readonly Dictionary<string, HashSet<int>> _missingStartAppNotices =
+            new Dictionary<string, HashSet<int>>(StringComparer.OrdinalIgnoreCase);
 
         private void RefreshAppItems(string packageName, string appName)
         {
@@ -48,7 +50,46 @@ namespace DexManager.Forms
         {
             var button=_startButton as ThemedButton;
             if(button!=null){button.ExecutionBlocked=IsSingleWindowAppMissing(_selectedMode);button.Invalidate();}
-            if(_missingStartAppNotice && _selectedMode==_missingStartAppNoticeSlot && string.Equals(_selectedDeviceIdentity,_missingStartAppNoticeDevice,StringComparison.OrdinalIgnoreCase) && !IsSingleWindowAppMissing(_selectedMode))DismissDesktopNotice();
+            UpdateMissingStartAppNotice();
+        }
+        private void UpdateMissingStartAppNotice()
+        {
+            var identity = _selectedDeviceIdentity ?? string.Empty;
+            HashSet<int> slots;
+            var pending = _missingStartAppNotices.TryGetValue(identity, out slots) &&
+                slots.Contains(_selectedMode);
+            var ownsNotice = _missingStartAppNotice &&
+                _selectedMode == _missingStartAppNoticeSlot &&
+                string.Equals(identity, _missingStartAppNoticeDevice, StringComparison.OrdinalIgnoreCase);
+
+            if (pending && !IsSingleWindowAppMissing(_selectedMode))
+            {
+                RemoveMissingStartAppNotice(identity, _selectedMode);
+                pending = false;
+            }
+            if (!pending)
+            {
+                if (ownsNotice) DismissDesktopNotice();
+                else if (_missingStartAppNotice && _appNotice != null) _appNotice.Visible = false;
+                return;
+            }
+            if (ownsNotice)
+            {
+                _appNotice.Visible = true;
+                _appNotice.BringToFront();
+            }
+            else if (_missingStartAppNotice || _appNotice == null || !_appNotice.Visible)
+            {
+                ShowMissingStartAppNotice(_selectedMode);
+            }
+        }
+        private void RemoveMissingStartAppNotice(string identity, int slot)
+        {
+            identity = identity ?? string.Empty;
+            HashSet<int> slots;
+            if (!_missingStartAppNotices.TryGetValue(identity, out slots)) return;
+            slots.Remove(slot);
+            if (slots.Count == 0) _missingStartAppNotices.Remove(identity);
         }
         private void ShowDesktopNotice(string message, DesktopNoticeKind kind)
         {
@@ -66,6 +107,7 @@ namespace DexManager.Forms
                 dismiss.Click += delegate { DismissDesktopNotice(); };
                 _appNotice.Controls.Add(dismiss);
                 _appNotice.SizeChanged += delegate { dismiss.Location = new Point(_appNotice.Width - 32, (_appNotice.Height - 28) / 2); dismiss.BringToFront(); };
+                _appNotice.VisibleChanged += delegate { PositionUpdateBanner(); };
                 Controls.Add(_appNotice);
                 _appNoticeTimer = new Timer { Interval = 5000 };
                 _appNoticeTimer.Tick += delegate { DismissDesktopNotice(); };
@@ -84,13 +126,24 @@ namespace DexManager.Forms
 
         private void ShowMissingStartAppNotice(int slot)
         {
+            var identity = _selectedDeviceIdentity ?? string.Empty;
+            HashSet<int> slots;
+            if (!_missingStartAppNotices.TryGetValue(identity, out slots))
+            {
+                slots = new HashSet<int>();
+                _missingStartAppNotices.Add(identity, slots);
+            }
+            slots.Add(slot);
             ShowDesktopNotice(LocalizationService.Get("Error.SingleWindow.AppRequired"),DesktopNoticeKind.Error);
-            _missingStartAppNotice=true;_missingStartAppNoticeSlot=slot;_missingStartAppNoticeDevice=_selectedDeviceIdentity;
+            _missingStartAppNotice=true;_missingStartAppNoticeSlot=slot;_missingStartAppNoticeDevice=identity;
+            _appNotice.Visible = _selectedMode == slot;
         }
         private void DismissDesktopNotice()
         {
             if(_appNoticeTimer!=null)_appNoticeTimer.Stop();
             if(_appNotice!=null)_appNotice.Visible=false;
+            if (_missingStartAppNotice)
+                RemoveMissingStartAppNotice(_missingStartAppNoticeDevice, _missingStartAppNoticeSlot);
             _missingStartAppNotice=false;
         }
         private void ApplyDesktopNoticeTheme()
@@ -119,6 +172,7 @@ namespace DexManager.Forms
             _appNotice.Size = new Size(width, Math.Max(48, textSize.Height + 24));
             _appNotice.Location = new Point(ClientSize.Width - width - DesktopPixels(32),
                 Math.Max(16, ClientSize.Height - _appNotice.Height - DesktopPixels(28)));
+            PositionUpdateBanner();
         }
 
         private void SetSelectedAppPackage(

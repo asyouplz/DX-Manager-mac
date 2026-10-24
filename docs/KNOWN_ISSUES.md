@@ -1,5 +1,33 @@
 ﻿# Known Issues and Constraints
 
+## 2026-10-19 portable 120 FPS preparation
+
+The maintainer authorized implementing the Store handoff in the portable product
+and rebuilding the fixed preview/final ZIP locally. Store is read-only; reference
+commit11050e7822c43ec409d7d943ece5d9884d997b99 is not merged.
+Added default60/experimental120, one fail-closed warning before every120 start,
+exact screen-off preference restoration, per-phone mixed-session screen policy
+and local version-scoped change notes. scrcpy5.0.1 and signed Companion2.1.6 are
+unchanged. No AI app detection, Android changes, commit/push/tag or publication.
+See PORTABLE_120FPS_2026-10-19.md for implementation and fresh verification.
+October16 scan evidence remains historical; the new EXE needs a fresh user scan.
+
+
+## Current state — 2026-10-16
+
+- Latest public Windows release:2.0.1. Prepared local Windows build:2.5.0; not published.
+- Active portable branch: feature/portable-backport-v2.0.1-20260928, local HEAD8b19906 plus accepted uncommitted work.
+- scrcpy 5.0.1; official shared Companion 2.1.6/code13/protocol1; Android 13 minimum.
+- New launches USB-first; live serials stay captured. Companion management has its own Settings page.
+- First-run consent is saved once; updates check daily in the background with offline failure recorded.
+- The exact release ZIP/EXE/APK have been built and the maintainer reports clean antivirus results.
+- Current work is local GitHub-documentation/screenshot preparation; no release approval has been given.
+- Standalone public-source shared-component closure, remote macOS preservation and new portable captures
+  are tracked in DOCUMENTATION_AUDIT_2026-10-16.md and SCREENSHOT_PLAN_v2.5.0.md.
+
+See PROJECT_BRIEF.md, BUILDING.md and VERIFICATION_v2.5.0.md for the current contracts and boundaries.
+Older dated implementation notes below describe earlier stages; their old version pins are historical.
+
 ## 새 WinForms 테마의 검증 범위
 
 밝음·다크 카드 배경은 GDI+ 알파 색상 혼합이며 실제 데스크톱을 비추는 Acrylic/Mica가 아니다.

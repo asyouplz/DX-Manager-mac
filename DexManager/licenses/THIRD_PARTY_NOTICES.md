@@ -7,7 +7,7 @@ licenses.
 
 ## scrcpy
 
-DX Manager includes and uses scrcpy 4.1 to display and control Android
+DX Manager includes and uses scrcpy 5.0.1 to display and control Android
 devices.
 
 Copyright (C) 2018 Genymobile  
@@ -18,13 +18,13 @@ license text is provided in `scrcpy-LICENSE.txt` in this directory.
 
 Official project: https://github.com/Genymobile/scrcpy
 
-Bundled version: 4.1
+Bundled version: 5.0.1
 
 ## Android Debug Bridge (ADB)
 
 DX Manager includes Android Debug Bridge binaries from the Android Open
 Source Project. The scrcpy runtime contains platform-tools
-37.0.0-14910828, and the Windows 7/8.1 fallback contains platform-tools
+37.0.1-15733141, and the Windows 7/8.1 fallback contains platform-tools
 34.0.1-9979309.
 
 ADB source is distributed under the Apache License, Version 2.0. The complete
@@ -34,20 +34,20 @@ Official source: https://android.googlesource.com/platform/packages/modules/adb/
 
 ## SDL
 
-The Windows scrcpy client includes SDL 3.4.12, distributed under the zlib
+The Windows scrcpy client includes SDL 3.4.18, distributed under the zlib
 license.
 
 Copyright (C) 1997-2026 Sam Lantinga
 
 Official project and license:
-https://github.com/libsdl-org/SDL/blob/release-3.4.12/LICENSE.txt
+https://github.com/libsdl-org/SDL/blob/release-3.4.18/LICENSE.txt
 
 The complete notice is provided in `SDL3-LICENSE.txt` in this directory.
 
 ## FFmpeg libraries
 
 The Windows scrcpy client dynamically loads FFmpeg libraries including
-libavcodec 62.28.102, libavformat 62.12.102, libavutil 60.26.102, and
+libavcodec 63.1.102, libavformat 63.1.102, libavutil 61.1.102, and
 libswresample. The bundled build reports `LGPL version 2.1 or later` and does
 not report GPL components.
 

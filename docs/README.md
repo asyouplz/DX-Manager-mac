@@ -1,48 +1,49 @@
-# DexManager 개발 문서
+﻿# DX Manager documentation
 
-마지막 전체 정리: 2026-08-22
+## English
 
-새 작업에서는 `HANDOFF.md`, `PROJECT_BRIEF.md`, `SESSION.md`, `TODO.md`,
-`AI_WORKFLOW.md` 순서로 읽는다. 작업 성격에 따라 `TECH_NOTES.md`,
-`DECISIONS.md`, `KNOWN_ISSUES.md`를 추가로 확인한다.
+Current Windows documentation: **2.5.0 / scrcpy 5.0.1 / official Companion 2.1.6**.
+Last reviewed 2026-10-16. The 2.5.0 files are prepared locally; the current public Windows release is2.0.1.
+Documentation preparation does not authorize publication or rebuilding the scanned files.
 
-문서와 코드가 다르면 현재 코드와 Git 이력을 우선하고 문서를 갱신한다.
+### For users
 
-- `HANDOFF.md`: 새 작업용 현재 기준점, 아키텍처, 불변 조건과 검증 절차
-- `PROJECT_BRIEF.md`: 목적, 환경, 핵심 기능
-- `TECH_NOTES.md`: 구현 구조와 기술 주의사항
-- `DECISIONS.md`: 현재 구조를 선택한 이유
-- `KNOWN_ISSUES.md`: 알려진 제약
-- `TODO.md`: 남은 작업
-- `STORE_UI_BACKPORT_2026-10-01.md`: Store UI 원본 대조·연결·검증 기록
-- `PORTABLE_BACKPORT_AUDIT_2026-09-30.md`: 이번 포터블 역이식 변경분 감사와 검증 한계
-- `SESSION.md`: 다음 채팅을 위한 현재 상태
-- `AI_WORKFLOW.md`: Codex 작업 및 Git 규칙
-- `CHANGELOG.md`: 사용자 관점의 큰 이정표
-- `RELEASE_NOTES_v2.0.1.md`: v2.0.1 GitHub Release용 영어·한국어 설명
-- `RELEASE_NOTES_v2.0.0.md`: 이전 v2.0.0 GitHub Release 기록
-- `RELEASE_NOTES_v1.3.0.md`: 이전 v1.3.0 GitHub Release 기록
-- `PACKAGE_README.md`: 배포 ZIP 루트에 들어가는 HTML 없는 영어·한국어 안내
-- `../DXDisplayCleanup`: 번들 선택형 Android 복구·파일 전송 앱 소스와 빌드 문서
+- [Overview and download entry](../README.md)
+- [English user guide](USER_GUIDE_EN.md) · [한국어 사용 설명서](USER_GUIDE_KO.md)
+- [English FAQ](FAQ_EN.md) · [한국어 자주 묻는 질문](FAQ_KO.md)
+- [2.5.0 release notes](RELEASE_NOTES_v2.5.0.md)
+- [Exact checksums and verification scope](VERIFICATION_v2.5.0.md)
+- [Required third-party notices](../DexManager/licenses/THIRD_PARTY_NOTICES.md)
 
-사용자용 README는 저장소 루트의 `README.md`, 영어/한국어 설명서는
-`docs/USER_GUIDE_EN.md`, `docs/USER_GUIDE_KO.md`를 사용한다. 자주 묻는
-질문은 독립 문서인 `docs/FAQ_EN.md`, `docs/FAQ_KO.md`에서 관리하고 각
-사용 설명서와 README에서 링크한다.
+The binary ZIP contains embedded app help/FAQ and a short README, not these source guides/screenshots.
 
-## 2026-10-05 Store 후속 업데이트 인계
+### For development and release preparation
 
-- [STORE_UPDATE_HANDOFF_2026-10-05.md](STORE_UPDATE_HANDOFF_2026-10-05.md): Companion2.1.4·Fluent 아이콘/마우스·미니바 연결 표시, 최종 실행 정책과 Store 적용 위치·검증 체크리스트.
+- [Experimental120 FPS and local update notes](PORTABLE_120FPS_2026-10-19.md)
 
-## v2.5.0 최종본
+- [Building and shared-component requirements](BUILDING.md)
+- [Current handoff](HANDOFF.md) · [Project brief](PROJECT_BRIEF.md)
+- [Technical notes](TECH_NOTES.md) · [Known constraints](KNOWN_ISSUES.md)
+- [Workflow and publication approval](AI_WORKFLOW.md)
+- [Documentation inventory/audit](DOCUMENTATION_AUDIT_2026-10-16.md)
+- [Portable screenshot comparison and shot list](SCREENSHOT_PLAN_v2.5.0.md)
+- [Final local artifact record](FINAL_250_2026-10-16.md)
+- [Session history](SESSION.md) · [TODO](TODO.md) · [Decisions](DECISIONS.md) · [Change history](CHANGELOG.md)
+- [Shared Companion migration](SHARED_COMPANION_2026-10-12.md) · [Current migration notice](../DXDisplayCleanup/README.md)
 
-- [RELEASE_NOTES_v2.5.0.md](RELEASE_NOTES_v2.5.0.md): 사용자 검증 완료를 바탕으로 준비한2.5.0의 변경·번들·검증·배포 대기 상태.
+### Historical and separate-platform records
 
-## Windows 7 글꼴 비교 도구
+- [v2.0.1](RELEASE_NOTES_v2.0.1.md), [v2.0.0](RELEASE_NOTES_v2.0.0.md), [v1.3.0](RELEASE_NOTES_v1.3.0.md):
+  facts and hashes for those specific releases.
+- [Store UI backport](STORE_UI_BACKPORT_2026-10-01.md), [portable audit](PORTABLE_BACKPORT_AUDIT_2026-09-30.md),
+  font/preview/Store handoff notes retain their original dates and evidence boundaries.
+- The public main also contains a [separate macOS guide](https://github.com/maze-mei/DX-Manager/blob/main/docs/MACOS_GUIDE.md)
+  and platform packaging/workflow files. Their absence from the local Windows branch is not deletion approval.
 
-- [FONT_LAB_2026-10-06.md](FONT_LAB_2026-10-06.md): 본체 수정 없이 회사 PC에서 현재 글꼴/맑은 고딕/다른 표시 방식을 비교하는 독립 테스트.
-- [FONT_LAB2_2026-10-07.md](FONT_LAB2_2026-10-07.md): 회사 결과를 바탕으로 공식 TTF·표시 설정 보정·GDI+ 보정 제외를 비교하는 두 번째 테스트.
+## 한국어
 
-- [F2_UI_PREVIEW_2026-10-08.md](F2_UI_PREVIEW_2026-10-08.md): 실제 포터블 F2 표시·Store 실행 버튼 정렬·도움말 강조 상자 높이 프리뷰.
-
-- [FIXED_PREVIEW_2026-10-08.md](FIXED_PREVIEW_2026-10-08.md): 고정 폴더 덮어쓰기 프리뷰·아이콘/대비·승인된 dist 정리.
+현재 문서 기준은 **Windows 2.5.0 / scrcpy 5.0.1 / 공용 정식 Companion 2.1.6**입니다.
+2.5.0은 로컬 준비본이고 현재 공개된 Windows 릴리스는2.0.1입니다.
+사용자는 위 사용 설명서·FAQ, 개발자는 빌드 안내·현재 인수인계·문서 감사·촬영 목록을 확인하세요.
+오래된 버전별 해시·검증·정책 기록과 원격 전용 macOS 문서는 현재 Windows 동작과 구분해 보존합니다.
+새 사진과 공개 소스 의존성 준비가 끝나도, 배포는 메이님의 명시적 지시 후 진행합니다.

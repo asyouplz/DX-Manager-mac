@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -622,7 +622,7 @@
   <data name="AboutDeveloperText.Text" xml:space="preserve"><value>개발자: maze</value></data>
   <data name="AboutCopyrightText.Text" xml:space="preserve"><value>Copyright © 2026 maze</value></data>
   <data name="AboutLicenseText.Text" xml:space="preserve"><value>DX Manager는 MIT License 조건으로 제공됩니다.</value></data>
-  <data name="AboutScrcpyText.Text" xml:space="preserve"><value>이 프로그램은 scrcpy 4.1을 포함하고 사용합니다. scrcpy는 Genymobile과 Romain Vimont가 Apache License 2.0으로 배포하는 오픈소스 소프트웨어입니다.</value></data>
+  <data name="AboutScrcpyText.Text" xml:space="preserve"><value>이 프로그램은 scrcpy 5.0.1을 포함하고 사용합니다. scrcpy는 Genymobile과 Romain Vimont가 Apache License 2.0으로 배포하는 오픈소스 소프트웨어입니다.</value></data>
   <data name="AboutLibrariesText.Text" xml:space="preserve"><value>동봉된 FFmpeg 라이브러리는 LGPL v2.1 이상, SDL3는 zlib, libusb는 LGPL v2.1 이상에 따라 배포됩니다. 자세한 내용은 제3자 라이선스를 확인하십시오.</value></data>
   <data name="AboutSamsungText.Text" xml:space="preserve"><value>이 프로그램은 호환되는 Samsung 장치에서 Samsung DeX 기능과 함께 동작하지만 Samsung Electronics가 제작, 후원, 보증 또는 배포하는 제품이 아닙니다. Samsung 및 Samsung DeX는 각 권리자의 상표입니다.</value></data>
   <data name="AboutDisclaimerText.Text" xml:space="preserve"><value>사용자는 DX Manager를 통해 Android 개발자 옵션과 ADB를 사용하거나 장치 설정을 변경할 때 관련 법률, 기기 보증 조건 및 소속 조직의 정책을 준수할 책임이 있습니다. 법률이 허용하는 범위에서 개발자는 이 프로그램의 사용 또는 오용으로 발생한 데이터 손실, 설정 변경, 기기 오작동 및 기타 직접·간접 손해에 책임을 지지 않습니다.</value></data>
@@ -639,4 +639,22 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="ExperimentalFpsWarningTitle" xml:space="preserve"><value>120 FPS 사용 경고</value></data>
+  <data name="ExperimentalFpsWarningAccept" xml:space="preserve"><value>확인하고 120 FPS 사용</value></data>
+  <data name="ExperimentalFpsScreenWarning" xml:space="preserve"><value>120 FPS 모드는 휴대폰 화면을 반드시 켜두어야 합니다. ‘폰 화면 끄기’ 옵션은 자동으로 해제되며, 이 모드에서는 사용할 수 없습니다.</value></data>
+  <data name="ExperimentalFpsRiskWarning" xml:space="preserve"><value>발열과 배터리 소모가 증가합니다. OLED 화면에 고정 이미지를 장시간 표시하면 영구적인 잔상인 번인이 발생할 수 있습니다.</value></data>
+  <data name="ExperimentalFpsCareWarning" xml:space="preserve"><value>장시간 사용하거나 켜둔 채 방치하지 마세요. 휴대폰이 과열되면 사용을 중단하세요.</value></data>
+  <data name="ExperimentalFpsLimitWarning" xml:space="preserve"><value>실험적 최대 FPS 설정입니다. 실제 FPS는 기기·앱·입력 상태에 따라 낮아질 수 있으며, 120 FPS 고정 동작을 보장하지 않습니다.</value></data>
+  <data name="UpdateNoticeTitle" xml:space="preserve"><value>DX Manager {0} 변경사항</value></data>
+  <data name="UpdateNoticeIntro" xml:space="preserve"><value>이번 버전의 주요 변경사항입니다. 기존 설정은 그대로 유지됩니다.</value></data>
+  <data name="UpdateNoticeFps" xml:space="preserve"><value>• 최대 120 FPS 실험적 옵션을 추가했습니다. 기본값은 60 FPS이며, 120 FPS 실행 전마다 발열·배터리·번인 주의사항을 확인합니다.</value></data>
+  <data name="UpdateNoticeScreenOff" xml:space="preserve"><value>• 120 FPS에서는 폰 화면 끄기를 자동 해제하고, 30/60 FPS로 돌아오면 이전 설정을 복원합니다. 실제 FPS는 기기·앱·입력 상태에 따라 달라집니다.</value></data>
+  <data name="UpdateNoticeScrcpy" xml:space="preserve"><value>• scrcpy를 5.0.1로 업데이트했습니다. Windows H.265 하드웨어 디코딩 등 공식 수정사항이 포함됩니다.</value></data>
+  <data name="UpdateNoticeCompanion" xml:space="preserve"><value>• 포함된 DX Companion: {0}. 휴대폰 설치·업데이트는 설정에서 직접 진행해주세요.</value></data>
+  <data name="UpdateNoticeConfirm" xml:space="preserve"><value>확인</value></data>
+  <data name="ExperimentalFpsOption" xml:space="preserve"><value>120 (실험적)</value></data>
+  <data name="ConnectionUsb.Content" xml:space="preserve"><value>USB</value></data>
+  <data name="ConnectionWireless.Content" xml:space="preserve"><value>Wi-Fi</value></data>
+  <data name="DiagnosticsEnvironmentText.Text" xml:space="preserve"><value>검사를 시작하지 않았습니다.</value></data>
+  <data name="DiagnosticsReportStatusText.Text" xml:space="preserve"><value>민감한 값을 가린 보고서를 저장합니다.</value></data>
 </root>

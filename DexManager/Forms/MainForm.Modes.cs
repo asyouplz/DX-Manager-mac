@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
@@ -37,7 +37,6 @@ namespace DexManager.Forms
                 _flexDisplayBox.Visible = false;
                 _flexDisplayBox.Enabled = false;
                 LayoutStartAppControls(false);
-                SetAppProfileControlsVisible(false);
             }
             else
             {
@@ -55,9 +54,9 @@ namespace DexManager.Forms
                 _flexDisplayBox.Visible = true;
                 _flexDisplayBox.Enabled = true;
                 LayoutStartAppControls(true);
-                SetAppProfileControlsVisible(true);
             }
             LoadRunSettings();
+            SetAppProfileControlsVisible(slot > 0);
             LayoutDesktopContent();
             UpdateRunningState();
         }
@@ -163,7 +162,7 @@ namespace DexManager.Forms
             _heightBox.ValueChanged += changed;
             _dpiBox.ValueChanged += changed;
             _bitRateBox.TextChanged += changed;
-            _maxFpsBox.SelectedIndexChanged += changed;
+            _maxFpsBox.SelectedIndexChanged += MaxFpsSelectionChanged;
             _turnScreenOffBox.CheckedChanged += changed;
             _stayAwakeBox.CheckedChanged += changed;
             _useHidKeyboardBox.CheckedChanged += changed;

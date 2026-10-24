@@ -239,6 +239,7 @@ namespace DexManager.Forms
             {
                 var results = await Task.Run(
                     delegate { return _checkService.Run(); });
+                if (IsDisposed || Disposing) return;
                 _lastResults = results;
                 ShowResults(results);
                 var failed = results.Count(
@@ -258,6 +259,7 @@ namespace DexManager.Forms
             }
             catch (Exception ex)
             {
+                if (IsDisposed || Disposing) return;
                 var failed = new EnvironmentCheckItem
                 {
                     Name = LocalizationService.Get(
@@ -272,7 +274,7 @@ namespace DexManager.Forms
             }
             finally
             {
-                _checkButton.Enabled = true;
+                if (!IsDisposed && !Disposing) _checkButton.Enabled = true;
             }
         }
 

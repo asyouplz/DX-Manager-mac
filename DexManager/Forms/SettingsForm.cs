@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -14,6 +14,7 @@ namespace DexManager.Forms
 {
     public sealed partial class SettingsForm : Form, IMessageFilter
     {
+        internal Action<Form> UpdateCheckRequested { get; set; }
         private const int CardContentTop = 44;
         private const int CardContentBottom = 18;
         private static int CardWidth { get { return _desktopCardWidth; } }

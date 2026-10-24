@@ -428,12 +428,18 @@ namespace DexManager.Services
 
         public ProcessResult Connect(string endpoint, bool writeLog)
         {
+            return Connect(endpoint, writeLog, _defaultTimeoutMs);
+        }
+
+        public ProcessResult Connect(string endpoint, bool writeLog, int timeoutMs)
+        {
             if (string.IsNullOrWhiteSpace(endpoint))
                 throw new ArgumentException(
                     LocalizationService.Get(
                         "Error.Adb.WirelessEndpointEmpty"),
                     "endpoint");
-            return Run("connect " + Quote(endpoint.Trim()), writeLog);
+            return Run("connect " + Quote(endpoint.Trim()), writeLog,
+                Math.Min(_defaultTimeoutMs, Math.Max(1000, timeoutMs)));
         }
 
         public ProcessResult Disconnect(string endpoint)

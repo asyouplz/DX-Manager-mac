@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
@@ -357,6 +357,7 @@ namespace DexManager.Forms
             _maxFpsBox.TabIndex = 5;
             _maxFpsBox.Items.Add(30);
             _maxFpsBox.Items.Add(60);
+            _maxFpsBox.Items.Add(new ExperimentalFpsOption());
             _resolutionLabel = AddFieldLabel(
                 LocalizationService.Get("Main.Resolution"), 32, 269);
             _widthLabel = AddFieldLabel(LocalizationService.Get("Main.Width"), 240, 269);
@@ -541,12 +542,16 @@ namespace DexManager.Forms
         private async void MainForm_Shown(object sender, EventArgs e)
         {
             var onboarding = new PortableOnboardingService(System.IO.Path.GetDirectoryName(_settingsService.SettingsFilePath));
+            var existingInstallation = onboarding.HasAcceptedAnyFirstRunNotice;
             if (onboarding.ShouldShowNoticeForLaunch())
             {
                 if (!DesktopDialogs.ConfirmFirstRun(this)) { _allowExit = true; Close(); return; }
                 string error;
                 if (!onboarding.TryAccept(out error)) ShowDesktopNotice(StoreUiText.Get("FirstRunDialogSaveFailed", "The acknowledgement could not be saved; this notice may appear again.") + " " + error, DesktopNoticeKind.Warning);
             }
+            if (_exitInProgress || IsDisposed) return;
+            ShowLocalUpdateNotice(existingInstallation, System.IO.Path.GetDirectoryName(_settingsService.SettingsFilePath));
+            if (_exitInProgress || IsDisposed) return;
             _logService.Info(
                 LocalizationService.Get("Log.Main.Shown"));
             try { _captureCoordinator.Start(); }
@@ -577,10 +582,11 @@ namespace DexManager.Forms
             _miniControlBarManager.Start();
             _interactiveServicesStarted = true;
 
+            BeginAutomaticUpdateCheck();
             await InitializeAdbAndMonitorAsync();
             if (_exitInProgress || IsDisposed) return;
             if (_isAutoRun && _settings.Features.StartMinimizedToTray)
-                BeginInvoke((Action)HideToTray);
+                BeginInvoke((Action)delegate { if (!_explicitShowRequested) HideToTray(); });
         }
     }
 }

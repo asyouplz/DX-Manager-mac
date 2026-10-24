@@ -463,3 +463,45 @@ The earlier manual-start-only interpretation after transport loss was too broad.
 ## 2026-10-05 Microsoft icon trial
 
 Use a pinned MIT-licensed Fluent UI System Icons subset for portable small icons, with the original renderer retained for comparison/recovery. Keep the large custom phone artwork and logo. Original SVGs are retained; embedded transparent masks avoid Windows-version icon-font dependency and new runtime libraries. Document the standalone mouse as a derivative of Keyboard Mouse rather than an official separately named icon. Mini-bar connection display follows authorized observed transports per physical-device manager and never chooses a launch transport or changes session command targets. Store remains unchanged until the user accepts the appearance.
+
+## Official update checks and private-feature exclusion (2026-10-15)
+
+Port the accepted private UI/lifecycle fixes without its accessibility, app caches, AI keymaps,
+package identities or protocol. Use the shared signed official2.1.5 APK and original Guardian1.
+Keep runtime files in the source bundle and verify every generated copy against the pinned release.
+
+Automatic update checks run once on the first launch of each local calendar day. Persist each
+attempt before networking; offline/error results never cause an automatic retry. If state cannot
+be persisted, skip automatic networking. Manual checks are explicit and remain available.
+Separate update-check.json preserves existing application settings and schema.
+Use a5-second overall background deadline plus request/read limits and a physical-request gate,
+so slow DNS/proxy/TLS cannot queue unlimited requests or block the UI/shutdown path.
+Only numeric newer stable versions and this repository's HTTPS release links are accepted.
+
+Automatic information uses a themed main banner or tray notification; manual results use an
+owner-centered themed dialog. Closing Main-to-tray closes pending dialogs and late results are ignored.
+A separate development-only preview demonstrates real dialog classes offline, using example versions.
+## 2026-10-16 documentation and publication boundary
+
+The maintainer explicitly clarified that a clean antivirus result is not permission to publish.
+README/FAQ/guides and screenshot preparation are local-only until an explicit release instruction.
+Keep the exact scanned EXE/APK/ZIP bytes. A GitHub-only documentation edit is not an embedded-help rebuild.
+The approved portable branch started from localv2.0.1 and lacks remote-main macOS additions; preserve them
+when preparing a future integration rather than replacing remote main with this branch wholesale.
+The external canonical Companion remains one maintained source. Its public dependency/snapshot must be
+included or obtainable for a standalone source checkout before publishing2.5.0 source; do not restore
+an older per-product APK/tree or duplicate ongoing Android maintenance to hide this gap.
+Store screenshots were compared with the actual portable UI. New app screenshots will use the current
+portable build; Android system-setting examples can remain, and no fixture mock will masquerade as a phone run.
+
+## 2026-10-19 portable 120 FPS preparation
+
+The maintainer authorized implementing the Store handoff in the portable product
+and rebuilding the fixed preview/final ZIP locally. Store is read-only; reference
+commit11050e7822c43ec409d7d943ece5d9884d997b99 is not merged.
+Added default60/experimental120, one fail-closed warning before every120 start,
+exact screen-off preference restoration, per-phone mixed-session screen policy
+and local version-scoped change notes. scrcpy5.0.1 and signed Companion2.1.6 are
+unchanged. No AI app detection, Android changes, commit/push/tag or publication.
+See PORTABLE_120FPS_2026-10-19.md for implementation and fresh verification.
+October16 scan evidence remains historical; the new EXE needs a fresh user scan.

@@ -151,6 +151,25 @@ namespace DexManager.Services
             }
         }
 
+        private readonly Dictionary<int, int> _runningMaxFps = new Dictionary<int, int>();
+        internal Func<bool> CanTurnPhoneScreenOff { get; set; }
+        public bool RequiresPhoneScreenOn
+        {
+            get
+            {
+                lock (_syncRoot)
+                {
+                    foreach (var entry in _processes)
+                    {
+                        int fps;
+                        if (_runningMaxFps.TryGetValue(entry.Key, out fps) &&
+                            FrameRateRules.RequiresScreenOn(fps) && IsProcessRunning(entry.Value)) return true;
+                    }
+                    return false;
+                }
+            }
+        }
+
         public bool IsScreenOffRequested
         {
             get
@@ -376,8 +395,9 @@ namespace DexManager.Services
         public void Start(
             int slot,
             SingleWindowSlotSettings settings,
-            string requestedSerial)
+            string requestedSerial, bool experimentalFpsConfirmed = false)
         {
+            FrameRateRules.RequireConsent(settings.MaxFps, experimentalFpsConfirmed);
             if (slot < 1 || slot > 3)
                 throw new ArgumentOutOfRangeException("slot");
             if (settings == null)
@@ -455,7 +475,7 @@ namespace DexManager.Services
                             Process_ErrorDataReceived;
                         _processes[slot] = process;
                         _stayAwakeRequests[slot] = settings.StayAwake;
-                        _screenOffRequests[slot] = settings.TurnScreenOff;
+                        _screenOffRequests[slot] = settings.TurnScreenOff && !FrameRateRules.RequiresScreenOn(settings.MaxFps);
                         _targetSerials[slot] = serial;
                         _displayIds.Remove(slot);
                         _windowHandles.Remove(slot);
@@ -479,6 +499,7 @@ namespace DexManager.Services
                                 LocalizationService.Get(
                                     "Error.Scrcpy.ShutdownRequested"));
                         }
+                        lock (_syncRoot) _runningMaxFps[slot] = settings.MaxFps;
                         process.Start();
                     }
                     _fileTransferCoordinator.BindProcess(
@@ -502,8 +523,9 @@ namespace DexManager.Services
             if (started) RaiseRunningChanged();
         }
 
-        public void Restart(int slot, SingleWindowSlotSettings settings)
+        public void Restart(int slot, SingleWindowSlotSettings settings, bool experimentalFpsConfirmed = false)
         {
+            FrameRateRules.RequireConsent(settings.MaxFps, experimentalFpsConfirmed);
             _launchCoordinator.RunExclusive(delegate
             {
                 string serial;
@@ -515,7 +537,7 @@ namespace DexManager.Services
                                 "Error.Dex.NoAuthorizedDevice"));
                 }
                 Stop(slot);
-                Start(slot, settings, serial);
+                Start(slot, settings, serial, experimentalFpsConfirmed);
             });
         }
 
@@ -688,6 +710,7 @@ namespace DexManager.Services
                 arguments.Add(
                     settings.MaxFps.ToString(CultureInfo.InvariantCulture));
             }
+            if (_runtimeInfo.MajorVersion >= 5) ScrcpyService.AddHardwareDecodingArgument(arguments, settings.AdditionalArguments);
             if (settings.UseHidKeyboard) arguments.Add("-K");
             if (settings.UseHidMouse) arguments.Add("-M");
             if (settings.StayAwake)
@@ -705,7 +728,8 @@ namespace DexManager.Services
                         "Log.Scrcpy.FlexDisplayUnsupported"));
                 }
             }
-            if (settings.TurnScreenOff)
+            if (settings.TurnScreenOff && !FrameRateRules.RequiresScreenOn(settings.MaxFps) &&
+                (CanTurnPhoneScreenOff == null || CanTurnPhoneScreenOff()))
             {
                 arguments.Add("-S");
                 arguments.Add("--no-power-on");

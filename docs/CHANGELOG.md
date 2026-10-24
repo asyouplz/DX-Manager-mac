@@ -1,4 +1,4 @@
-# Changelog
+﻿# Changelog
 
 세부 변경은 Git 이력을 사용하고 여기에는 큰 이정표만 적는다.
 
@@ -299,3 +299,40 @@
 - 공식 서명 Companion2.1.4 및 첫 실행 동의 기록 존중.
 - 메이님 실기 확인 후 최종본/2.5.0/로컬 커밋 요청. 공개 배포와 바이러스 검사는 별도 대기.
 - 상세 변경: RELEASE_NOTES_v2.5.0.md.
+
+## 2026-10-15 — official2.5.0 review candidate
+
+- Bundle scrcpy5.0.1 and explicit automatic decoding; retain Windows7 legacy ADB.
+- Consolidate accepted non-AI UI, transfer, tray, slot-notice and wireless fixes.
+- Add daily background GitHub release checks, manual checking, themed notifications and full scrcpy diagnostics.
+- Bundle the shared official Companion2.1.5; private AI features remain separate.
+- 정식2.5.0 검토본에scrcpy5.0.1·최신 UI/동작 수정·하루 한 번 업데이트 확인을 반영한다.
+  정식Companion2.1.5를 사용하며 앱 자동 감지와 AI 키맵은 포함하지 않는다.
+
+## 2026-10-16 final2.5.0 packaging
+
+- Shared Companion2.1.6 ends idle protection after disconnect and verified cleanup; existing recovery remains for active/unverified settings.
+- Fresh minimal portable package, embedded help instead of shipped guide screenshots, real first-run consent UI verification.
+- See FINAL_250_2026-10-16.md for exact outputs, hashes, user-data preservation and physical test boundaries.
+## 2026-10-16 documentation preparation (unpublished)
+
+- Review all40 current public document/configuration paths against the local Windows2.5.0 build.
+- Refresh README, English/Korean user guides and FAQs, including Q25–29 for current behavior.
+- Correct menu paths, USB-first launch/session rules, full runtime versions, consent/tray/update behavior
+  and official Companion2.1.6 notification/transfer/recovery explanations.
+- Refresh current build/project/icon/development guidance; keep old release facts and license text.
+- Record exact scan/checksum scope without replacing scanned binaries or inserting source docs into the ZIP.
+- Inspect all9 Store screenshot originals; current portable captures remain to be supplied.
+- Preserve remote-only macOS documents and track the shared-component standalone-source gate.
+
+## 2026-10-19 portable 120 FPS preparation
+
+The maintainer authorized implementing the Store handoff in the portable product
+and rebuilding the fixed preview/final ZIP locally. Store is read-only; reference
+commit11050e7822c43ec409d7d943ece5d9884d997b99 is not merged.
+Added default60/experimental120, one fail-closed warning before every120 start,
+exact screen-off preference restoration, per-phone mixed-session screen policy
+and local version-scoped change notes. scrcpy5.0.1 and signed Companion2.1.6 are
+unchanged. No AI app detection, Android changes, commit/push/tag or publication.
+See PORTABLE_120FPS_2026-10-19.md for implementation and fresh verification.
+October16 scan evidence remains historical; the new EXE needs a fresh user scan.

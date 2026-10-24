@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
@@ -103,6 +103,7 @@ namespace DexManager.Forms
             string bitRate;
             int maxFps;
             bool turnScreenOff;
+            bool? previousScreenOff;
             bool stayAwake;
             bool useHidKeyboard;
             bool useHidMouse;
@@ -123,6 +124,7 @@ namespace DexManager.Forms
                 bitRate = runSettings.Scrcpy.BitRate;
                 maxFps = runSettings.Scrcpy.MaxFps;
                 turnScreenOff = runSettings.Scrcpy.TurnScreenOff;
+                previousScreenOff = runSettings.Scrcpy.TurnScreenOffBeforeHighFps;
                 stayAwake = runSettings.Scrcpy.StayAwake;
                 useHidKeyboard = runSettings.Scrcpy.UseHidKeyboard;
                 useHidMouse = runSettings.Scrcpy.UseHidMouse;
@@ -142,6 +144,7 @@ namespace DexManager.Forms
                 bitRate = slot.BitRate;
                 maxFps = slot.MaxFps;
                 turnScreenOff = slot.TurnScreenOff;
+                previousScreenOff = slot.TurnScreenOffBeforeHighFps;
                 stayAwake = slot.StayAwake;
                 useHidKeyboard = slot.UseHidKeyboard;
                 useHidMouse = slot.UseHidMouse;
@@ -158,7 +161,10 @@ namespace DexManager.Forms
             _bitRateBox.Value = Clamp(
                 ParseBitRateNumber(bitRate),
                 _bitRateBox);
-            _maxFpsBox.SelectedItem = maxFps == 30 ? 30 : 60;
+            _maxFpsBox.SelectedItem = maxFps == 120 ? _maxFpsBox.Items[2] : (object)(maxFps == 30 ? 30 : 60);
+            _displayedMaxFps = maxFps;
+            _turnScreenOffBeforeHighFps = previousScreenOff;
+            _turnScreenOffBox.Enabled = !FrameRateRules.RequiresScreenOn(maxFps);
             _turnScreenOffBox.Checked = turnScreenOff;
             _stayAwakeBox.Checked = stayAwake;
             _useHidKeyboardBox.Checked = useHidKeyboard;
@@ -253,7 +259,10 @@ namespace DexManager.Forms
                     await ApplySingleWindowSettingsAsync(_selectedMode);
                     return;
                 }
-                var serial = GetSelectedDeviceSerial();
+                var launchOrchestrator = _orchestrator;
+                var launchSettings = CaptureSelectedRunSettings();
+                var serial = launchOrchestrator.CurrentSession == null ? GetSelectedDeviceSerial() : launchOrchestrator.CurrentSession.Serial;
+                if (launchOrchestrator.IsRunning && !await ConfirmExperimentalFrameRateAsync(launchSettings.Scrcpy.MaxFps)) return;
                 if (string.IsNullOrWhiteSpace(serial) ||
                     !_adbService.IsAuthorizedDeviceConnected(serial))
                 {
@@ -282,7 +291,7 @@ namespace DexManager.Forms
                 BeginPhoneScreenWakeSuppression();
                 try
                 {
-                    applied = await _orchestrator.ApplyRuntimeSettingsAsync();
+                    applied = await launchOrchestrator.ApplyRuntimeSettingsAsync(launchSettings, true);
                 }
                 finally
                 {
@@ -379,13 +388,15 @@ namespace DexManager.Forms
                     "Main.SingleApplying",
                     slot),
                 LocalizationService.Get("Main.SingleRestartDetail"));
-            var settings = GetSingleWindowSettings(slot);
+            var settings = AppSettings.CloneSingleWindowSlot(GetSingleWindowSettings(slot));
+            var launchService = _singleWindowService;
+            if (!await ConfirmExperimentalFrameRateAsync(settings.MaxFps)) return;
             BeginPhoneScreenWakeSuppression();
             try
             {
                 await Task.Run(delegate
                 {
-                    _singleWindowService.Restart(slot, settings);
+                    launchService.Restart(slot, settings, true);
                 });
             }
             finally
@@ -535,6 +546,7 @@ namespace DexManager.Forms
                     runSettings.Scrcpy.MaxFps = GetSelectedMaxFps();
                     runSettings.Scrcpy.TurnScreenOff =
                         _turnScreenOffBox.Checked;
+                    runSettings.Scrcpy.TurnScreenOffBeforeHighFps = _turnScreenOffBeforeHighFps;
                     runSettings.Scrcpy.StayAwake = _stayAwakeBox.Checked;
                     runSettings.Scrcpy.UseHidKeyboard =
                         _useHidKeyboardBox.Checked;
@@ -565,6 +577,7 @@ namespace DexManager.Forms
                     slot.BitRate = bitRate;
                     slot.MaxFps = GetSelectedMaxFps();
                     slot.TurnScreenOff = _turnScreenOffBox.Checked;
+                    slot.TurnScreenOffBeforeHighFps = _turnScreenOffBeforeHighFps;
                     slot.StayAwake = _stayAwakeBox.Checked;
                     slot.UseHidKeyboard = _useHidKeyboardBox.Checked;
                     slot.UseHidMouse = _useHidMouseBox.Checked;
@@ -692,7 +705,7 @@ namespace DexManager.Forms
         {
             return _maxFpsBox.SelectedItem is int
                 ? (int)_maxFpsBox.SelectedItem
-                : 60;
+                : (_maxFpsBox.SelectedItem is ExperimentalFpsOption ? 120 : 60);
         }
 
         private static int ParseBitRateNumber(string value)

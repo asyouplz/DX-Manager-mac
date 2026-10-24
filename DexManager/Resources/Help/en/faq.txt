@@ -1,6 +1,6 @@
-DX Manager Frequently Asked Questions
+﻿DX Manager Frequently Asked Questions
 
-English user guide · 한국어 Q&A
+English user guide · Korean FAQ
 
 Q1. A small screen (secondary display) remains on the phone.
 

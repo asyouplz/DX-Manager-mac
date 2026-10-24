@@ -1,4 +1,4 @@
-# DX Manager agent guidance
+﻿# DX Manager agent guidance
 
 이 파일은 저장소 전체에 적용되는 Codex 작업 규칙이다. 버전, 브랜치와 현재
 진행 상태처럼 자주 바뀌는 정보는 이 파일에 복사하지 않고 `docs/SESSION.md`와
@@ -48,7 +48,7 @@
 - 정상 종료 시 관리 대상 기기의 overlay와 DX Manager가 변경한 화면 전원 및
   절전모드 해제 상태를 가능한 범위에서 복구한다. 연결이 끊겼으면 종료를
   막거나 반복 오류를 내지 말고 실패를 로그로 남긴다.
-- Scrcpy 4.x/SDL3 환경의 오른쪽 Shift를 왼쪽 Shift 입력으로 변환하는 보정은
+- Scrcpy SDL3 환경의 오른쪽 Shift를 왼쪽 Shift 입력으로 변환하는 보정은
   의도된 호환 동작이다. 실제 기기와 키보드에서 대체 동작을 검증하지 않은 채
   제거하지 않는다.
 - 키보드 후킹과 주입 입력은 사용자 입력을 구분하고, KeyUp 누락과 재진입으로
@@ -148,3 +148,18 @@
   이번 정리에서 보존했다. Store 산출물을 임의로 덮어쓰거나 정리하지 않는다.
 - exe 실행 파일은 클릭 가능한 절대 경로 링크로 제공한다. ZIP은 Codex에서
   미리보기를 지원하지 않으므로 ZIP 링크를 기본 실행 안내로 사용하지 않는다.
+
+
+## Shared Companion — user instruction 2026-10-12
+Official Android source/APK are now managed only in E:\vs\DX Companion Shared.
+Read its AGENTS.md/README.md/CHANGELOG.md/release.json before Android changes; record GitHub/Store workroom and thread.
+Use this repo Android wrappers; do not revive the old per-product source. Signing keys stay in trusted original paths.
+Both PC editions compile the same shared release constants and copy the verified official APK. Test APK stays separate.
+This migration does not authorize commit/push/upload or changing the other PC product UI.
+
+## Publication approval — user clarification 2026-10-16
+
+Antivirus results or confirmation that files are clean are not publication approval.
+Prepare requested documents locally; wait for the user's explicit instruction to publish before
+commit/push/tag/release creation or remote documentation changes. Preserve the scanned release bytes
+during a documentation-only task. Review remote-only macOS files before any future main integration.

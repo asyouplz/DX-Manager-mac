@@ -1,5 +1,55 @@
 ﻿# TODO
 
+## 2026-10-24 local final checkpoint
+
+- [x] Package latest accepted UI/120 FPS/Companion/update behavior as fixed DX-Manager-win-x64.zip with a versioned inner folder.
+- [x] Verify39 payload files, clean first-run state, original APK/runtime hashes and identity with the702-check EXE.
+- [ ] Refresh all public docs and image references later, using the maintainer-approved photo selection.
+- [ ] Resolve public shared-Companion source availability and preserve remote macOS work before a future publication.
+- [ ] Push/tag/release and rename the2.0.1 GitHub asset only on a later explicit publication instruction.
+
+
+## 2026-10-24 English screenshot checks
+
+- [x] Fix English diagnostics initial/status fallback text and embedded FAQ Korean label.
+- [x] Reduce only English Help sidebar text14px to13px; preserve Korean font size.
+- [x] Audit English resources and runtime UI; add English UI checks to the standard verifier.
+- [ ] Include this fix and the diagnostics header fix in the next authorized final ZIP, using the agreed fixed ZIP filename and versioned internal folder.
+
+
+## 2026-10-24 screenshot preparation
+
+- [x] Fix Settings environment-check Refresh button coverage; verify both themes, long paths, resizing and repeat refresh; update fixed preview.
+- [ ] On the maintainer's release instruction, include this fix in the final package. Use fixed archive name DX-Manager-win-x64.zip with a versioned DX Manager v2.5.0 folder inside, as agreed on October22. The current October19 version-named ZIP was preserved.
+
+
+## 2026-10-19 portable 120 FPS preparation
+
+The maintainer authorized implementing the Store handoff in the portable product
+and rebuilding the fixed preview/final ZIP locally. Store is read-only; reference
+commit11050e7822c43ec409d7d943ece5d9884d997b99 is not merged.
+Added default60/experimental120, one fail-closed warning before every120 start,
+exact screen-off preference restoration, per-phone mixed-session screen policy
+and local version-scoped change notes. scrcpy5.0.1 and signed Companion2.1.6 are
+unchanged. No AI app detection, Android changes, commit/push/tag or publication.
+See PORTABLE_120FPS_2026-10-19.md for implementation and fresh verification.
+October16 scan evidence remains historical; the new EXE needs a fresh user scan.
+
+
+## Current release preparation — 2026-10-16
+
+- [x] Final Windows2.5.0/Companion2.1.6 built; user reports clean antivirus checks.
+- [x] Inventory40 public document/configuration paths and6 historical release descriptions.
+- [x] Refresh current README, English/Korean guides/FAQ and source/developer guidance locally.
+- [x] Compare all9 supplied Store originals; preserve old files and remove outdated app references.
+- [ ] Receive actual portable2.5.0 README/guide screenshots and connect them with matching captions.
+- [ ] Provide/pin the official shared Companion dependency and verify an independent source checkout.
+- [ ] Preserve remote-main macOS additions during a future source integration.
+- [ ] Publish only when the maintainer explicitly says to publish. Clean scan results are not approval.
+
+[Documentation audit](DOCUMENTATION_AUDIT_2026-10-16.md) · [Screenshot plan](SCREENSHOT_PLAN_v2.5.0.md).
+Older dated checklists below describe their historical stages and are not the current release backlog.
+
 ## 2026-10-01 사용자 UI 오류 수정
 
 - [x] 중앙 배치, 연결 해제 선택기/시작 보호, 폰 이름만 표시.
@@ -443,3 +493,23 @@
 - [ ] 사용자 집 PC 선명도 및 통합Win7/native입력 확인.
 - 상세: [FIXED_PREVIEW_2026-10-08.md](FIXED_PREVIEW_2026-10-08.md).
 - [x] 큰 한글 제목 회귀: 현대 Windows ClearTypeGridFit 분기를 제거하고 전 OS F2 AntiAlias 표시/측정으로 복원; 집 PC 재확인 대기.
+
+## 2026-10-15 official2.5.0 consolidation
+
+- [x] Port accepted non-AI transfer UI, tray/relaunch, slot notice, TLS status and wireless fixes.
+- [x] Pin official scrcpy5.0.1 runtime; add auto decoder arguments without overriding explicit choices.
+- [x] Keep shared official Companion2.1.5/code12 and protocol1; exclude private app tracking/AI rules.
+- [x] Daily first-launch update checks, offline/no-retry deadline and themed notifications/manual check.
+- [x] Full selected scrcpy version in environment inspection; asynchronous result rendering and fit.
+- [x] Add repeatable actual-assembly mock/UI/transport/runtime verification and offline dialog preview.
+- [x] Final packaged identity/preservation check; record results in OFFICIAL_250_UPDATE_2026-10-15.md.
+- [ ] User final real-phone and Windows-shutdown recovery check.
+- [ ] Virus scanning, local commit and publication only when separately requested/authorized.
+## 2026-10-16 final preparation
+
+- [x] Shared official Companion2.1.6/code13 idle-disconnect stop, guarded callbacks and signed build.
+- [x] Fresh final2.5.0 folder; explicit runtime/license payload; exclude external docs/images and private state.
+- [x] First-run light/dark modal, checkbox/default action, decline, save and relaunch verified.
+- [x]505 Windows checks;34 Android tests; final hashes, official signature and existing config preservation.
+- [ ] User: update Companion to2.1.6 and verify disconnect notification disappears after completed recovery.
+- [ ] User: actual Windows-shutdown recovery and virus scan; local commit/upload only on explicit instruction.

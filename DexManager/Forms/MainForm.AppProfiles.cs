@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using DexManager.Models;
@@ -332,6 +332,7 @@ namespace DexManager.Forms
                 BitRate = source.BitRate,
                 MaxFps = source.MaxFps,
                 TurnScreenOff = source.TurnScreenOff,
+                TurnScreenOffBeforeHighFps = source.TurnScreenOffBeforeHighFps,
                 StayAwake = source.StayAwake,
                 UseHidKeyboard = source.UseHidKeyboard,
                 UseHidMouse = source.UseHidMouse,

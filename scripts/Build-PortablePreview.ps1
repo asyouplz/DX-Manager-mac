@@ -17,8 +17,9 @@ foreach($process in Get-Process -Name DXManager -ErrorAction SilentlyContinue) {
         throw 'The fixed preview is running. Exit it from the tray before rebuilding.'
     }
 }
-$parameters=@{NoArchive=$true;Version='2.5.0-preview';OutputRoot=$stageRoot;PackageDirectoryName='payload'}
-if($SkipBuild){$parameters.SkipBuild=$true}
+if(!$SkipBuild){& (Join-Path $PSScriptRoot 'Verify-OfficialBuild.ps1')}
+$parameters=@{NoArchive=$true;Version='2.5.0';OutputRoot=$stageRoot;PackageDirectoryName='payload'}
+$parameters.SkipBuild=$true
 & (Join-Path $PSScriptRoot 'Package-Release.ps1') @parameters
 
 New-Item -ItemType Directory -Path $preview -Force | Out-Null
@@ -38,8 +39,29 @@ foreach($relative in $managed) {
     New-Item -ItemType Directory -Path ([IO.Path]::GetDirectoryName($target)) -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $stage $relative) -Destination $target -Force
 }
+# Obsolete packaged guides were managed files; remove their now-empty directories only.
+$oldDocs=Join-Path $preview 'docs'
+if(Test-Path -LiteralPath $oldDocs) {
+    foreach($directory in @(Get-ChildItem -LiteralPath $oldDocs -Recurse -Directory | Sort-Object { $_.FullName.Length } -Descending)) {
+        if(@(Get-ChildItem -LiteralPath $directory.FullName -Force).Count -eq 0){Remove-Item -LiteralPath $directory.FullName -Force}
+    }
+    if(@(Get-ChildItem -LiteralPath $oldDocs -Force).Count -eq 0){Remove-Item -LiteralPath $oldDocs -Force}
+}
 $configDir=Join-Path $preview 'config'; New-Item -ItemType Directory -Path $configDir -Force | Out-Null
 Copy-Item -LiteralPath (Join-Path $stage 'config\README.txt') -Destination $configDir -Force
 [IO.File]::WriteAllText($manifest,([pscustomobject]@{Folder='DX Manager Preview';Files=$managed} | ConvertTo-Json -Depth 4),[Text.UTF8Encoding]::new($true))
+& (Join-Path $PSScriptRoot 'Sync-ScrcpyRuntime.ps1') -DestinationRoot (Join-Path $preview 'tools\scrcpy')
+$pin=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'scrcpy-runtime.json') -Raw | ConvertFrom-Json
+$companion=Get-Content -LiteralPath (Join-Path $repo '..\DX Companion Shared\release.json') -Raw | ConvertFrom-Json
+$identity=[pscustomobject]@{
+ Version='2.5.0';Edition='Official GitHub portable';AutomaticAppTracking=$false
+ ExeSha256=(Get-FileHash -LiteralPath (Join-Path $preview 'DXManager.exe')).Hash
+ ScrcpyVersion=$pin.Version;ScrcpyArchiveSha256=$pin.ArchiveSha256
+ ScrcpyExeSha256=(Get-FileHash -LiteralPath (Join-Path $preview 'tools\scrcpy\scrcpy.exe')).Hash
+ ScrcpyServerSha256=(Get-FileHash -LiteralPath (Join-Path $preview 'tools\scrcpy\scrcpy-server')).Hash
+ CompanionVersion=$companion.VersionName;CompanionPackage=$companion.PackageName
+ CompanionSha256=(Get-FileHash -LiteralPath (Join-Path $preview 'tools\companion\DX-Companion.apk')).Hash
+}
+[IO.File]::WriteAllText((Join-Path $preview 'official-build-identity.json'),($identity | ConvertTo-Json),[Text.UTF8Encoding]::new($true))
 Write-Host "Fixed preview: $preview"
 Write-Host 'Existing settings, acknowledgement, logs and captures were preserved. No ZIP created.'

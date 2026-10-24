@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
@@ -177,7 +177,12 @@ namespace DexManager.Forms
         private void ApplyThemeSelection(AppTheme theme)
         {
             _theme = ThemeColors.Use(theme);
+            ApplyUpdateTheme();
             ApplyTheme();
+            if (_fileTransferStatusForm != null && !_fileTransferStatusForm.IsDisposed)
+                _fileTransferStatusForm.ApplyCurrentTheme();
+            if (_phoneTransferStatusForm != null && !_phoneTransferStatusForm.IsDisposed)
+                _phoneTransferStatusForm.ApplyCurrentTheme();
             if (_settingsForm != null &&
                 !_settingsForm.IsDisposed)
             {

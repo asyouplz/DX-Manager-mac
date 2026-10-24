@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$Version = "",
     [switch]$SkipBuild,
     [switch]$NoArchive,
@@ -19,11 +19,11 @@ if ($PackageDirectoryName.IndexOfAny([IO.Path]::GetInvalidFileNameChars()) -ge 0
     throw "The package directory must be a single valid folder name."
 }
 $packageRoot = Join-Path $distRoot $PackageDirectoryName
-$companionApkSource = Join-Path $repoRoot `
-    "DXDisplayCleanup\bundled\DX-Companion-v2.1.4.apk"
-$companionApkSha256 = `
-    "95DAF4E734FD36FE07AD8388FE8E4C98D96D1EFA0A8E359D8C8E3E27383B6536"
-$companionFontLicense = Join-Path $repoRoot "DXDisplayCleanup\Pretendard-LICENSE.txt"
+$companionSharedRoot = [IO.Path]::GetFullPath((Join-Path $repoRoot '..\DX Companion Shared'))
+$companionRelease = Get-Content -LiteralPath (Join-Path $companionSharedRoot 'release.json') -Raw | ConvertFrom-Json
+$companionApkSource = Join-Path $companionSharedRoot $companionRelease.ApkRelativePath
+$companionApkSha256 = $companionRelease.ApkSha256
+$companionFontLicense = Join-Path $companionSharedRoot 'licenses\Pretendard-LICENSE.txt'
 
 function Assert-ChildPath([string]$Parent, [string]$Child) {
     $parentPath = [IO.Path]::GetFullPath($Parent).TrimEnd('\') + '\'
@@ -52,7 +52,13 @@ function Find-MSBuild {
     throw "MSBuild was not found. Build Release in Visual Studio, then run this script with -SkipBuild."
 }
 
-if (Get-Process DXManager -ErrorAction SilentlyContinue) {
+if (Get-Process DXManager -ErrorAction SilentlyContinue | Where-Object {
+    try {
+        !$_.HasExited -and $_.Path -and (
+            [IO.Path]::GetFullPath($_.Path).Equals((Join-Path $releaseRoot 'DXManager.exe'),[StringComparison]::OrdinalIgnoreCase) -or
+            [IO.Path]::GetFullPath($_.Path).Equals((Join-Path $packageRoot 'DXManager.exe'),[StringComparison]::OrdinalIgnoreCase))
+    } catch { $false }
+}) {
     throw "DX Manager is running. Exit it before creating a release package."
 }
 
@@ -123,6 +129,8 @@ if (!$SkipBuild) {
     }
 }
 
+& (Join-Path $PSScriptRoot 'Sync-ScrcpyRuntime.ps1') -DestinationRoot (Join-Path $releaseRoot 'tools\scrcpy')
+
 $requiredOutput = @(
     "DXManager.exe",
     "DXManager.exe.config",
@@ -149,10 +157,10 @@ $requiredFiles = @(
     "tools\scrcpy\AdbWinApi.dll",
     "tools\scrcpy\AdbWinUsbApi.dll",
     "tools\scrcpy\SDL3.dll",
-    "tools\scrcpy\avcodec-62.dll",
-    "tools\scrcpy\avformat-62.dll",
-    "tools\scrcpy\avutil-60.dll",
-    "tools\scrcpy\swresample-6.dll",
+    "tools\scrcpy\avcodec-63.dll",
+    "tools\scrcpy\avformat-63.dll",
+    "tools\scrcpy\avutil-61.dll",
+    "tools\scrcpy\swresample-7.dll",
     "tools\scrcpy\libusb-1.0.dll",
     "licenses\DX-Manager-MIT-LICENSE.txt",
     "licenses\THIRD_PARTY_NOTICES.md",
@@ -182,7 +190,7 @@ if (![string]::Equals(
     $actualCompanionHash,
     $companionApkSha256,
     [StringComparison]::OrdinalIgnoreCase)) {
-    throw "The signed DX Companion APK hash does not match the verified 2.1.4 APK."
+    throw "The signed DX Companion APK hash does not match the verified shared official APK."
 }
 
 if (!(Test-Path -LiteralPath $companionFontLicense -PathType Leaf)) {
@@ -203,12 +211,19 @@ if ($Version -notmatch '^[0-9A-Za-z][0-9A-Za-z._-]*$') {
     throw "The version contains unsupported filename characters: $Version"
 }
 
-$zipPath = Join-Path $distRoot "DX-Manager-v$Version-win-x64.zip"
+# Keep the asset name stable for GitHub /releases/latest/download links.
+$zipPath = Join-Path $distRoot "DX-Manager-win-x64.zip"
 Assert-ChildPath $distRoot $packageRoot
 Assert-ChildPath $distRoot $zipPath
 
 New-Item -ItemType Directory -Path $distRoot -Force | Out-Null
 if (Test-Path -LiteralPath $packageRoot) {
+    if ((Get-Item -LiteralPath $packageRoot).Attributes -band [IO.FileAttributes]::ReparsePoint) {
+        throw 'The package directory must not be a reparse point.'
+    }
+    if (@(Get-ChildItem -LiteralPath $packageRoot -Recurse -Attributes ReparsePoint).Count) {
+        throw 'The package directory must not contain reparse points.'
+    }
     Remove-Item -LiteralPath $packageRoot -Recurse -Force
 }
 if (!$NoArchive -and (Test-Path -LiteralPath $zipPath)) {
@@ -220,8 +235,16 @@ New-Item -ItemType Directory -Path $packageConfig -Force | Out-Null
 Copy-Item -LiteralPath (Join-Path $repoRoot "DexManager\config\README.txt") `
     -Destination $packageConfig
 
-foreach ($item in $requiredOutput) {
-    Copy-Item -LiteralPath (Join-Path $releaseRoot $item) -Destination $packageRoot -Recurse -Force
+# Copy only runtime files and required notices; never recurse through build output.
+$runtimePin = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'scrcpy-runtime.json') -Raw | ConvertFrom-Json
+$payloadFiles = @('DXManager.exe', 'DXManager.exe.config') + $requiredFiles + @(
+    $runtimePin.Files | ForEach-Object { 'tools\scrcpy\' + $_.Name }
+)
+foreach ($relative in ($payloadFiles | Sort-Object -Unique)) {
+    $target = Join-Path $packageRoot $relative
+    Assert-ChildPath $packageRoot $target
+    New-Item -ItemType Directory -Path ([IO.Path]::GetDirectoryName($target)) -Force | Out-Null
+    Copy-Item -LiteralPath (Join-Path $releaseRoot $relative) -Destination $target -Force
 }
 
 $packageCompanionDirectory = Join-Path $packageRoot "tools\companion"
@@ -242,32 +265,15 @@ Copy-Item -LiteralPath (Join-Path $repoRoot "docs\PACKAGE_README.md") `
     -Destination $packageReadme
 Copy-Item -LiteralPath (Join-Path $repoRoot "LICENSE") -Destination $packageRoot
 
-$packageDocs = Join-Path $packageRoot "docs"
-New-Item -ItemType Directory -Path $packageDocs -Force | Out-Null
-foreach ($document in @(
-    "USER_GUIDE_EN.md",
-    "USER_GUIDE_KO.md",
-    "FAQ_EN.md",
-    "FAQ_KO.md"
-)) {
-    Copy-Item -LiteralPath (Join-Path $repoRoot "docs\$document") -Destination $packageDocs
-}
-$imageRoot = Join-Path $repoRoot "docs\images"
-if (Test-Path -LiteralPath $imageRoot) {
-    Copy-Item -LiteralPath $imageRoot -Destination $packageDocs -Recurse -Force
-}
-
-# The repository user guides link to a source-tree license path. Rewrite only
-# the generated package copies so their local links also work after extraction.
-$packageMarkdownFiles = @($packageReadme) + @(
-    Get-ChildItem -LiteralPath $packageDocs -Filter "*.md" -File |
-        ForEach-Object { $_.FullName }
-)
+$packageMarkdownFiles = @($packageReadme)
 # A BOM keeps the Korean sections readable in the Windows 7 version of
 # Notepad while remaining valid UTF-8 for Markdown viewers.
 $packageUtf8 = New-Object Text.UTF8Encoding($true)
 foreach ($markdownPath in $packageMarkdownFiles) {
     $markdown = [IO.File]::ReadAllText($markdownPath)
+    $markdown = $markdown.Replace('{{VERSION}}', $Version).
+        Replace('{{SCRCPY_VERSION}}', $runtimePin.Version).
+        Replace('{{COMPANION_VERSION}}', $companionRelease.VersionName)
     $markdown = $markdown.Replace(
         "DexManager/licenses/THIRD_PARTY_NOTICES.md",
         "licenses/THIRD_PARTY_NOTICES.md")

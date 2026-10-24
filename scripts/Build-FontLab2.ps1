@@ -1,7 +1,7 @@
-param(
+﻿param(
     [string]$OutputRoot = 'E:\vs\dex system\dist',
     [string]$Name = 'DX-Font-Lab2-20261007',
-    [string]$Python = 'C:\Users\maze1\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+    [string]$Python = 'python.exe'
 )
 $ErrorActionPreference='Stop'
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))

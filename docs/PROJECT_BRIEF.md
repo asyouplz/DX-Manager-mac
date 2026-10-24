@@ -1,126 +1,66 @@
-﻿# Project Brief
+﻿# DX Manager project brief
 
-## 개요
+## 2026-10-19 portable 120 FPS preparation
 
-DX Manager는 Samsung DeX용 가상 디스플레이와 Scrcpy 창을 관리하는
-Windows WinForms 프로그램이다. 연결된 여러 물리 휴대폰마다 DeX 화면과
-앱별 단일창 세 개를 유선 또는 무선 ADB로 독립 실행하고, 키 입력 보정,
-캡처, 양방향 파일 전송, Companion과 휴대폰 화면 상태를 함께 관리한다.
+The maintainer authorized implementing the Store handoff in the portable product
+and rebuilding the fixed preview/final ZIP locally. Store is read-only; reference
+commit11050e7822c43ec409d7d943ece5d9884d997b99 is not merged.
+Added default60/experimental120, one fail-closed warning before every120 start,
+exact screen-off preference restoration, per-phone mixed-session screen policy
+and local version-scoped change notes. scrcpy5.0.1 and signed Companion2.1.6 are
+unchanged. No AI app detection, Android changes, commit/push/tag or publication.
+See PORTABLE_120FPS_2026-10-19.md for implementation and fresh verification.
+October16 scan evidence remains historical; the new EXE needs a fresh user scan.
 
-## 환경
 
-- 저장소: `E:\vs\dex system`
-- 솔루션: `E:\vs\dex system\DexManager.sln`
-- Visual Studio 2019, C# WinForms
-- .NET Framework 4.6.2
-- 외부 NuGet 패키지 없음
-- 번들 Scrcpy 4.1
-- 번들 선택형 Android companion: `DXDisplayCleanup` (Java 17, min SDK 33,
-  compile/target SDK 36)
-- 지원 목표: 64비트 Windows 7 SP1부터 Windows 11(32비트 Windows 제외)
-- 현재 휴대폰 확인 기준: Android 16 / One UI 8.x의 DeX 지원 Galaxy 기기
+## Current baseline — 2026-10-16
 
-개발 산출물은 `DexManager\bin\Release`에 생성된다. 공개 배포는
-`scripts\Package-Release.ps1`로 `dist\DX Manager` 폴더와 버전이 포함된 x64
-ZIP을 만든다. 실행 파일만 복사하지 말고 `tools`, Scrcpy DLL과
-`scrcpy-server`, 라이선스와 사용자 문서를 포함한 폴더 전체를 배포한다.
-GitHub 메인 README와 별도로 HTML이 없는 `docs\PACKAGE_README.md`를 배포
-폴더의 `README.md`로 사용하며, 모든 이중 언어 문서는 영어 다음 한국어
-순서로 작성한다.
+- Product: Windows DX Manager 2.5.0, C# WinForms/.NET Framework 4.6.2 x64.
+- Intended Windows range: 7 SP1, 8.1, 10 and 11; Windows 7/8.1 use the bundled legacy ADB path.
+- Bundled scrcpy: 5.0.1, with `--hwdec=auto` unless explicitly overridden.
+- Official shared DX Companion: 2.1.6/code13, Android 13 minimum, existing official certificate/protocol1.
+- Latest public Windows release observed on 2026-10-16: 2.0.1. The 2.5.0 build/ZIP is local and not published.
+- Current worktree: `E:\vs\dex system-portable-backport`, branch `feature/portable-backport-v2.0.1-20260928`.
+- Store product and private AI test worktrees remain separate. No automatic app detection/AI keymaps in this release.
 
-## 완료 기능
+## Purpose
 
-- DeX overlay 가상 디스플레이 생성, 재사용, 초기화
-- 생성 전후 비교 기반 display ID 탐색
-- DeX Scrcpy 실행/중지와 설정 적용
-- Scrcpy `--new-display` 기반 단일창 슬롯 3개
-- 슬롯별 해상도, DPI, 비트레이트, FPS, 앱과 옵션 저장
-- Android 패키지별 단일창 프로필 저장·자동 적용·삭제
-- 앱 목록, 표시 이름/패키지 저장, 자동 실행
-- 성공적으로 자동 실행한 앱의 기기별 최근 목록 보존
-- Scrcpy 4.0 이상 `--flex-display`
-- Scrcpy 3.3.4/4.x 실행 옵션 자동 호환
-- USB 및 TCP/IP 무선 ADB, IP 자동 감지, Android 11 페어링
-- OS별 ADB 선택과 절대 경로 실행
-- 물리 휴대폰 identity별 독립 런타임과 복수 휴대폰 동시 제어
-- 같은 휴대폰의 USB·무선 transport 병합과 휴대폰별 연결 정책 강제
-- 휴대폰별 DeX·단일창·앱 프로필·Companion·양방향 전송 상태 분리
-- 기기 인식 후 실제 시작 명령 직전의 사용자 설정 대기(기본 1초)
-- 한영키/Enter 보정
-- Scrcpy 4.0/SDL3 오른쪽 Shift 호환 치환
-- F8 전체/영역 캡처와 스마트폰 전송
-- 미입력 자동 숨김과 시스템 트레이
-- DeX·단일창 HWND/PID별 미니 컨트롤바와 scrcpy 주요 동작
-- 다중 Scrcpy의 화면 끄기, 잠자기 방지, 종료 복구
-- 실행 세션 로그와 수동 저장
-- Windows 언어 자동 감지와 한국어/영어 UI 선택
-- `.resx` 기반 UI 문자열 관리
-- DeX overlay 해상도/DPI 일치 재사용과 불일치 자동 재생성
-- 정상 종료 시 관리 기기 overlay 정리
-- 제작자/GitHub 링크, MIT 라이선스와 제3자 고지
-- 사용자 지정 해상도 가로·세로 4096 상한과 DPI 120 하한 입력 검증
-- 첫 실행과 전체 초기화에 동일하게 적용되는 v1 기본 설정
-- DeX·단일창 드롭 파일과 폴더를 설정한 휴대폰 폴더로 보내는 관리형 Unicode 전송
-- 현재 항목·다음 4개·크기·경과·완료·실패·대기를 보여주는 독립 이동 상태창,
-  취소와 충돌 파일·폴더 이름 자동 변경
-- 설정에서 관리형 전송을 끄면 새 창부터 Scrcpy 순정 전송으로 복귀
-- 공통 `1.0.41` 문구 대신 ADB의 실제 `Version ...` 빌드 값 표시
-- overlay 제거 시 global setting 자체를 삭제
-- 진단 페이지에서 공식 Android 정리 앱의 package/v2 서명 인증서를 검증한 뒤
-  `WRITE_SECURE_SETTINGS` 권한을 한 번 부여하고 결과를 재확인
-- 캡처와 드롭 파일의 휴대폰 저장 위치를 ADB 폴더 탐색기로 선택
-- 휴대폰의 공유 메뉴와 Companion 폴더 선택으로 파일·폴더를 PC에 전송
-- 선택 기기별 DX Companion 설치·업데이트·재설치·권한 부여·삭제
+Manage a Samsung DeX virtual display and up to three independent app windows for each connected physical
+Galaxy phone. Keep device sessions/settings/transfers isolated and support local/offline Windows use.
+The maintainer reported working Android 16/One UI 8.x and S26 Ultra/Android 17/One UI 9 use; device/app restrictions
+are documented in the user guides. The separate macOS public-source work is not part of the Windows ZIP.
 
-`DXDisplayCleanup` 프로젝트의 현재 portable Companion은 **DX Companion 2.1.4**다
-(versionCode `11`, Android 13 이상).
-휴대폰에 남은 `overlay_display_devices`를 제거하고 개발자 옵션의 절전모드
-해제를 끄는 제한된 복구 도구다. 앱 본체의 개별·동시 정리, 빠른 설정 타일과
-2 × 1 홈 위젯, 휴대폰에서 PC로 파일·폴더 전송과 전송 이력을 제공한다.
-포터블판은 사용자 승인으로 대기 전송 종료 수정이 반영된 새 공식 서명 APK를 번들링한다. 네트워크는 인증된 로컬 연결에만 사용하고 분석 수집·클라우드 전송·
-임의 shell 기능은 포함하지 않는다. 서명된 APK는 공개 ZIP의 `tools\companion`에
-포함하지만 자동 설치하지 않는다. DX Manager는 설치 전 APK 해시·공식 서명,
-설치 후 package·버전·서명과 권한을 검증한다.
+## Current behavior contracts
 
-## 현재 상태
+- Identify phones using stable physical identity; merge USB/Wi-Fi transports of the same phone.
+- New launches prefer authorized USB; live sessions retain their captured serial and are not migrated.
+- USB loss stops windows using that transport without immediately restarting them on Wi-Fi.
+- DeX and three app slots can coexist. Start-app selection is optional for DeX and required for each app slot.
+- Keep device/slot settings and app profiles separate. A missing-app notice belongs to that device/slot.
+- Unicode file and folder transfer preserves structure/empty folders and uses collision-safe sibling names.
+- PC-to-phone transfer uses the managed ADB proxy only for the selected push path; normal ADB is not intercepted.
+- Capture, input correction and mini bars act on the explicit focused/owned session.
+- Main-to-tray closes attached manager dialogs; it leaves Android sessions running. Idle auto-hide also minimizes scrcpy.
+- Reopening the EXE restores the existing main instance.
+- Show first-run consent until acknowledged, then preserve that record outside normal settings reset.
+- Check updates once per local day with a background deadline. Offline failure does not loop; manual checks are in About.
+- Automatic new-version notices are lower-right nonmodal banners; silent current/offline automatic checks.
+- Companion recovery uses a verified authenticated link. In 2.1.6, disconnected and already-clean state stops protection;
+  active/unverified settings retain the existing recovery policy. Windows shutdown starts no new ADB helpers.
 
-현재 포터블 최종 준비 버전은 **2.5.0**이다. 로컬 v2.0.1 태그 2a4aff2에서 분기한
-feature/portable-backport-v2.0.1-20260928에서 작업했고 Store 제품 개발선은 분리했다.
-Windows7 SP1~11 x64/.NET4.6.2 호환 UI와 Fluent Regular31종, 도움말·기기별
-연결/전송/설정 보강을 포함한다. Companion은 공식 서명2.1.4/versionCode11/minSdk33이다.
-사용자가 실기 검증 후 잘 작동한다고 보고했고 최종본/2.5.0 및 로컬 커밋을 요청했다.
-이 보고를 모든 OS/희귀 오류를 독립 재현한 것으로 확대하지 않는다. Windows Release62개,
-Android20개와 UI/연결 프리뷰 검증 기록이 있다. 매 실행 동의창 검토 설정은 해제하고
-기존 최초 동의 기록을 존중한다. GitHub 업로드는 바이러스 검사 후 사용자의 별도 지시를 기다린다.
+## Sources, package and verification
 
-공개 v2.0.0과 DX Companion 2.0.0의 기존 실기 검증·릴리스 기록은 과거
-기준점이다. Windows 11에서 휴대폰 두 대의 USB·무선 조합, 독립 DeX·단일창,
-설정, Companion과 양방향 전송을 확인했고, 64비트 Windows 7 SP1/.NET 4.6.2에서
-USB 복수 기기와 핵심 기능을 확인했다. 공개 v2.0.0은 물리 기기별 런타임·설정·
-연결 정책과 Companion 2.0.0 종료 보호를 포함했다. 설정의 진단 페이지에는 현재
-선택된 휴대폰의 Android·SDK·One UI·보안 패치와 연결 방식을 표시하고, 민감
-정보를 가린 진단 보고서를 텍스트 파일로 저장하는 기능도 포함했다.
+- Windows source: `DexManager`, `DexManager.AdbProxy`, `DexManager.MultiDeviceTests`.
+- Canonical Android component: `E:\vs\DX Companion Shared`; `DXDisplayCleanup` is a migration notice.
+- Standalone public-source dependency setup remains a release gate; see [Building](BUILDING.md).
+- User package:39 files, runtime/licenses/short README; no source screenshots, personal settings or saved consent.
+- First-run UI and unit/regression evidence:505 Windows checks and 34 Android tests; see
+  [verification](VERIFICATION_v2.5.0.md) and [final artifact record](FINAL_250_2026-10-16.md).
+- User reported antivirus checks clean. No new executable is produced by the GitHub documentation refresh.
 
-휴대폰의 현재 정상 동작 확인 기준은 Android 16 / One UI 8.x다. One UI 7.x
-이하에서는 원활한 동작을 확인하지 못했으며 검은 DeX 창이 나타날 수 있다.
+## 한국어 요약
 
-앱 아이콘, 다국어 UI, 개발 문서와 제3자 라이선스 고지는 완료됐다.
-한국어/영어 FAQ도 독립 사용자 문서로 완료됐으며 README, 사용 설명서와
-FAQ의 스크린샷 배치도 완료됐다. 공개용 x64 ZIP을 만들고 개인 설정, PDB,
-로그와 테스트 스크린샷이 포함되지 않은 것도 확인했다. GitHub 저장소와
-`DX Manager v2.0.0` Release, x64 ZIP 및 최종 대표 이미지 게시도 완료했다.
-Windows 7 실제 종료 복원 재확인, 일부 키보드 실기 확인, 무선 ADB endpoint
-자동 발견과 upstream 입력 버그 보고가 차기 작업으로 남아 있다.
-
-## 제품 원칙
-
-- DeX와 단일창의 가상 디스플레이 생성 방식을 섞지 않는다.
-- 모호한 display ID를 가장 큰 숫자로 추측하지 않는다.
-- PATH의 `adb.exe`에 의존하지 않는다.
-- Scrcpy용 파일 전송 proxy는 세션 대상 폴더의 파일·폴더 push만 가로채고
-  나머지 ADB 명령과 DX Manager 내부 ADB 경로를 바꾸지 않는다.
-- 64비트 Windows 7/.NET 4.6.2 호환성을 유지한다.
-- 한 Scrcpy 종료가 나머지 창의 화면 상태를 깨뜨리지 않아야 한다.
-- 사용자 설정과 미커밋 변경을 덮어쓰지 않는다.
-- 모든 기기 명령은 작업 시작 시 캡처한 명시적 serial에만 보낸다.
-- 한 기기의 종료·전송·연결 변경이 다른 기기 런타임에 영향을 주지 않는다.
+Windows 정식 준비본은2.5.0, scrcpy 5.0.1, 공용 정식 Companion 2.1.6/code13입니다.
+2.0.1은 현재 공개된 Windows 기준이며2.5.0은 아직 게시하지 않았습니다.
+실제 동작 계약과 제약은 위 목록 및 사용 설명서·FAQ를 따릅니다. Store와 개인 테스트 제품을 섞지 않습니다.
+검사 완료 바이너리는 유지하고, 문서·새 스크린샷·공용 소스 의존성 준비 후 메이님의 배포 지시를 기다립니다.

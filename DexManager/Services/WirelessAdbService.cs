@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -14,7 +15,8 @@ namespace DexManager.Services
         private readonly AppSettings _settings;
         private readonly LogService _logService;
         private readonly object _reconnectSync = new object();
-        private DateTime _lastReconnectAttemptUtc = DateTime.MinValue;
+        private readonly object _stateSync = new object();
+        private DateTime _nextReconnectAttemptUtc = DateTime.MinValue;
         private long _transitionGeneration;
         private string _selectedSerial = string.Empty;
         private string _verifiedMdnsSerial = string.Empty;
@@ -70,7 +72,7 @@ namespace DexManager.Services
         {
             get
             {
-                lock (_reconnectSync)
+                lock (_stateSync)
                     return _selectedSerial;
             }
         }
@@ -82,10 +84,10 @@ namespace DexManager.Services
 
         public void SynchronizeTargetWithSettings()
         {
-            lock (_reconnectSync)
+            lock (_stateSync)
             {
                 var connection = GetConnectionSnapshot();
-                _transitionGeneration++;
+                AdvanceTransitionGeneration();
                 if (connection.Mode == AdbConnectionMode.Wireless)
                 {
                     SetSelectedSerial(connection.Endpoint);
@@ -121,10 +123,18 @@ namespace DexManager.Services
         {
             lock (_reconnectSync)
             {
-                var connection = GetConnectionSnapshot();
+                ConnectionSnapshot connection;
+                string currentSerial;
+                long generation;
+                lock (_stateSync)
+                {
+                    connection = GetConnectionSnapshot();
+                    currentSerial = _selectedSerial;
+                    generation = _transitionGeneration;
+                }
                 var preferred = FindPreferredDeviceCore(
                     devices,
-                    _selectedSerial,
+                    currentSerial,
                     connection);
                 var unavailableTarget = string.IsNullOrWhiteSpace(
                     targetWhenUnavailable)
@@ -137,16 +147,19 @@ namespace DexManager.Services
                         ? connection.Endpoint
                         : string.Empty)
                     : preferred.Serial;
-                SetSelectedSerial(target);
-                return new WirelessDeviceSelection(
-                    preferred,
-                    _transitionGeneration);
+                lock (_stateSync)
+                {
+                    if (generation != _transitionGeneration)
+                        return new WirelessDeviceSelection(null, generation);
+                    SetSelectedSerial(target);
+                    return new WirelessDeviceSelection(preferred, generation);
+                }
             }
         }
 
         public bool IsTransitionGenerationCurrent(long generation)
         {
-            lock (_reconnectSync)
+            lock (_stateSync)
             {
                 return generation == _transitionGeneration;
             }
@@ -176,13 +189,38 @@ namespace DexManager.Services
         {
             lock (_reconnectSync)
             {
-                var now = DateTime.UtcNow;
-                if ((now - _lastReconnectAttemptUtc).TotalSeconds < 5)
-                    return false;
+                long generation;
+                lock (_stateSync)
+                {
+                    if (DateTime.UtcNow < _nextReconnectAttemptUtc) return false;
+                    generation = _transitionGeneration;
+                }
                 var connections = GetReconnectSnapshots();
                 if (connections.Count == 0) return false;
-                _lastReconnectAttemptUtc = now;
+                var duration = Stopwatch.StartNew();
+                var connected = false;
+                try
+                {
+                    connected = TryReconnectCore(writeLog, physicalDevices, connections);
+                    return connected;
+                }
+                finally
+                {
+                    lock (_stateSync)
+                    {
+                        if (generation == _transitionGeneration)
+                            _nextReconnectAttemptUtc = DateTime.UtcNow.AddSeconds(5);
+                    }
+                    if (!connected)
+                        _logService.Warning("Wireless auto reconnect: no connected device; duration=" +
+                            duration.ElapsedMilliseconds + "ms; retry cooldown=5s.");
+                }
+            }
+        }
 
+        private bool TryReconnectCore(bool writeLog, DeviceRegistrySnapshot physicalDevices,
+            IList<ConnectionSnapshot> connections)
+        {
                 var devices = _adbService.GetDevices(false);
                 IList<AdbMdnsServiceRecord> mdnsServices = null;
                 var mdnsLookupAttempted = false;
@@ -237,8 +275,8 @@ namespace DexManager.Services
                             _logService.Info(LocalizationService.Format(
                                 "Log.Wireless.ReconnectAttempt",
                                 endpoint));
-                        var result = _adbService.Connect(endpoint, writeLog);
-                        var connectedSerial = WaitForEndpoint(endpoint, 3000);
+                        var result = _adbService.Connect(endpoint, writeLog, 4000);
+                        var connectedSerial = result.IsSuccess ? WaitForEndpoint(endpoint, 3000) : string.Empty;
                         if (!string.IsNullOrWhiteSpace(connectedSerial))
                         {
                             if (!IsStableDeviceIdentity(
@@ -300,11 +338,11 @@ namespace DexManager.Services
                         discoveredEndpoint) != null;
                     var connectResult = _adbService.Connect(
                         discoveredEndpoint,
-                        writeLog);
-                    var connectedMdnsSerial = WaitForMdnsConnection(
+                        writeLog, 4000);
+                    var connectedMdnsSerial = connectResult.IsSuccess ? WaitForMdnsConnection(
                         discoveredEndpoint,
                         service,
-                        3000);
+                        3000) : string.Empty;
                     if (string.IsNullOrWhiteSpace(connectedMdnsSerial))
                     {
                         if (!alreadyConnected)
@@ -369,7 +407,6 @@ namespace DexManager.Services
                     }
                 }
                 return anyConnected;
-            }
         }
 
         private AdbDeviceInfo FindConnectedWirelessDevice(
@@ -536,6 +573,8 @@ namespace DexManager.Services
             string identity,
             string serial)
         {
+            lock (_stateSync)
+            {
             if (!IsCurrentWirelessProfile(identity)) return;
             if (AdbService.IsMdnsConnectSerial(serial))
             {
@@ -548,6 +587,7 @@ namespace DexManager.Services
                 _verifiedMdnsSerial = string.Empty;
             }
             SetSelectedSerial(serial);
+            }
         }
 
         private bool SaveDiscoveredWirelessEndpoint(
@@ -634,7 +674,7 @@ namespace DexManager.Services
             string deviceIdentity,
             bool seedFromLegacyConnection)
         {
-            lock (_reconnectSync)
+            lock (_stateSync)
             {
                 return _settings.GetOrCreateDeviceWirelessConnection(
                     deviceIdentity,
@@ -914,7 +954,7 @@ namespace DexManager.Services
         {
             lock (_reconnectSync)
             {
-                _transitionGeneration++;
+                AdvanceTransitionGeneration();
                 var normalizedHost = NormalizeHost(host);
                 var endpoint = BuildEndpoint(normalizedHost, port);
                 _logService.Info(LocalizationService.Format(
@@ -923,7 +963,7 @@ namespace DexManager.Services
 
                 _adbService.StartServer();
                 var wasConnected = IsConnected(endpoint);
-                var previousTarget = _selectedSerial;
+                var previousTarget = SelectedSerial;
                 var result = _adbService.Connect(endpoint, true);
                 if (!result.IsSuccess || !WaitForConnection(endpoint, 3000))
                 {
@@ -1039,7 +1079,7 @@ namespace DexManager.Services
         {
             lock (_reconnectSync)
             {
-                _transitionGeneration++;
+                AdvanceTransitionGeneration();
                 return PairCore(deviceIdentity, host, port, pairingCode, autoReconnect);
             }
         }
@@ -1198,7 +1238,7 @@ namespace DexManager.Services
         {
             lock (_reconnectSync)
             {
-                _transitionGeneration++;
+                AdvanceTransitionGeneration();
                 var connection = GetConnectionSnapshot();
                 var endpoint = connection.Endpoint;
                 _settingsService.UpdateAndSave(_settings, delegate(
@@ -1228,7 +1268,7 @@ namespace DexManager.Services
         {
             lock (_reconnectSync)
             {
-                _transitionGeneration++;
+                AdvanceTransitionGeneration();
                 _settingsService.UpdateAndSave(_settings, delegate(
                     AppSettings settings)
                 {
@@ -1244,6 +1284,7 @@ namespace DexManager.Services
             ConnectionSnapshot connection)
         {
             var candidates = devices ?? new List<AdbDeviceInfo>();
+            var verifiedSerial = GetVerifiedMdnsSerial(connection.DeviceIdentity, currentSerial);
             if (connection.Mode == AdbConnectionMode.Wireless)
             {
                 var endpoint = candidates.FirstOrDefault(
@@ -1254,22 +1295,14 @@ namespace DexManager.Services
                         device.IsAuthorized);
                 if (endpoint != null) return endpoint;
 
-                if (IsStableDeviceIdentity(connection.DeviceIdentity) &&
-                    string.Equals(
-                        connection.DeviceIdentity,
-                        _verifiedMdnsIdentity,
-                        StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(
-                        currentSerial,
-                        _verifiedMdnsSerial,
-                        StringComparison.OrdinalIgnoreCase))
+                if (IsStableDeviceIdentity(connection.DeviceIdentity) && verifiedSerial.Length > 0)
                 {
                     return candidates.FirstOrDefault(device =>
                         device.IsAuthorized &&
                         AdbService.IsMdnsConnectSerial(device.Serial) &&
                         string.Equals(
                             device.Serial,
-                            _verifiedMdnsSerial,
+                            verifiedSerial,
                             StringComparison.OrdinalIgnoreCase));
                 }
 
@@ -1285,9 +1318,7 @@ namespace DexManager.Services
                         {
                             continue;
                         }
-                        _verifiedMdnsIdentity =
-                            connection.DeviceIdentity;
-                        _verifiedMdnsSerial = device.Serial;
+                        RememberVerifiedMdnsSerial(connection, device.Serial);
                         return device;
                     }
                 }
@@ -1371,6 +1402,8 @@ namespace DexManager.Services
             var normalized = string.IsNullOrWhiteSpace(serial)
                 ? string.Empty
                 : serial.Trim();
+            lock (_stateSync)
+            {
             if (!string.Equals(
                 normalized,
                 _verifiedMdnsSerial,
@@ -1388,6 +1421,7 @@ namespace DexManager.Services
             }
 
             _selectedSerial = normalized;
+            }
             _logService.Info(
                 normalized.Length == 0
                     ? LocalizationService.Get("Log.Adb.TargetCleared")
@@ -1398,6 +1432,8 @@ namespace DexManager.Services
 
         private ConnectionSnapshot GetConnectionSnapshot()
         {
+            lock (_stateSync)
+            {
             var connection = _settings.Connection;
             if (connection == null)
             {
@@ -1414,6 +1450,7 @@ namespace DexManager.Services
                 connection.WirelessHost,
                 connection.WirelessPort,
                 FindUniqueWirelessProfileIdentity(connection));
+            }
         }
 
         private string FindUniqueWirelessProfileIdentity(
@@ -1452,6 +1489,8 @@ namespace DexManager.Services
 
         private IList<ConnectionSnapshot> GetReconnectSnapshots()
         {
+            lock (_stateSync)
+            {
             var candidates = new List<ConnectionSnapshot>();
             var profiles = _settings.DeviceWirelessConnectionProfiles;
             if (profiles == null || profiles.Count == 0)
@@ -1490,6 +1529,39 @@ namespace DexManager.Services
                     result.Add(group.First());
             }
             return result;
+            }
+        }
+
+        private void AdvanceTransitionGeneration()
+        {
+            lock (_stateSync)
+            {
+                _transitionGeneration++;
+                _nextReconnectAttemptUtc = DateTime.MinValue;
+            }
+        }
+
+        private string GetVerifiedMdnsSerial(string identity, string currentSerial)
+        {
+            lock (_stateSync)
+            {
+                return string.Equals(identity, _verifiedMdnsIdentity, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(currentSerial, _verifiedMdnsSerial, StringComparison.OrdinalIgnoreCase)
+                    ? _verifiedMdnsSerial : string.Empty;
+            }
+        }
+
+        private void RememberVerifiedMdnsSerial(ConnectionSnapshot expected, string serial)
+        {
+            lock (_stateSync)
+            {
+                var current = GetConnectionSnapshot();
+                if (current.Mode != expected.Mode ||
+                    !string.Equals(current.DeviceIdentity, expected.DeviceIdentity, StringComparison.OrdinalIgnoreCase) ||
+                    !string.Equals(current.Endpoint, expected.Endpoint, StringComparison.OrdinalIgnoreCase)) return;
+                _verifiedMdnsIdentity = expected.DeviceIdentity;
+                _verifiedMdnsSerial = serial;
+            }
         }
 
         private static bool DeviceIdentityMatches(

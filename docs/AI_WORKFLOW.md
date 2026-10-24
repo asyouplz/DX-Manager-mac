@@ -1,114 +1,65 @@
-﻿# AI Workflow
+﻿# DX Manager work and release workflow
 
-## 시작
+## English — current 2026-10-16
 
-1. `docs/README.md`, `HANDOFF.md`, `PROJECT_BRIEF.md`, `SESSION.md`,
-   `TODO.md`를 읽는다.
-2. Git 상태와 최근 커밋을 확인한다.
-3. 관련 코드와 기술/결정 문서를 읽는다.
-4. DexManager가 실행 중이면 빌드 파일 잠금 여부를 확인한다.
+1. Read repository AGENTS, docs/README, HANDOFF, PROJECT_BRIEF, SESSION and TODO; inspect Git state.
+2. Work only in the approved portable checkout. Preserve accepted changes and user data; Store is read-only here.
+3. Diagnosis/conversation requests do not authorize product edits. Documentation requests authorize local documentation.
+4. Antivirus results are not deployment approval. Wait for the maintainer's explicit instruction to publish.
+   Commit/push/tag/release creation and remote page edits each stay within that authorized scope.
 
-## 수정 원칙
+### Build and verification
 
-- 기존 기능, 사용자 설정, 미커밋 변경을 보존한다.
-- 요청 범위의 최소 변경을 한다.
-- .NET Framework 4.6.2와 64비트 Windows 7 호환성을 유지한다.
-- ADB는 `AdbService`와 선택한 절대 경로로 실행한다.
-- 관리형 파일 전송의 `DXMAdbProxy.exe`는 DeX·단일창 Scrcpy 프로세스에만
-  지정한다. DX Manager 자체 ADB, 무선, wake-up과 화면 상태 경로에는
-  사용하지 않으며 세션 대상 폴더의 파일·폴더 push 이외의 명령을 가로채지
-  않는다.
-- Scrcpy 시작 직렬화 규칙을 지킨다.
-- display ID가 모호하면 추측하지 않는다.
-- 런타임 설정, 로그와 캡처를 Git에 추가하거나 덮어쓰지 않는다.
-- v2 다중 기기 브랜치에서는 물리 identity별 서비스 묶음을 유지한다. 기기 탭을
-  바꿔도 비선택 세션을 중지하지 않고, 전역 단축키·키보드 후킹만 선택 탭으로
-  이동한다. 종료·분리·전송 취소는 모든 기기를 순회하되 각 serial 범위를 지킨다.
-
-## 검증
+Windows: .NET Framework 4.6.2, x64 Release, VS2019 MSBuild/reference assemblies. Build from the solution
+root with the verified shared Companion component present. See [Building](BUILDING.md) for the external
+component requirement and the standalone public-source release gate.
 
 ```powershell
-& 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\MSBuild.exe' `
-  'E:\vs\dex system\DexManager.sln' /t:Build /p:Configuration=Release `
-  '/p:TargetFrameworkRootPath=E:\vs\dex system\.build-tools\net462\build' /m
+.\scripts\Verify-OfficialBuild.ps1
 ```
 
-변경에 따라 설정 보존, USB/무선 target serial, DeX/단일창 동시 실행,
-화면 OFF/stay-awake 복구를 확인한다. 다중 기기 변경은 기기 탭별 독립 실행,
-같은 기기의 USB/무선 전환, 비선택 세션 유지, 기기별 분리와 전체 종료를 확인한다.
-파일 전송 변경은 Windows 7 SP1~11에서 한글·Unicode 단일/복수 파일과 폴더 전체,
-빈 폴더, 사용자 대상 경로, 이름 충돌, 취소, 독립 상태창, Scrcpy 창 종료와
-설정 OFF 뒤 새 창의 순정 동작을 확인한다. 상태창은 퍼센트·남은 시간을
-표시하지 않아야 한다. ADB 버전은 공통 `1.0.41` 줄이 아니라 실제
-`Version ...` 값이 표시되는지 확인한다.
-실기 확인을 못 했으면 명시한다.
+The approved workspace verifier builds and runs actual-assembly regression/UI fixtures, using the
+product executable config. Device commands are blocked in fixtures. New device/Windows-shutdown/OS
+behavior is not considered physically verified solely because these checks pass.
 
-공개용 포터블 폴더와 ZIP은 저장소 루트에서 다음 명령으로 만든다.
+### Canonical Android component
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Package-Release.ps1
-```
+Edit/build only `E:\vs\DX Companion Shared\source`. Read that component's AGENTS/README/CHANGELOG/release.json.
+Record workroom, exact chat/thread, changed files, version and results. Use the existing trusted signing
+input; do not copy keys/passwords. Run unit tests/lint/signed Release and verify identity/certificate/hash.
+The portable wrappers delegate to the shared build. Never restore the archived per-product Android tree
+as an independently maintained source. Never bundle the private AI test APK.
 
-시스템에 .NET Framework 4.6.2 Developer Pack이 없으면 참조 어셈블리 루트를
-`-TargetFrameworkRootPath`로 지정하거나 현재 셸의
-`DXM_TARGET_FRAMEWORK_ROOT` 환경 변수에 설정한다.
+### Preview and final package
 
-개발 산출물은 `DexManager\bin\Release`, 사용자 배포 산출물은
-`dist\DX Manager`와 버전이 포함된 x64 ZIP으로 구분한다.
-메이님에게 전달하거나 GitHub에 게시할 최종 릴리스 산출물은 항상
-`E:\vs\dex system\dist`에서 생성·확인한다. C 드라이브의 Codex 작업 폴더에서
-만든 `bin\Release`와 `dist`는 빌드·실기 검증용으로만 사용하며 정식 릴리스본으로
-안내하지 않는다.
-스크립트는 DX Manager 실행 여부와 번들 Release ADB 서버를 확인한다.
-개발 출력의 사용자 로그·캡처·설정은 보존하며, 명시한 배포 파일만 새 폴더로 복사한다.
-v2.0.1 패키지는 Scrcpy 4.1 런타임,
-`tools\adb-proxy\DXMAdbProxy.exe`와 서명이 검증된
-`tools\companion\DX-Companion.apk`를 반드시 포함해야 한다.
+- `Build-PortablePreview.ps1`: overwrite the fixed DX Manager Preview folder, preserving user state.
+- `Build-FinalRelease.ps1`: back up the previous final outside dist, then create the clean DX Manager v2.5.0 folder.
+- `Package-Release.ps1`: copy an explicit runtime/license list and a short README. `-NoArchive` suppresses ZIP;
+  `-SkipBuild` requires verified output. User-requested upload ZIPs must match the recorded39-file final manifest.
 
-Android 소스 변경은 다음 명령으로 단위 테스트, lint와 Debug 빌드를 확인한다.
-사용자 승인으로 포터블 릴리스는 timeout 정리가 반영된 공식 서명 Companion 2.1.4 APK를 사용한다. `Package-Release.ps1`은 번들 APK의 SHA-256을 확인하며,
-`Package-AndroidCleanup.ps1`은 package·버전·필요 권한·서명·SHA-256을 모두
-검사한다.
+All final user artifacts belong in `E:\vs\dex system\dist`. Do not create per-preview version folders or
+archives. Do not ship config/settings.json, onboarding.json, update-check.json, logs, captures, received
+files, PDBs, signing inputs, test programs or source documentation/images. Keep required licenses and the
+original scrcpy runtime images. Do not delete user data while cleaning a package.
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass `
-  -File .\scripts\Build-AndroidCleanup.ps1 -Debug
-```
+### Documentation, screenshots and publication
 
-Android 앱은 문서화된 복구 설정 이외의 설정이나 임의 shell 기능을 추가하지
-않고, 네트워크는 인증된 로컬 전송·guardian 세션으로 제한한다. 번들 APK를
-교체하려면 새 공식 서명 APK와 해시를 확인한 뒤 버전 검증값과 패키징 스크립트를
-함께 갱신한다.
-`signing.properties`, keystore, 비밀번호와 Android
-빌드 산출물은 Git에 넣지 않는다. Release keystore는 Git 외부에 안전하게
-백업하고 공개 인증서 지문은 `DXDisplayCleanup/SIGNING.md`와 대조한다.
+- README/full guides/FAQ/current technical notes must describe the actual 2.5.0 behavior and menu names.
+- Keep historical release facts and license text. Preserve remote macOS work missing from this local branch.
+- Use verified current portable screenshots; do not label Store or fixture/mock captures as real portable use.
+- GitHub documentation is not copied into the binary ZIP. An embedded-help edit needs a new EXE and renewed checks;
+  a GitHub-only document edit does not justify replacing the already scanned binary.
+- Before publication, close [the documentation audit](DOCUMENTATION_AUDIT_2026-10-16.md) items: current screenshots,
+  public shared-component dependency, relative links/anchors, exact checksums and remote-main reconciliation.
+- Publish only after an explicit maintainer instruction. The message “all antivirus checks are clean” is a test
+  result, not such an instruction. Do not infer approval or ask for a redundant one after a real instruction.
 
-## Git과 문서
+## 한국어
 
-- diff를 확인하고 한 커밋에 한 목적만 담는다.
-- 생성물과 사용자 데이터를 커밋하지 않는다.
-- 빌드·커밋·배포 전에 `bin\Debug`와 `bin\Release` 아래 `logs`,
-  `screenshot`의 테스트 파일을 비운다.
-- merge, tag, push, GitHub Release는 사용자 확인 없이 하지 않는다.
-- 파괴적인 reset/checkout을 사용하지 않는다.
-- 설계 변경은 `DECISIONS.md`
-- 새 제약은 `KNOWN_ISSUES.md`
-- 우선순위는 `TODO.md`
-- 세션 종료 상태는 `SESSION.md`
-- 큰 이정표는 `CHANGELOG.md`
+포터블 작업선·Store·개인 테스트판을 분리하고 사용자 변경·설정·원본 APK를 보존합니다.
+현재 기준은 Windows용 2.5.0 / scrcpy 5.0.1 / 공용 Companion 2.1.6입니다.
+제품 변경 시 관련 검증, Android 변경 시 공용 소스의 버전·서명·작업방 기록 절차를 따릅니다.
+고정 프리뷰는 덮어쓰고 최종 배포 폴더와 업로드 ZIP에는 개인 데이터나 개발 파일을 넣지 않습니다.
 
-문서에 추측을 사실처럼 적지 않는다.
-
-
-## v2.5.0 final local packaging
-
-Use the verified Release output and preserve older distribution folders:
-
-```powershell
-.\scripts\Package-Release.ps1 -SkipBuild -Version 2.5.0 `
-  -OutputRoot 'E:\vs\dex system\dist' -PackageDirectoryName 'DX Manager v2.5.0'
-```
-
-The first-run review override is disabled. Existing config/onboarding.json remains valid. Companion remains the pinned signed2.1.4 APK. Commit only after verifying the package; do not push, tag, publish or upload scan files without the user's explicit follow-up.
-
-Portable previews now use scripts/Build-PortablePreview.ps1 and the single DX Manager Preview folder. Preserve user config/logs/captures; do not generate a per-preview ZIP. See FIXED_PREVIEW_2026-10-08.md.
+문서와 촬영 자료는 로컬에서 준비합니다. 검사 결과 공유만으로 배포를 시작하지 않습니다.
+메이님이 배포를 직접 지시하기 전에는 커밋·푸시·태그·릴리스 생성·원격 문서 변경을 하지 않습니다.
