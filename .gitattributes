@@ -1,0 +1,6 @@
+
+# Preserve the canonical Companion manifest hashes across checkouts.
+companion/source/** -text
+companion/integration/** -text
+companion/release/** -text
+companion/licenses/** -text -whitespace

@@ -1,66 +1,48 @@
 ﻿# DX Manager project brief
 
-## 2026-10-19 portable 120 FPS preparation
+## English — current Windows baseline, 2026-10-24
 
-The maintainer authorized implementing the Store handoff in the portable product
-and rebuilding the fixed preview/final ZIP locally. Store is read-only; reference
-commit11050e7822c43ec409d7d943ece5d9884d997b99 is not merged.
-Added default60/experimental120, one fail-closed warning before every120 start,
-exact screen-off preference restoration, per-phone mixed-session screen policy
-and local version-scoped change notes. scrcpy5.0.1 and signed Companion2.1.6 are
-unchanged. No AI app detection, Android changes, commit/push/tag or publication.
-See PORTABLE_120FPS_2026-10-19.md for implementation and fresh verification.
-October16 scan evidence remains historical; the new EXE needs a fresh user scan.
+| Area | Contract |
+| --- | --- |
+| Product | Windows 2.5.0, WinForms, .NET Framework 4.6.2, x64 |
+| Intended OS range | Windows 7 SP1/8.1/10/11; legacy ADB on older systems |
+| Runtime | Official scrcpy 5.0.1,16 pinned files; default `--hwdec=auto` |
+| Android helper | Shared official Companion 2.1.6/code13/protocol1, Android 13+ |
+| Delivery | `DX-Manager-win-x64.zip` → `DX Manager v2.5.0/`;39 files |
+| Last code checkpoint | Local `ccc10a9`; documentation after it remains local |
+| Public status at review | Public main `2a1ec107450d8755e3691e9fa52aa086ed034e8d`; latest release2.0.1 |
+| Current binary checks |702 Windows checks; exact prepared hashes in [verification](VERIFICATION_v2.5.0.md) |
+| Separate products | Store WinUI and macOS .NET8 are separate implementations; no private AI tracker in this release |
 
+### Behavior to preserve
 
-## Current baseline — 2026-10-16
+- Stable physical identity joins that phone's USB/Wi-Fi transports. Each phone owns its runtime/settings/transfers.
+- New starts prefer authorized USB; live sessions retain captured serials. USB loss does not silently migrate a window to Wi-Fi.
+- DeX and three app slots can coexist; start app is optional for DeX and required for each slot.
+- Per-phone/mode/app profile settings preserve nullable prior screen-off state at experimental120 FPS.
+- Warn once before every actual120 start, default Cancel, before launch I/O. Keep the phone panel on; no injected activity/forced refresh-rate change.
+- A phone with any live120 session defers ordinary screen-off requests; the last120 exit allows ordinary requests to resume.
+- Keep process-start shutdown gates short and preserve Unicode/empty-folder/collision-safe transfers.
+- Input/capture/mini bars target the explicit focused/owned session. Right Shift compatibility correction remains.
+- Main-to-tray closes attached manager dialogs; scrcpy sessions continue. Idle auto-hide also minimizes scrcpy.
+- Daily update attempts are persisted before background networking; offline does not loop. Manual checks remain available.
+- Separate local changes history and safety consent survive ordinary settings reset; fresh packages contain neither.
+- Companion protection may run while the manager is idle/connected. Verified disconnected-and-clean state stops it; remaining recovery work retains the transport/delay policy.
+- Normal exit cleans device state. Windows shutdown starts no new ADB helper and uses an established authenticated Companion channel best-effort.
 
-- Product: Windows DX Manager 2.5.0, C# WinForms/.NET Framework 4.6.2 x64.
-- Intended Windows range: 7 SP1, 8.1, 10 and 11; Windows 7/8.1 use the bundled legacy ADB path.
-- Bundled scrcpy: 5.0.1, with `--hwdec=auto` unless explicitly overridden.
-- Official shared DX Companion: 2.1.6/code13, Android 13 minimum, existing official certificate/protocol1.
-- Latest public Windows release observed on 2026-10-16: 2.0.1. The 2.5.0 build/ZIP is local and not published.
-- Current worktree: `E:\vs\dex system-portable-backport`, branch `feature/portable-backport-v2.0.1-20260928`.
-- Store product and private AI test worktrees remain separate. No automatic app detection/AI keymaps in this release.
+### Release preparation boundaries
 
-## Purpose
+Current user captures are approved for public docs: no single-window picture; diagnostics before the check;
+default-size connection page; connected Companion home images. See [image inventory](SCREENSHOT_PLAN_v2.5.0.md).
 
-Manage a Samsung DeX virtual display and up to three independent app windows for each connected physical
-Galaxy phone. Keep device sessions/settings/transfers isolated and support local/offline Windows use.
-The maintainer reported working Android 16/One UI 8.x and S26 Ultra/Android 17/One UI 9 use; device/app restrictions
-are documented in the user guides. The separate macOS public-source work is not part of the Windows ZIP.
+Preserve exact final bytes during GitHub documentation work. No publication follows a clean antivirus report.
+Before publishing source, provide the official shared dependency and reconcile remote macOS additions without deleting them.
+See [Building](BUILDING.md), [known constraints](KNOWN_ISSUES.md) and [current TODO](TODO.md).
 
-## Current behavior contracts
+## 한국어
 
-- Identify phones using stable physical identity; merge USB/Wi-Fi transports of the same phone.
-- New launches prefer authorized USB; live sessions retain their captured serial and are not migrated.
-- USB loss stops windows using that transport without immediately restarting them on Wi-Fi.
-- DeX and three app slots can coexist. Start-app selection is optional for DeX and required for each app slot.
-- Keep device/slot settings and app profiles separate. A missing-app notice belongs to that device/slot.
-- Unicode file and folder transfer preserves structure/empty folders and uses collision-safe sibling names.
-- PC-to-phone transfer uses the managed ADB proxy only for the selected push path; normal ADB is not intercepted.
-- Capture, input correction and mini bars act on the explicit focused/owned session.
-- Main-to-tray closes attached manager dialogs; it leaves Android sessions running. Idle auto-hide also minimizes scrcpy.
-- Reopening the EXE restores the existing main instance.
-- Show first-run consent until acknowledged, then preserve that record outside normal settings reset.
-- Check updates once per local day with a background deadline. Offline failure does not loop; manual checks are in About.
-- Automatic new-version notices are lower-right nonmodal banners; silent current/offline automatic checks.
-- Companion recovery uses a verified authenticated link. In 2.1.6, disconnected and already-clean state stops protection;
-  active/unverified settings retain the existing recovery policy. Windows shutdown starts no new ADB helpers.
-
-## Sources, package and verification
-
-- Windows source: `DexManager`, `DexManager.AdbProxy`, `DexManager.MultiDeviceTests`.
-- Canonical Android component: `E:\vs\DX Companion Shared`; `DXDisplayCleanup` is a migration notice.
-- Standalone public-source dependency setup remains a release gate; see [Building](BUILDING.md).
-- User package:39 files, runtime/licenses/short README; no source screenshots, personal settings or saved consent.
-- First-run UI and unit/regression evidence:505 Windows checks and 34 Android tests; see
-  [verification](VERIFICATION_v2.5.0.md) and [final artifact record](FINAL_250_2026-10-16.md).
-- User reported antivirus checks clean. No new executable is produced by the GitHub documentation refresh.
-
-## 한국어 요약
-
-Windows 정식 준비본은2.5.0, scrcpy 5.0.1, 공용 정식 Companion 2.1.6/code13입니다.
-2.0.1은 현재 공개된 Windows 기준이며2.5.0은 아직 게시하지 않았습니다.
-실제 동작 계약과 제약은 위 목록 및 사용 설명서·FAQ를 따릅니다. Store와 개인 테스트 제품을 섞지 않습니다.
-검사 완료 바이너리는 유지하고, 문서·새 스크린샷·공용 소스 의존성 준비 후 메이님의 배포 지시를 기다립니다.
+현재 기준은 Windows 2.5.0 / scrcpy 5.0.1 / 공용 정식 Companion 2.1.6입니다.
+휴대폰별 세션 분리·USB 새 실행 우선·실행 중 serial 유지·단일창 시작 앱 필수,
+120 실행 경고·화면 켜짐 우선·이전 설정 복원, Unicode 전송·입력·트레이·정리 규칙을 유지합니다.
+702개 검증은 Windows 실제 어셈블리/검증 UI 범위이며 모든 기기·OS 실기 검증으로 확대하지 않습니다.
+문서 준비와 공개는 별개입니다. 공용 소스 의존성과 원격 macOS 보존은 게시 전 준비 항목입니다.

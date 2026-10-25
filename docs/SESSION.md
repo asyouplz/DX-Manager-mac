@@ -1,5 +1,24 @@
 ﻿# Session Handoff
 
+## 2026-10-24 GitHub documentation and approved image refresh
+
+The maintainer requested local updates to all GitHub-facing documents after code/package checkpoint ccc10a9.
+Compared fresh public main2a1ec107450d8755e3691e9fa52aa086ed034e8d,40 document/config paths and six historical releases.
+README/full EN-KO guides/35-question FAQs/release notes/current developer docs now reflect2.5.0, fixed archive naming,
+120 consent/screen preference rules, daily online and local changes notices, official Companion2.1.6 and real UI paths.
+Corrected obsolete None-in-single-window, device-list, apply/restart, hidden legacy switch/timing and capture-transfer directions.
+
+Approved16 actual user captures are linked with truthful initial/connected-state captions; no single-window photo.
+Six native Android examples remain. Ten unused old app images were backed up/retired; all user originals are unchanged.
+Preserved remote Mac guide/status and verbatim package template/runtime text/notices; code/workflow integration remains separate.
+Relative Markdown/HTML links, anchors, FAQ numbering, image integrity/source hashes and protected artifact hashes pass.
+No executable/resource/source-code changes, rebuilds, phone installs or new feature-test/antivirus claims.
+Final EXE/APK/ZIP hashes remain exactly as in VERIFICATION_v2.5.0.md; source docs/images stay outside the binary ZIP.
+No local documentation commit, merge, push, tag, GitHub release or old-asset rename was performed.
+Public shared-component source availability, macOS integration, exact-file AV evidence and publication approval remain gates.
+
+
+
 ## 2026-10-24 local final package and authorized commit
 
 The maintainer authorized a local Git commit and final upload-file preparation, without GitHub publication.

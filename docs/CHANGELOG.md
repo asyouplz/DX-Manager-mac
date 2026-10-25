@@ -1,5 +1,25 @@
 ﻿# Changelog
 
+## Windows2.5.0 documentation/release preparation — 2026-10-24
+
+### English
+
+Prepared locally, not published. scrcpy5.0.1/official Companion2.1.6; experimental120 FPS with per-start consent,
+screen-on priority/restored preferences, daily/manual online updates and local changes notes, accepted UI/transfer/tray/TLS fixes.
+Final archive uses a stable Windows filename and versioned root; current verified EXE/ZIP hashes are in [verification](VERIFICATION_v2.5.0.md).
+702 Windows checks and the English audit are reused by byte identity; no new scan result is claimed.
+
+Public README, EN/KO guides and35-question FAQs now use the approved16 captures and current menu/upgrade behavior.
+Dated history/license text and separate macOS docs are preserved. Documents/images stay out of the binary ZIP.
+
+### 한국어
+
+2.5.0 최종본과 현재 문서를 로컬에서 준비했습니다.120·화면 복원·업데이트 안내·공용 정식 APK와
+UI·트레이·전송·무선 수정, 고정 ZIP·버전 폴더 구조를 설명합니다.
+한·영35개 FAQ·설명서·실제 사진16장을 연결하고 과거 기록·라이선스·별도 macOS 내용을 보존합니다.
+공개는 별도 지시 후 진행합니다.
+
+
 세부 변경은 Git 이력을 사용하고 여기에는 큰 이정표만 적는다.
 
 ## 2026-08 - v2.0.1

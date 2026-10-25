@@ -24,3 +24,9 @@ packages/
 
 # Generated release packages
 dist/
+
+# Private Android signing inputs
+**/signing.properties
+*.jks
+*.keystore
+**/local.properties

@@ -1,5 +1,6 @@
-﻿param(
+param(
     [string]$Version = "",
+    [string]$CompanionSharedRoot = "",
     [switch]$SkipBuild,
     [switch]$NoArchive,
     [string]$TargetFrameworkRootPath = "",
@@ -19,7 +20,8 @@ if ($PackageDirectoryName.IndexOfAny([IO.Path]::GetInvalidFileNameChars()) -ge 0
     throw "The package directory must be a single valid folder name."
 }
 $packageRoot = Join-Path $distRoot $PackageDirectoryName
-$companionSharedRoot = [IO.Path]::GetFullPath((Join-Path $repoRoot '..\DX Companion Shared'))
+. (Join-Path $PSScriptRoot 'Get-CompanionRoot.ps1')
+$companionSharedRoot = Get-DxmCompanionRoot -RepositoryRoot $repoRoot -OverrideRoot $CompanionSharedRoot
 $companionRelease = Get-Content -LiteralPath (Join-Path $companionSharedRoot 'release.json') -Raw | ConvertFrom-Json
 $companionApkSource = Join-Path $companionSharedRoot $companionRelease.ApkRelativePath
 $companionApkSha256 = $companionRelease.ApkSha256
@@ -123,6 +125,7 @@ if (!$SkipBuild) {
         $arguments += "/p:TargetFrameworkRootPath=$frameworkRoot"
     }
 
+    $arguments += "/p:CompanionSharedRoot=$companionSharedRoot"
     & $msbuild @arguments
     if ($LASTEXITCODE -ne 0) {
         throw "Release build failed with exit code $LASTEXITCODE."

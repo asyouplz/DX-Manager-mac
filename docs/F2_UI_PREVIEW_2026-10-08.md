@@ -1,5 +1,9 @@
 ﻿# F2 UI preview — 2026-10-08
 
+> Historical scope — current documentation at [the documentation index](README.md). This dated record describes its own build/artifact/state; current2.5.0 behavior and checksums are in the user guides and verification record.
+> 과거 시점의 작업 기록입니다. 현재 동작·파일 해시는 문서 목차의2.5.0 안내를 따릅니다.
+
+
 User accepted F2 after company Windows7 SP1/96DPI testing and requested product
 integration, Store-matched run-button caption size/placement and compact help
 warning boxes. Only the portable worktree is edited. Store was read-only for

@@ -505,3 +505,14 @@ and local version-scoped change notes. scrcpy5.0.1 and signed Companion2.1.6 are
 unchanged. No AI app detection, Android changes, commit/push/tag or publication.
 See PORTABLE_120FPS_2026-10-19.md for implementation and fresh verification.
 October16 scan evidence remains historical; the new EXE needs a fresh user scan.
+
+
+## Documentation alignment — 2026-10-24
+
+Use one fixed Windows asset name with a versioned inner folder; old tagged links do not become latest links.
+Separate online update availability, local version notes and safety/120 consent. Describe preserved portable config explicitly.
+Retain Q1–24 numbering and field-tested recovery/input caveats; add2.5.0 questions without advertising private features.
+Use actual reviewed portable/official-Companion captures and honest initial/connected captions. Omit single-window photos as requested.
+Current Settings catalog controls determine UI directions; do not invent controls from legacy model fields.
+Keep the exact final EXE/APK/ZIP unchanged while updating GitHub docs. Embedded resource changes belong to a separate product build.
+Preserve remote macOS text and identify its independent runtime, test and publication state.

@@ -1,4 +1,8 @@
-# Shared Companion handoff / 공용 Companion 인계 (2026-10-12)
+﻿# Shared Companion handoff / 공용 Companion 인계 (2026-10-12)
+
+> Historical scope — current documentation at [the documentation index](README.md). This dated record describes its own build/artifact/state; current2.5.0 behavior and checksums are in the user guides and verification record.
+> 과거 시점의 작업 기록입니다. 현재 동작·파일 해시는 문서 목차의2.5.0 안내를 따릅니다.
+
 
 Performed by GitHub workroom dx manager 깃헙판 ui 업데이트,
 thread01a0e7aa-4ff2-76b3-a282-8125eab39e62, explicitly requested by 메이님.

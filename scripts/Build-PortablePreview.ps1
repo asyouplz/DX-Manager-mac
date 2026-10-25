@@ -1,4 +1,4 @@
-﻿param([switch]$SkipBuild)
+param([switch]$SkipBuild)
 $ErrorActionPreference='Stop'
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $dist=[IO.Path]::GetFullPath('E:\vs\dex system\dist')
@@ -52,7 +52,9 @@ Copy-Item -LiteralPath (Join-Path $stage 'config\README.txt') -Destination $conf
 [IO.File]::WriteAllText($manifest,([pscustomobject]@{Folder='DX Manager Preview';Files=$managed} | ConvertTo-Json -Depth 4),[Text.UTF8Encoding]::new($true))
 & (Join-Path $PSScriptRoot 'Sync-ScrcpyRuntime.ps1') -DestinationRoot (Join-Path $preview 'tools\scrcpy')
 $pin=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'scrcpy-runtime.json') -Raw | ConvertFrom-Json
-$companion=Get-Content -LiteralPath (Join-Path $repo '..\DX Companion Shared\release.json') -Raw | ConvertFrom-Json
+. (Join-Path $PSScriptRoot 'Get-CompanionRoot.ps1')
+$companionRoot=Get-DxmCompanionRoot -RepositoryRoot $repo
+$companion=Get-Content -LiteralPath (Join-Path $companionRoot 'release.json') -Raw | ConvertFrom-Json
 $identity=[pscustomobject]@{
  Version='2.5.0';Edition='Official GitHub portable';AutomaticAppTracking=$false
  ExeSha256=(Get-FileHash -LiteralPath (Join-Path $preview 'DXManager.exe')).Hash

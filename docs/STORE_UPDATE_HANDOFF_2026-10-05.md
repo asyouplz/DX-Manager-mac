@@ -1,5 +1,9 @@
 ﻿# DX Manager Store update handoff — 2026-10-05
 
+> Historical scope — current documentation at [the documentation index](README.md). This dated record describes its own build/artifact/state; current2.5.0 behavior and checksums are in the user guides and verification record.
+> 과거 시점의 작업 기록입니다. 현재 동작·파일 해시는 문서 목차의2.5.0 안내를 따릅니다.
+
+
 ## English summary
 
 The user accepted the portable Fluent icon trial and requested documentation so the Store edition can be updated later. This handoff covers Companion 2.1.4, its earlier2.1.3 queued-request cleanup,31 Fluent Regular assets including a derived mouse, mini-bar transport indicators, and the final launch/reconnect rules. It also identifies portable UI refinements to compare with Store before porting.

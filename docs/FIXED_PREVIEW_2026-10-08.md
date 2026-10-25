@@ -1,5 +1,9 @@
 ﻿# Fixed portable preview and contrast — 2026-10-08
 
+> Historical scope — current documentation at [the documentation index](README.md). This dated record describes its own build/artifact/state; current2.5.0 behavior and checksums are in the user guides and verification record.
+> 과거 시점의 작업 기록입니다. 현재 동작·파일 해시는 문서 목차의2.5.0 안내를 따릅니다.
+
+
 User authorized the agreed contrast/icon changes and dist cleanup. Mini-bar is
 explicitly excluded: its source and icon geometry remain unchanged in this turn.
 

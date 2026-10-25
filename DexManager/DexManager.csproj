@@ -1,8 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" Condition="false" />
   <PropertyGroup>
-    <CompanionSharedRoot Condition="'$(CompanionSharedRoot)' == ''">$(MSBuildProjectDirectory)\..\..\DX Companion Shared</CompanionSharedRoot>
+    <CompanionSharedRoot Condition="'$(CompanionSharedRoot)' == '' And Exists('$(MSBuildProjectDirectory)\..\..\DX Companion Shared\integration\CompanionRelease.cs')">$(MSBuildProjectDirectory)\..\..\DX Companion Shared</CompanionSharedRoot>
+    <CompanionSharedRoot Condition="'$(CompanionSharedRoot)' == ''">$(MSBuildProjectDirectory)\..\companion</CompanionSharedRoot>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{73D79582-CC69-4AEC-A24E-F3755E77A32C}</ProjectGuid>

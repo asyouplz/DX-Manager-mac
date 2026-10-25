@@ -1,6 +1,6 @@
 ﻿# DX Manager 2.5.0 Frequently Asked Questions
 
-Windows documentation reviewed 2026-10-16. The first24 questions retain their numbering; Q25–29 cover the current update, notification, consent and input behavior.
+Windows 2.5.0 documentation, reviewed 2026-10-24. Q1–24 retain their established numbering; Q25–35 cover updates, Companion, consent, input, experimental FPS and package changes.
 
 [English user guide](USER_GUIDE_EN.md) · [Korean FAQ](FAQ_KO.md)
 
@@ -54,7 +54,7 @@ progress may be lost. Enable it for other apps only when needed.
 
 ## Q3. Which device is used when two or more phones are connected?
 
-Select the phone in the left device list. DeX, all three single-window slots, app profiles, connection
+Choose the phone in the device selector. DeX, all three single-window slots, app profiles, connection
 preferences and transfers are stored and run per physical phone. Choosing another phone does not
 stop the first one's sessions. USB/Wi-Fi connections belonging to one phone appear as one entry.
 
@@ -65,9 +65,7 @@ under a phone-name subfolder beneath the configured receive directory.
 
 ## Q4. Parts of the DeX interface are clipped below 1600×900.
 
-Samsung DeX has a standard minimum resolution of 1600×900. DX Manager can
-create smaller virtual resolutions, but some DeX elements may not adapt to
-the smaller screen. For example, the top of the app drawer may be clipped.
+In the tested Samsung DeX layouts, 1600×900 or higher is recommended for the complete desktop. DX Manager can create smaller virtual resolutions, but some DeX elements may not adapt to the smaller screen. For example, the top of the app drawer may be clipped.
 
 Apps themselves may still work, but 1600×900 or higher is recommended for the
 complete DeX interface. This is a Samsung DeX limitation at low resolutions;
@@ -184,6 +182,8 @@ device. A managed drag-and-drop file transfer is not limited to this duration;
 large ADB pushes continue until they finish, fail, are canceled, or the session
 ends.
 
+Start delay is exposed under **Settings > General > Start DeX when a phone connects**. Other timeout values are stored configuration and are not all exposed as controls on the current Diagnostics page.
+
 ## Q13. What happens if USB is unexpectedly disconnected during use?
 
 Windows using that USB transport stop and DX Manager attempts the applicable cleanup. If the phone
@@ -205,6 +205,8 @@ connection during a session. If any DeX or single-window session requests
 screen-off or stay-awake behavior, DX Manager manages it using the combined
 state of all sessions. When all related sessions stop, or DX Manager exits
 normally, it attempts to restore the phone screen and stay-awake state.
+
+At experimental120 FPS, screen-off is disabled automatically. Returning to 30/60 restores its prior value; see [Q30](#q30-why-is-turn-phone-screen-off-disabled-at-120-fps).
 
 ## Q15. The phone screen stays on while it is charging.
 
@@ -255,35 +257,15 @@ writable location where it can save settings, logs, and screenshots.
 
 ## Q17. How does drag-and-drop file transfer work, and can I disable it?
 
-Drop one or more files, or a complete folder, onto a running DeX or single-app
-scrcpy window. With the default DX Manager file transfer enabled, content is
-copied through a Windows 7 SP1 through 11-compatible path that preserves Korean, Japanese,
-and other Unicode names. The default destination is `/sdcard/Download/`; it can
-be changed under **Settings > Paths**. The
-destination must be below `/sdcard/` or `/storage/emulated/0/`.
 
-Folders keep their top-level folder, subfolders, files, and empty folders.
-Junctions, symbolic links, and other reparse points are skipped. A standalone
-APK keeps scrcpy's install behavior, while an APK inside a dropped folder is
-copied as a regular file.
+Drop files or folders onto a running DeX/app scrcpy window. The default managed path preserves Unicode names,
+folder structure and empty folders, and reserves numbered names instead of overwriting destination items.
+The independent status window shows active/waiting/completed/failed items without a synthetic percentage/ETA.
 
-The independent, movable status window shows the active item and up to four
-waiting items, file size, elapsed time, completed/failed/waiting counts, and a
-cancel button. It does not show a percentage or ETA because reliable byte
-progress is not available on every supported Windows/ADB combination.
-
-Existing phone files and folders are not overwritten. If the same name already
-exists, DX Manager uses `name (1).ext`, `name (2).ext`, or `folder (1)`.
-Canceling stops the active and waiting transfers for that scrcpy window and
-also attempts to remove their temporary phone data. The button is briefly
-disabled while the final name is committed.
-
-To use scrcpy's original file-drop behavior, turn off **Use DX Manager file
-transfer (Unicode-compatible)** under **Settings > Paths > Programs and
-storage paths**. The change applies to newly opened DeX and single-app windows;
-already open windows keep the mode with which they were started. In original
-scrcpy mode, non-ASCII file names may not be preserved on every Windows
-environment.
+Change the destination under **Settings > Paths > PC → phone file transfer** and reopen scrcpy windows.
+The current Settings layout has no separate managed-mode toggle. For advanced configuration, fully exit the app,
+back up `config/settings.json` and set `Features.ManagedFileTransferEnabled` to `false`.
+Restart the app/open new scrcpy windows. scrcpy then handles file drops normally; standalone APK install behavior remains.
 
 ## Q18. The DeX window is black on an older One UI version.
 
@@ -400,6 +382,8 @@ Later launches respect `config/onboarding.json`, which is separate from `config/
 is preserved by settings reset. A new extraction without that record, corrupted state or a folder
 that cannot save the record can cause the notice to appear again. Use a writable folder.
 
+The acknowledgement belongs to the portable config folder. Copy its history when migrating to a new version folder; a clean folder has fresh state.
+
 ## Q28. Is hardware decoding actually active?
 
 The bundled scrcpy **5.0.1** receives `--hwdec=auto` for DeX and all three single-window slots.
@@ -412,7 +396,72 @@ An explicit `--hwdec` selection in advanced arguments is respected instead of ad
 
 ## Q29. How do Enter and Shift+Enter switching work?
 
-The public 2.5.0 release keeps optional **Scroll Lock** switching under **Settings > Input**.
+The public 2.5.0 release keeps optional **Scroll Lock** switching under **Settings > Keyboard**.
 With it disabled, ordinary Enter is unchanged. With it enabled, the saved mapping and Scroll Lock
 state apply while an eligible scrcpy window is active. They do not create automatic per-app AI rules.
 If Enter seems reversed, check that option and the Scroll Lock state first.
+
+
+## Q30. Why is Turn phone screen off disabled at 120 FPS?
+
+120 FPS is an **experimental maximum**, with 60 FPS still the default. The phone screen must stay on.
+Selecting 120 does not show a popup; **each actual 120 FPS start** requires a warning confirmation, including
+DeX, every single-window slot, saved settings, tray/automatic starts and apply-settings restarts.
+Cancel is the default action and cancels the launch.
+
+Heat and battery use increase. Static images on an OLED panel can cause permanent burn-in; avoid prolonged
+or unattended use and stop if the phone overheats. The option does not inject input or force Android refresh settings.
+
+Switching back to 30/60 restores the exact earlier screen-off preference, including a preference to keep it on.
+This is saved per phone, mode and app profile. If any 120 FPS session is running on a phone, other sessions on
+that phone defer their screen-off requests until the last 120 session ends. Other phones remain independent.
+
+## Q31. Why does the actual FPS remain below 120?
+
+The setting is a cap, not a promise of constant output. Device, app, activity, rendering/encoding/decoding
+capacity and transport conditions can limit the result. Low activity can reduce frame delivery.
+The phone panel must remain on; turning it off manually can also reduce FPS.
+Use 30/60 FPS when a higher cap is not useful or the phone becomes hot.
+
+The configured limit cannot be overridden with advanced `--max-fps` arguments, so the warning and screen rules remain consistent.
+
+## Q32. What is the What's new popup after an update?
+
+This local release-note dialog is separate from the daily online update check and mandatory safety/120 FPS consent.
+It uses no Internet and keeps its own `config/update-notice.json` checkpoint.
+
+An installation with earlier accepted safety-notice history shows an unseen newer version once, after safety consent
+and before device initialization/automatic starts. A fresh folder or installation with no earlier consent history
+shows the safety notice and establishes a baseline instead. Confirming the notes saves the current version.
+Closing/canceling or failing to save can make the notes reappear; settings reset does not clear their history,
+and running an older build does not lower the checkpoint.
+
+## Q33. Why does the ZIP no longer include a version in its filename?
+
+From Windows 2.5.0, every Windows release uses **`DX-Manager-win-x64.zip`** and a versioned inner folder,
+such as **`DX Manager v2.5.0`**. Extract the complete folder, not the EXE alone.
+
+Use the [latest release](https://github.com/maze-mei/DX-Manager/releases/latest) or
+[fixed latest Windows download](https://github.com/maze-mei/DX-Manager/releases/latest/download/DX-Manager-win-x64.zip).
+The latter works when the latest release includes that exact asset name. A URL containing a specific old tag/file
+does not automatically switch to a different version. Third-party servers may also keep older copies.
+
+## Q34. How do I retain settings when updating, and why does 2.0.1 not notify me?
+
+2.0.1 and earlier do not contain the new update-check feature. Download the newer version from the official release page.
+
+Fully exit the old app and wait for phone cleanup, then extract the new ZIP. With both copies closed,
+copy your personal **config** folder into the new version folder if you want to keep settings and consent/history.
+Preserve wanted captures, logs and received files separately. Keep those personal files out of public uploads.
+A clean new folder without consent history shows first-run safety guidance again.
+
+See [Updating an existing installation](USER_GUIDE_EN.md#updating-an-existing-installation).
+Future versions can notify you from the app, but downloading/installing is still manual.
+
+## Q35. Are the macOS implementation and this Windows ZIP the same release?
+
+No. The public repository has a separate .NET 8 macOS TUI/CLI implementation, with its own runtime, packaging
+and validation. The Windows 2.5.0 ZIP does not run on macOS; its scrcpy 5.0.1/702-check results are Windows-specific.
+
+At the 2026-10-24 review, published release assets were Windows ZIPs, not Mac ZIPs.
+Follow the [macOS guide](https://github.com/maze-mei/DX-Manager/blob/main/docs/MACOS_GUIDE.md) for source and packaging status.

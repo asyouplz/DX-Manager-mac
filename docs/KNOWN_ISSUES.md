@@ -1,4 +1,66 @@
-﻿# Known Issues and Constraints
+# Known issues and limits
+
+## Current scope — 2026-10-24
+
+Windows2.5.0 / scrcpy5.0.1 / official Companion2.1.6. See [FAQ](FAQ_EN.md), [한국어 FAQ](FAQ_KO.md) and [exact verification](VERIFICATION_v2.5.0.md).
+
+### Device and application limits
+
+- Intended Windows targets are7 SP1/8.1/10/11 x64. Windows7 needs the framework/legacy ADB prerequisites.
+  Automated702 checks are not physical verification of every OS/GPU/driver/DPI combination.
+- Android16/One UI8.x and the maintainer's S26 Ultra/Android17/One UI9 are reported working cases.
+  Older Classic DeX firmware may show a black desktop. Protected apps/content and secondary-display restrictions are not bypassed.
+- Lower DeX resolutions or DPI combinations can change launcher layout, wallpaper and icon behavior. The configured virtual resolution
+  differs from the PC scrcpy window's display size.
+- Experimental120 FPS is a maximum only. Keep the phone screen on and confirm heat/battery/OLED warnings at every start.
+  Firmware, app/activity, performance and transport can limit real FPS. Manual screen-off can still lower it.
+- SDL3 right Shift compatibility maps it to left Shift in eligible scrcpy windows. Android cannot distinguish the sides in that session.
+
+### Connection, transfer and cleanup limits
+
+- Guest Wi-Fi/client isolation/VLAN/firewall rules can block local traffic or endpoint discovery even with the same Wi-Fi name.
+  Pairing and connection ports differ. Verify phone ownership before updating an endpoint; don't guess another phone.
+- New USB preference does not migrate live wireless sessions. USB loss stops affected sessions without an immediate Wi-Fi replacement.
+- Android shares do not supply an arbitrary folder tree; use Companion's folder selector for folders.
+  Transfer progress intentionally omits unsupported percentage/ETA. Disconnect/cancel/partial cleanup can require retry.
+- Complete normal exit while still connected is preferred. Windows shutdown uses an existing authenticated Companion channel best-effort;
+  no new ADB helper is started.
+- Companion protection can remain while connected or while recovery is active/unverified.
+  A lost PC socket alone does not guarantee recovery while the underlying configured transport still appears present.
+  Version2.1.6 promptly stops a disconnected, verified-clean guardian.
+- Companion cleanup removes the global simulated-display setting, including manually configured displays; it cannot identify their origin.
+
+### Notifications and portable state
+
+- A background update starts before the optional startup hide-to-tray finishes. If a response arrives unusually early,
+  the main banner can be created before hiding and no separate tray notice may be issued at that moment.
+  The cached banner remains available when the main window is reopened. This is a static ordering risk; no change was requested.
+- Update checking is once per local day, not an Internet reachability monitor. Offline results consume the automatic attempt;
+  use the manual button if a connection becomes available later. Cached update availability can remain offline.
+- A fresh extraction folder lacks the previous config/history unless the user copies it. Safety consent can reappear in a clean folder.
+  Local changes notes identify older installations through previous accepted consent, not settings-file existence alone.
+
+### Publication/source gates
+
+The final Windows EXE has a maintainer-reported clean antivirus result for its exact D3342F… hash.
+The public source includes the matching Companion source/constants/APK snapshot under `companion/`.
+Historical scan results still refer to their own exact files.
+Remote macOS projects/workflow/docs must be preserved during main integration. Published Mac ZIPs were not found at the review date.
+Documentation preparation does not authorize commit/push/tag/release.
+
+## 한국어
+
+기기·OS·GPU·펌웨어·앱별 제한,120 FPS의 최대값 특성과 발열·번인, 무선 포트·네트워크 격리,
+연결 손실 시 정리의 한계는 위 현행 설명을 따릅니다.
+프리뷰/최종 파일은 검증했지만 모든 환경의 실기 결과나 새 백신 검사로 확대하지 않습니다.
+공용 Companion의 해당 버전 소스·APK 스냅샷을 공개 소스에 포함하고 macOS 프로젝트를 분리해 보존합니다.
+아래 옛 Companion·UI·단일 기기 기록은 당시 상태이며 현재 문제 목록과 구분합니다.
+
+<details>
+<summary>Earlier implementation/preparation records (historical)</summary>
+
+These dated records describe earlier states. Use the current sections above for2.5.0.
+
 
 ## 2026-10-19 portable 120 FPS preparation
 
@@ -192,3 +254,5 @@ DX Manager가 만든 화면과 사용자가 개발자 옵션에서 직접 선택
 ## 2026-10-05 final acceptance boundary
 
 메이님이 실기 검증을 완료했고 잘 작동한다고 보고하여2.5.0 최종본으로 준비했다. 위의 이전 미확인 기록을 사용자 확인이 전혀 없다는 뜻으로 읽지 않는다. 사용자가 명시하지 않은 모든 OS/DPI 조합, 강제 Android timeout 또는 드문 ADB Kill 실패를 독립 재현했다고 확대하지 않는다. GitHub 업로드와 바이러스 검사 결과는 현재 대기 상태다.
+
+</details>

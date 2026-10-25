@@ -1,5 +1,9 @@
 ﻿# Companion update backlog for Store / Store 다음 업데이트 항목
 
+> Historical scope — current documentation at [the documentation index](README.md). This dated record describes its own build/artifact/state; current2.5.0 behavior and checksums are in the user guides and verification record.
+> 과거 시점의 작업 기록입니다. 현재 동작·파일 해시는 문서 목차의2.5.0 안내를 따릅니다.
+
+
 ## English
 
 The user approved this for a later Store update. Do not rebuild or resubmit the current Store package solely for this note.

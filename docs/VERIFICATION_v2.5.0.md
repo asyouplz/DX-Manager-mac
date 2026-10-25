@@ -1,4 +1,87 @@
-﻿# DX Manager 2.5.0 verification record
+# Windows2.5.0 checksums and verification
+
+## English — final artifact prepared 2026-10-24
+
+This identifies the local Windows package prepared from code checkpoint `ccc10a9`.
+The maintainer authorized publication on 2026-10-25. These exact scanned release bytes are preserved;
+source/docs integration does not rebuild the uploaded binaries.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `DX-Manager-win-x64.zip` | `EBB91A332B603C4096B1B1FB6D179F4D45B55F5A63FC657F8B989BEA8DE08764` |
+| `DXManager.exe` | `D3342F2A2B80DC5945D069CF408412A4DEDEBB6C0A54C78795485CB5DAD5FC19` |
+| `DXMAdbProxy.exe` | `90C9DC4838F61640D2F05B31339C5A9E7BDAF346A3FFF3332A2532A2BDEC2C93` |
+| Official `DX-Companion.apk`2.1.6/code13 | `904491111341D46458BB9CE9B342D9210A20BB923BC0F605484D6AF7B90DFCC9` |
+
+- ZIP:20,799,915 bytes,39 files, one `DX Manager v2.5.0/` root folder.
+- Every decompressed ZIP file matches the final folder manifest. Final/preview EXEs are identical.
+-16 pinned official scrcpy5.0.1 files verified, including matching executable/server/runtime libraries.
+- Official APK certificate SHA256: `AD615803C63760439750C36801E8152AB8664C60EE481EF1473F1DF5E80733BE`.
+- No personal settings, onboarding/update history, logs/captures, source docs/screenshots, symbols,
+  signing inputs or test programs are bundled. Required notices, compact README and vendor runtime images remain.
+- Clean package contains no acknowledgement, so first-run consent is required.
+- The superseded version-named archive is preserved outside dist; the upload filename is fixed.
+
+### What was actually tested
+
+.NET Framework4.6.2 x64 Release:0 warnings/errors.702 Windows checks:
+
+| Suite | Checks |
+| --- | ---: |
+| Multi-device foundation |62 |
+| Update core |48 |
+| Companion transfer integration |17 |
+| Transfer UI/management |149 |
+| Wireless responsiveness |10 |
+| scrcpy runtime |13 |
+| Desktop notices/UI |196 |
+| First-run consent UI |30 |
+| Experimental FPS/local-notice history/UI |141 |
+| English localization/UI |36 |
+| **Total** |**702** |
+
+The English audit visited5458 resource/control strings and reviewed955 resource call sites.
+Actual assembly fixtures cover both themes, English initial/completed diagnostics, Help label fit,
+Korean font preservation, settings/profile persistence, every-start120 cancellation and per-phone screen priority.
+Fixture screenshots are internal validation, not real-phone documentation pictures.
+
+The final package reuses that exact tested EXE. Final packaging and this GitHub-documentation pass
+do not claim another full feature test, new APK build or fresh phone execution.
+The unchanged APK's34 Android tests/signed Release/lint (0 errors/70 warnings) are earlier evidence, not a new Android run.
+
+### Antivirus and physical-test boundary
+
+**The maintainer reports that the current final D3342F… EXE passed their antivirus scan clean.**
+This is a maintainer-supplied result for the exact preserved file; no report URL, engine name or detection count was supplied.
+The maintainer's October16 VirusTotal0/71 screenshot is for the different BBFFA0… EXE.
+Earlier proxy/APK clean reports are maintainer reports for unchanged exact files; no unprovided engine counts are invented.
+
+The maintainer reported working ordinary DeX/input and supplied real2.5.0 captures.
+Automated tests do not prove every Windows7/GPU/DPI/firmware, actual portable120 FPS on every device,
+or guaranteed Windows-shutdown packet delivery. These limits remain explicit.
+
+### Documentation-only preservation
+
+The new README/guides/FAQ and approved16 captures are GitHub source assets.
+They are not inserted into the final ZIP or used to replace the embedded document snapshot.
+No EXE/APK/ZIP rebuild, phone installation, source merge or publication follows this documentation pass.
+See [Building](BUILDING.md) and [TODO](TODO.md) for shared-source/main integration gates.
+
+## 한국어
+
+현재 최종 ZIP은39개 파일을 `DX Manager v2.5.0` 폴더에 담은 `DX-Manager-win-x64.zip`입니다.
+위 해시로 정확한 파일을 식별하며,702개 검증을 통과한 EXE를 그대로 포장했습니다.
+영어 문구5458건·리소스 호출955곳을 점검했고 한·영·테마·프로필·120 경고·기기 분리를 확인했습니다.
+
+현재 EXE의 새 백신 검사 결과는 아직 이 기록에 없습니다.10월16일0/71은 다른 이전 EXE의 결과입니다.
+Windows7·GPU·DPI·펌웨어 전부나 모든 실제 종료 전달을 보장하는 검증으로 확대하지 않습니다.
+문서·사진만 정리하며 최종 파일은 보존합니다. 공개 여부는 별도 지시를 따릅니다.
+
+<details>
+<summary>Earlier package/preview/scan records — historical</summary>
+
+The records below describe their dated artifacts; their hashes and scan claims do not replace the current table above.
+
 
 ## Current final package — 2026-10-24
 
@@ -129,3 +212,5 @@ Windows505개·Android34개 검증과 공식 APK 서명을 확인했습니다. E
 
 이번 문서 수정으로 검사 완료 EXE·APK·ZIP을 바꾸지 않습니다. 새 포터블 스크린샷과 공용 Companion을
 포함한 독립 소스 빌드 준비는 배포 전에 마무리할 항목입니다.
+
+</details>

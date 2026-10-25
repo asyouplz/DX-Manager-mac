@@ -1,4 +1,4 @@
-# Fluent UI System Icons in portable DX Manager
+﻿# Fluent UI System Icons in portable DX Manager
 
 - Source: https://github.com/microsoft/fluentui-system-icons
 - Source commit: a563cf9166f4f91aa617557ed272612b7f0a2f72
@@ -43,3 +43,7 @@
 | Manager | Phone Desktop | DB0219DDA7CC2CEEF0137CE32ECC21C5E195FEA4421F346F0B5F1EE2F218B6CC |
 | ChevronUp | Chevron Up | 74F3E30557997CE47E314CA1E7491142E470F85BA1C36637A9DAD3FE23234580 |
 | Save | Save | 49CBCB116CB1CA552896122F334257E92C2F3E3DD37B2F7F3F799DCD7A144082 |
+
+## Current use — Windows2.5.0
+
+The pinned SVG/mask/license provenance above remains unchanged. Portable command icons normally render at20px; reviewed mini-bar sizes remain specific to that UI. English Help caption fitting changes only its text font, not these assets.
