@@ -19,6 +19,14 @@ Git preserves the source bytes so manifest hashes remain valid in a fresh source
 The export excludes private signing inputs, caches, local build configuration and private AI test code.
 Public Windows builds fall back to the included component; maintainers can still use the canonical shared directory.
 
+### Independent Windows source check
+
+A new archive of the committed public source was built without an external Companion directory:
+.NET Framework 4.6.2 x64 build, 0 warnings/errors; all 62 foundation checks passed.
+Source packaging is also checked against the pinned runtime and bundled official APK.
+The source snapshot and official scrcpy runtime preserve their original bytes through Git instead of line-ending normalization.
+This is source-build verification; the uploaded binaries remain the prior 702-check, maintainer-scanned files.
+
 ### Platform integration
 
 The public main at `2a1ec107450d8755e3691e9fa52aa086ed034e8d` is merged rather than overwritten.
