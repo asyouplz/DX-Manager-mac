@@ -64,8 +64,8 @@ or guaranteed Windows-shutdown packet delivery. These limits remain explicit.
 
 The new README/guides/FAQ and approved16 captures are GitHub source assets.
 They are not inserted into the final ZIP or used to replace the embedded document snapshot.
-No EXE/APK/ZIP rebuild, phone installation, source merge or publication follows this documentation pass.
-See [Building](BUILDING.md) and [TODO](TODO.md) for shared-source/main integration gates.
+The 2026-10-25 authorized publication adds the verified public Companion snapshot and preserves the remote Mac source.
+The uploaded EXE/APK/ZIP remain unchanged. See [Building](BUILDING.md) and [publication notes](PUBLICATION_v2.5.0.md).
 
 ## 한국어
 

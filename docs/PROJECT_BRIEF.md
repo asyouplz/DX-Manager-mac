@@ -1,4 +1,4 @@
-﻿# DX Manager project brief
+# DX Manager project brief
 
 ## English — current Windows baseline, 2026-10-24
 
@@ -9,8 +9,8 @@
 | Runtime | Official scrcpy 5.0.1,16 pinned files; default `--hwdec=auto` |
 | Android helper | Shared official Companion 2.1.6/code13/protocol1, Android 13+ |
 | Delivery | `DX-Manager-win-x64.zip` → `DX Manager v2.5.0/`;39 files |
-| Last code checkpoint | Local `ccc10a9`; documentation after it remains local |
-| Public status at review | Public main `2a1ec107450d8755e3691e9fa52aa086ed034e8d`; latest release2.0.1 |
+| Product code checkpoint | `ccc10a9`; scanned runtime bytes preserved during source/docs publication |
+| Source integration | Public main's Mac implementation preserved; official Companion snapshot included |
 | Current binary checks |702 Windows checks; exact prepared hashes in [verification](VERIFICATION_v2.5.0.md) |
 | Separate products | Store WinUI and macOS .NET8 are separate implementations; no private AI tracker in this release |
 
@@ -36,7 +36,7 @@ Current user captures are approved for public docs: no single-window picture; di
 default-size connection page; connected Companion home images. See [image inventory](SCREENSHOT_PLAN_v2.5.0.md).
 
 Preserve exact final bytes during GitHub documentation work. No publication follows a clean antivirus report.
-Before publishing source, provide the official shared dependency and reconcile remote macOS additions without deleting them.
+The source includes the verified official Companion snapshot and preserves remote macOS additions in separate build projects.
 See [Building](BUILDING.md), [known constraints](KNOWN_ISSUES.md) and [current TODO](TODO.md).
 
 ## 한국어
@@ -45,4 +45,4 @@ See [Building](BUILDING.md), [known constraints](KNOWN_ISSUES.md) and [current T
 휴대폰별 세션 분리·USB 새 실행 우선·실행 중 serial 유지·단일창 시작 앱 필수,
 120 실행 경고·화면 켜짐 우선·이전 설정 복원, Unicode 전송·입력·트레이·정리 규칙을 유지합니다.
 702개 검증은 Windows 실제 어셈블리/검증 UI 범위이며 모든 기기·OS 실기 검증으로 확대하지 않습니다.
-문서 준비와 공개는 별개입니다. 공용 소스 의존성과 원격 macOS 보존은 게시 전 준비 항목입니다.
+공용 원본의 해당 버전 스냅샷을 소스에 포함하고 macOS 구현은 별도 빌드 프로젝트로 보존합니다. 이번 게시는 메이님이 명시적으로 승인했습니다.

@@ -1,4 +1,4 @@
-﻿# GitHub documentation audit — 2026-10-24
+# GitHub documentation audit — 2026-10-24
 
 ## English
 
@@ -93,3 +93,7 @@ This pass does not commit, merge, push, tag, publish a release, rename old GitHu
 README·한영 설명서·35개 FAQ·현재 개발 안내를 갱신하고 사진16장과 Android 예시6장을 사용합니다.
 옛 동작·해시·법적 원문은 보존하며 실제 화면에 없는 설정 경로나 단일창 앱 미선택 안내를 바로잡았습니다.
 최종 EXE/APK/ZIP은 바꾸지 않습니다. 소스 의존성·macOS 통합·현재 파일 검사와 공개 승인은 별도 준비 항목입니다.
+
+## Follow-up — 2026-10-25
+
+The maintainer authorized commit/publication and reports the final EXE scanned clean. Public-source Companion closure and Mac project separation were completed in the [publication work](PUBLICATION_v2.5.0.md). Earlier pending statuses above describe the October 24 audit, not remaining release gates.

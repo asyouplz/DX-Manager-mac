@@ -1,4 +1,12 @@
-﻿# Session Handoff
+# Session Handoff
+
+## 2026-10-25 authorized Windows 2.5.0 publication
+
+The maintainer authorized the local final commit and GitHub upload. The final EXE has a maintainer-reported clean scan.
+Committed the refreshed docs/photos plus a verified official Companion source/APK export.
+Merged public main while preserving all Mac implementation/tooling; isolated its .NET 8 proxy/foundation projects
+from the tested Windows framework projects. Public Windows checkouts can use the included companion snapshot.
+Preserved scanned EXE/APK/ZIP bytes and all Store files. See PUBLICATION_v2.5.0.md for release boundaries.
 
 ## 2026-10-24 GitHub documentation and approved image refresh
 

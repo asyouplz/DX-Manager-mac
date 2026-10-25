@@ -1,9 +1,10 @@
-﻿# Technical notes
+# Technical notes
 
-## Current Windows architecture — 2026-10-24
+## Current Windows architecture — 2026-10-25
 
 Baseline: code checkpoint `ccc10a9`, Windows2.5.0, .NET Framework4.6.2 x64, scrcpy5.0.1 and official Companion2.1.6/code13.
 These notes describe the portable product; Store WinUI and the public macOS .NET8 implementation are separate.
+The included companion/ release snapshot supplies public builds; canonical Android development remains shared.
 
 ### Physical devices and transports
 

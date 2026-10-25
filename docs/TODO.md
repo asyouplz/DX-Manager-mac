@@ -1,36 +1,35 @@
-﻿# Current TODO
+# Current status — Windows 2.5.0
 
-## English — Windows 2.5.0, 2026-10-24
+## English — 2026-10-25
 
-### Completed locally
+### Release scope completed
 
-- [x] Accepted UI, tray lifecycle, wireless/TLS, transfer and scrcpy 5.0.1 changes.
-- [x] Experimental120 FPS, every-start warning, prior screen-off restoration and same-phone screen priority.
+- [x] Accepted light/dark UI, tray lifecycle, wireless/TLS, transfer and scrcpy 5.0.1 changes.
+- [x] Experimental 120 FPS, every-start warning, prior screen-off restoration and same-phone screen priority.
 - [x] Daily background update checks, manual check UI and local per-version changes notes.
-- [x] Shared official Companion 2.1.6 and its verified-clean guardian stop behavior.
-- [x] English initial diagnostics/FAQ translation and Help fit; prior diagnostics header overlap fixed.
-- [x]702 Windows checks; final EXE is byte-identical to that tested preview.
-- [x] Local code commit `ccc10a9`; clean final39-file ZIP with fixed external name and versioned inner folder.
-- [x] Inspect refreshed real captures and apply the maintainer's selected16-image layout.
-- [x] Update README, EN/KO guides and 35-question FAQs, release/checksum/current developer docs locally.
-- [x] Preserve the 39-path public inventory, six release records and remote macOS documentation.
+- [x] Official Companion 2.1.6 with duplicate-share protection and verified-clean guardian stop behavior.
+- [x] English diagnostics/FAQ text and Help fit; environment-check header/button overlap fixed.
+- [x] 702 Windows checks; final EXE is identical to the tested preview.
+- [x] Clean 39-file ZIP with fixed external name and versioned inner folder.
+- [x] Maintainer-reported clean scan for the exact final EXE.
+- [x] README, EN/KO guides/35-question FAQs, release notes and 16 approved captures refreshed.
+- [x] Matching official Companion source/constants/APK included as a verified public snapshot.
+- [x] Public macOS implementation preserved in separate .NET 8 projects.
+- [x] Explicit maintainer authorization to commit and publish this release.
 
-### Before publishing
+### Future work
 
-- [ ] Receive/confirm antivirus evidence for the exact current final EXE/ZIP; do not reuse an earlier hash's result.
-- [ ] Provide the official shared Companion dependency/source path for public source consumers and verify a clean independent checkout.
-- [ ] Reconcile this Windows branch with public main while preserving macOS source/build/workflow/docs.
-- [ ] Commit the new documentation only when requested.
-- [ ] Push/tag/release and upload `DX-Manager-win-x64.zip` only after explicit publication direction.
-- [ ] Rename the old2.0.1 GitHub asset at the maintainer's requested publication step, not during documentation work.
+No new feature is required by this release request. Reported issues should be reviewed against [known limits](KNOWN_ISSUES.md).
+Future releases still need explicit publication approval. Do not add the private AI foreground-app/keymap experiment
+or change the Store product as part of routine portable maintenance.
 
 ### Verification boundaries
 
-Real phone120 FPS/GPU/firmware, Windows 7/other DPI and actual Windows-shutdown delivery are not universal automated-test claims.
-Current known limits are in [KNOWN_ISSUES.md](KNOWN_ISSUES.md). Historical task states remain in Git/session records.
+Automated Windows checks are not universal Windows 7/GPU/DPI/phone/firmware or shutdown-packet guarantees.
+macOS build/runtime evidence is separate from Windows verification. See [verification](VERIFICATION_v2.5.0.md).
 
 ## 한국어
 
-코드·최종본·현재 설명서·FAQ·사진 정리는 로컬에서 완료했습니다.
-남은 항목은 현재 파일의 백신 결과, 공개 소스 의존성, 원격 macOS 보존 통합과 메이님의 게시 지시입니다.
-문서 갱신 뒤 커밋·업로드는 자동으로 하지 않으며, 과거 릴리스 파일명 변경도 게시 단계 지시를 따릅니다.
+이번 요청 범위는 최종본·문서·공식 Companion 소스 연결·macOS 보존과 승인된 게시입니다.
+새 기능 추가나 Store 변경은 포함하지 않습니다. 실기 미확인 환경은 성공으로 확대하지 않으며
+다음 버전의 게시도 메이님의 별도 지시를 따릅니다.

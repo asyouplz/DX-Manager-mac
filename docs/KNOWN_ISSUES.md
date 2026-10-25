@@ -40,7 +40,7 @@ Windows2.5.0 / scrcpy5.0.1 / official Companion2.1.6. See [FAQ](FAQ_EN.md), [한
 - A fresh extraction folder lacks the previous config/history unless the user copies it. Safety consent can reappear in a clean folder.
   Local changes notes identify older installations through previous accepted consent, not settings-file existence alone.
 
-### Publication/source gates
+### Source and release scope
 
 The final Windows EXE has a maintainer-reported clean antivirus result for its exact D3342F… hash.
 The public source includes the matching Companion source/constants/APK snapshot under `companion/`.

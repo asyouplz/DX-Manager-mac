@@ -1,4 +1,4 @@
-﻿# DX Manager agent guidance
+# DX Manager agent guidance
 
 이 파일은 저장소 전체에 적용되는 Codex 작업 규칙이다. 버전, 브랜치와 현재
 진행 상태처럼 자주 바뀌는 정보는 이 파일에 복사하지 않고 `docs/SESSION.md`와
@@ -163,3 +163,10 @@ Antivirus results or confirmation that files are clean are not publication appro
 Prepare requested documents locally; wait for the user's explicit instruction to publish before
 commit/push/tag/release creation or remote documentation changes. Preserve the scanned release bytes
 during a documentation-only task. Review remote-only macOS files before any future main integration.
+
+## Public source snapshots and platform builds — 2026-10-25
+
+companion/ is a generated, version-pinned public snapshot; do not maintain Android changes there independently.
+A public Windows checkout falls back to that snapshot when the canonical shared component is absent.
+Preserve its manifest-pinned source bytes and official APK; never add signing inputs.
+Mac .NET 8 proxy/foundation projects use separate .Mac directories; preserve the Windows .NET Framework projects.

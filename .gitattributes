@@ -4,3 +4,6 @@ companion/source/** -text
 companion/integration/** -text
 companion/release/** -text
 companion/licenses/** -text -whitespace
+
+*.sh text eol=lf
+*.command text eol=lf

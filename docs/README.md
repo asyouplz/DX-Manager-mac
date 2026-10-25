@@ -1,10 +1,10 @@
-﻿# DX Manager documentation
+# DX Manager documentation
 
 ## English
 
 Current Windows documentation: **2.5.0 / scrcpy 5.0.1 / official Companion 2.1.6**.
 Reviewed2026-10-24 against code checkpoint `ccc10a9` and the prepared final ZIP.
-This is local publication preparation; the public release remains2.0.1 until the maintainer publishes2.5.0.
+Publication was authorized on 2026-10-25. See the [release notes](RELEASE_NOTES_v2.5.0.md) and [publication record](PUBLICATION_v2.5.0.md).
 
 ### Start here
 
@@ -41,6 +41,6 @@ These full web guides, screenshots and developer records are not bundled into it
 ## 한국어
 
 Windows 2.5.0 기준 설명서·FAQ·변경사항과 새 실제 촬영 사진을 정리했습니다.
-최종 파일의 해시·확인 범위는 검증 기록을 따릅니다. 현재 공개된2.0.1과 로컬 준비2.5.0은 구분합니다.
-개발자는 빌드 전제·공용 Companion 의존성·원격 macOS 보존과 TODO를 확인하세요.
+최종 파일의 해시·확인 범위는 검증 기록을 따릅니다. 2026-10-25 메이님이 최종 커밋·게시를 승인했습니다.
+개발자는 동봉 Companion 스냅샷과 분리된 macOS 빌드 안내를 확인하세요.
 과거 기록은 원래 날짜와 버전의 사실로 유지하며 사용자 ZIP에 소스 문서·사진을 넣지 않습니다.
