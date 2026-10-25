@@ -45,7 +45,7 @@ Windows2.5.0 / scrcpy5.0.1 / official Companion2.1.6. See [FAQ](FAQ_EN.md), [한
 The final Windows EXE has a maintainer-reported clean antivirus result for its exact D3342F… hash.
 The public source includes the matching Companion source/constants/APK snapshot under `companion/`.
 Historical scan results still refer to their own exact files.
-Remote macOS projects/workflow/docs must be preserved during main integration. Published Mac ZIPs were not found at the review date.
+Remote macOS projects/workflow/docs are preserved in the merged source, with separate .NET 8 proxy/foundation projects. Published Mac ZIPs were not found at the review date.
 Documentation preparation does not authorize commit/push/tag/release.
 
 ## 한국어
