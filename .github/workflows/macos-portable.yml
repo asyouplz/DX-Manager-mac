@@ -25,6 +25,8 @@ on:
       - "scripts/upstream/**"
       - "docs/MACOS_GUI_PARITY.md"
       - "scripts/app_icon.icns"
+      - "tools/loopback/**"
+      - "DXLoopback/**"
   push:
     branches:
       - main
@@ -53,12 +55,18 @@ on:
       - "scripts/upstream/**"
       - "docs/MACOS_GUI_PARITY.md"
       - "scripts/app_icon.icns"
+      - "tools/loopback/**"
+      - "DXLoopback/**"
   workflow_dispatch:
     inputs:
       version:
         description: Version used in the generated ZIP filenames
         required: true
-        default: "2.1.0"
+        default: "2.2.0"
+      require_notarization:
+        description: Fail unless Developer ID signing and Apple notarization succeed
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -95,7 +103,7 @@ jobs:
           elif [[ -n "$REQUESTED_VERSION" ]]; then
             version="$REQUESTED_VERSION"
           else
-            version="2.1.0"
+            version="2.2.0"
           fi
           echo "DXM_PACKAGE_VERSION=$version" >> "$GITHUB_ENV"
 
@@ -116,6 +124,67 @@ jobs:
       - name: Run native desktop controls checks
         run: scripts/Test-MacDesktopControls.sh
 
+      - name: Import Developer ID signing and notary credentials (optional)
+        env:
+          MACOS_CERTIFICATE_P12_BASE64: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
+          APPLE_API_KEY_P8_BASE64: ${{ secrets.APPLE_API_KEY_P8_BASE64 }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+          REQUIRE_NOTARIZATION: ${{ inputs.require_notarization }}
+        run: |
+          if [[ -z "$MACOS_CERTIFICATE_P12_BASE64" ]]; then
+            if [[ "$REQUIRE_NOTARIZATION" == "true" ]]; then
+              echo "::error::Notarization was required but MACOS_CERTIFICATE_P12_BASE64 is not configured."
+              exit 1
+            fi
+            echo "::warning::No Developer ID certificate secret; building an ad-hoc signed, non-notarized package."
+            exit 0
+          fi
+          keychain="$RUNNER_TEMP/dxm-signing.keychain-db"
+          keychain_password="$(openssl rand -hex 24)"
+          certificate="$RUNNER_TEMP/dxm-signing.p12"
+          printf '%s' "$MACOS_CERTIFICATE_P12_BASE64" | base64 --decode > "$certificate"
+          security create-keychain -p "$keychain_password" "$keychain"
+          security set-keychain-settings -lut 3600 "$keychain"
+          security unlock-keychain -p "$keychain_password" "$keychain"
+          security import "$certificate" -k "$keychain" -P "$MACOS_CERTIFICATE_PASSWORD" \
+            -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$keychain_password" "$keychain" >/dev/null
+          security list-keychains -d user -s "$keychain" $(security list-keychains -d user | tr -d '"')
+          rm -f "$certificate"
+          identity="$MACOS_SIGNING_IDENTITY"
+          if [[ -z "$identity" ]]; then
+            identity="$(security find-identity -v -p codesigning "$keychain" | \
+              sed -n 's/.*"\(Developer ID Application: .*\)"/\1/p' | head -n 1)"
+          fi
+          if [[ "$identity" != Developer\ ID\ Application:* ]]; then
+            echo "::error::No Developer ID Application identity found in the imported certificate."
+            exit 1
+          fi
+          {
+            echo "DXM_CODESIGN_IDENTITY=$identity"
+            echo "DXM_CODESIGN_KEYCHAIN=$keychain"
+            echo "DXM_SIGNING_KEYCHAIN_FILE=$keychain"
+          } >> "$GITHUB_ENV"
+          if [[ -n "$APPLE_API_KEY_P8_BASE64" && -n "$APPLE_API_KEY_ID" && -n "$APPLE_API_ISSUER_ID" ]]; then
+            key_path="$RUNNER_TEMP/AuthKey_${APPLE_API_KEY_ID}.p8"
+            printf '%s' "$APPLE_API_KEY_P8_BASE64" | base64 --decode > "$key_path"
+            chmod 600 "$key_path"
+            {
+              echo "DXM_NOTARY_KEY_PATH=$key_path"
+              echo "DXM_NOTARY_KEY_ID=$APPLE_API_KEY_ID"
+              echo "DXM_NOTARY_ISSUER=$APPLE_API_ISSUER_ID"
+            } >> "$GITHUB_ENV"
+            echo "Developer ID signing and notarization are enabled."
+          elif [[ "$REQUIRE_NOTARIZATION" == "true" ]]; then
+            echo "::error::Notarization was required but the App Store Connect API key secrets are incomplete."
+            exit 1
+          else
+            echo "::warning::Developer ID signing is enabled without notarization; Gatekeeper will still warn."
+          fi
+
       - name: Build and verify portable ZIP
         run: >-
           scripts/Package-Mac-Release.sh
@@ -123,6 +192,23 @@ jobs:
           --version "$DXM_PACKAGE_VERSION"
           --skip-tests
           --include-app
+
+      - name: Report Gatekeeper assessment
+        if: env.DXM_NOTARY_KEY_PATH != ''
+        run: |
+          workdir="$RUNNER_TEMP/gatekeeper-check"
+          rm -rf "$workdir" && mkdir -p "$workdir"
+          ditto -x -k "dist/DX-Manager-v${DXM_PACKAGE_VERSION}-macos-${{ matrix.package_arch }}.zip" "$workdir"
+          spctl --assess --type execute --verbose=4 "$workdir/DX Manager/DX Manager.app"
+          xcrun stapler validate "$workdir/DX Manager/DX Manager.app"
+
+      - name: Remove signing credentials
+        if: always()
+        run: |
+          if [[ -n "${DXM_SIGNING_KEYCHAIN_FILE:-}" ]]; then
+            security delete-keychain "$DXM_SIGNING_KEYCHAIN_FILE" || true
+          fi
+          rm -f "${DXM_NOTARY_KEY_PATH:-/nonexistent}"
 
       - name: Upload prebuilt portable package
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

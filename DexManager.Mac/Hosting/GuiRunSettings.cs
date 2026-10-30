@@ -20,6 +20,8 @@ internal sealed class GuiRunSettings
     public bool UseHidMouse { get; set; }
     public bool ForceStopStartApp { get; set; }
     public bool FlexDisplay { get; set; }
+    // DeX only: Samsung loopback wireless DeX without the phone preview.
+    public bool HidePhonePreview { get; set; }
     public string StartAppPackage { get; set; } = "";
     public string StartAppName { get; set; } = "";
     public string AdditionalArguments { get; set; } = "";
@@ -42,6 +44,8 @@ internal sealed class GuiRunSettings
         if (AdditionalArguments.Length > 4096 || AdditionalArguments.Any(c => c is '\r' or '\n' or '\0'))
             throw new ArgumentException("Invalid additional arguments.");
         ScrcpyService.ValidateAdditionalArguments(AdditionalArguments);
+        if (mode != 0) HidePhonePreview = false;
+        else if (HidePhonePreview) LoopbackDexProtocol.ValidateAdditionalArguments(AdditionalArguments);
     }
 
     internal static GuiRunSettings Read(DeviceRunSettingsProfile profile, int mode)
@@ -51,6 +55,7 @@ internal sealed class GuiRunSettings
         result.Width = profile.VirtualDisplay.Width;
         result.Height = profile.VirtualDisplay.Height;
         result.Dpi = profile.VirtualDisplay.Dpi;
+        result.HidePhonePreview = profile.VirtualDisplay.HidePhonePreview;
         return result;
     }
 
@@ -62,6 +67,7 @@ internal sealed class GuiRunSettings
             profile.VirtualDisplay.Width = Width;
             profile.VirtualDisplay.Height = Height;
             profile.VirtualDisplay.Dpi = Dpi;
+            profile.VirtualDisplay.HidePhonePreview = HidePhonePreview;
             // Preserve fields the UI does not own (window title, custom size, etc.).
             var target = profile.Scrcpy;
             target.BitRate = BitRate; target.MaxFps = MaxFps;

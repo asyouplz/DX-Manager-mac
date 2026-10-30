@@ -243,7 +243,7 @@ typedef void (^DXReply)(id data, NSString *error);
     [self label:L(@"SETTINGS", @"설정") frame:NSMakeRect(16, 300, 156, 20) font:11 parent:sidebar];
     NSArray *pages = @[L(@"General", @"기본"), L(@"Connection", @"연결"), L(@"Paths / Transfers", @"경로 / 파일 전송"), L(@"Keyboard", @"키 입력"), L(@"Diagnostics", @"진단 / Companion"), L(@"About", @"정보")];
     for (NSInteger i = 0; i < (NSInteger)pages.count; i++) { NSButton *b = [self button:pages[i] action:@selector(navigate:) frame:NSMakeRect(8, 332 + i * 39, 174, 34) parent:sidebar]; b.tag = i + 10; [b setButtonType:NSButtonTypePushOnPushOff]; [self.navigationButtons addObject:b]; }
-    NSTextField *edition = [self label:@"macOS · 2.1.0" frame:NSMakeRect(18, sidebar.bounds.size.height - 40, 164, 22) font:11 parent:sidebar]; edition.autoresizingMask = NSViewMinYMargin;
+    NSTextField *edition = [self label:@"macOS · 2.2.0" frame:NSMakeRect(18, sidebar.bounds.size.height - 40, 164, 22) font:11 parent:sidebar]; edition.autoresizingMask = NSViewMinYMargin;
     NSTextField *title = [self label:@"DX Manager" frame:NSMakeRect(224, 18, 370, 38) font:29 parent:self.root]; title.font = [NSFont boldSystemFontOfSize:29];
     self.deviceBox = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(588, 23, 332, 30) pullsDown:NO];
     self.deviceBox.target = self; self.deviceBox.action = @selector(selectDevice:); self.deviceBox.accessibilityLabel = L(@"Selected device", @"선택 기기"); [self.root addSubview:self.deviceBox]; [self rebuildDevices];
@@ -342,7 +342,14 @@ typedef void (^DXReply)(id data, NSString *error);
     BOOL active = (NSInteger)running.count > self.mode && B(running[self.mode]);
     self.startButton.enabled = usable && B(device[@"connected"]) && B(device[@"stable"]) && !active;
     self.stopButton.enabled = usable && active;
+    if (self.page == 0 && self.mode == 0 && self.fields[@"hidePhonePreview"]) {
+        // Samsung negotiates the hidden display; the option changes only while stopped.
+        BOOL hidden = [self checkValue:@"hidePhonePreview"];
+        for (NSString *key in @[@"width", @"height", @"dpi", @"turnScreenOff"]) ((NSControl *)self.fields[key]).enabled = usable && !hidden;
+        ((NSControl *)self.fields[@"hidePhonePreview"]).enabled = usable && !active;
+    }
 }
+- (void)hidePreviewChanged:(id)sender { [self edited:sender]; [self updateEnabled]; }
 - (void)renderPage {
     for (NSView *view in self.pane.subviews.copy) [view removeFromSuperview];
     for (NSView *view in self.footer.subviews.copy) [view removeFromSuperview];
@@ -375,6 +382,11 @@ typedef void (^DXReply)(id data, NSString *error);
     [self check:@"forceStopStartApp" title:L(@"Force stop selected app", @"선택 앱 강제 종료") x:360 y:47 parent:options];
     [self check:@"stayAwake" title:L(@"Keep awake", @"잠자기 방지") x:360 y:82 parent:options];
     if (self.mode > 0) [self check:@"flexDisplay" title:L(@"Resize display with window", @"창 크기에 맞춰 화면 조절") x:360 y:117 parent:options];
+    else {
+        NSButton *hide = [self check:@"hidePhonePreview" title:L(@"Hide phone preview (experimental)", @"휴대폰 미리보기 숨김 (실험)") x:360 y:117 parent:options];
+        hide.action = @selector(hidePreviewChanged:);
+        hide.toolTip = L(@"Samsung wireless DeX over the phone's own loopback. The phone stays usable without the DeX preview. Resolution, DPI and phone screen-off are negotiated by Samsung and ignored. Change only while DeX is stopped.", @"휴대폰 내부 루프백으로 삼성 무선 DeX를 연결합니다. 휴대폰에는 DeX 미리보기가 표시되지 않습니다. 해상도·DPI·화면 끄기는 삼성이 협상하므로 적용하지 않습니다. DeX가 중지된 상태에서만 바꿀 수 있습니다.");
+    }
     [self label:L(@"Start app", @"시작 앱") frame:NSMakeRect(20, 158, 470, 20) font:12 parent:options];
     NSComboBox *apps = [[NSComboBox alloc] initWithFrame:NSMakeRect(20, 181, 463, 28)]; apps.delegate = (id)self;
     apps.target = self; apps.action = @selector(appChanged:); apps.accessibilityLabel = L(@"Start app package", @"시작 앱 패키지");
@@ -384,7 +396,7 @@ typedef void (^DXReply)(id data, NSString *error);
     [self text:@"additionalArguments" title:L(@"Advanced options (additional scrcpy arguments)", @"고급 옵션 (추가 scrcpy 인자)") x:20 y:226 width:646 parent:options];
     NSDictionary *run = self.settings[@"run"];
     for (NSString *key in @[@"width", @"height", @"dpi", @"bitRate", @"maxFps", @"additionalArguments", @"startAppPackage"]) [self setText:key value:run[key]];
-    for (NSString *key in @[@"turnScreenOff", @"stayAwake", @"useHidKeyboard", @"useHidMouse", @"forceStopStartApp", @"flexDisplay"]) if (self.fields[key]) [self setCheck:key value:run[key]];
+    for (NSString *key in @[@"turnScreenOff", @"stayAwake", @"useHidKeyboard", @"useHidMouse", @"forceStopStartApp", @"flexDisplay", @"hidePhonePreview"]) if (self.fields[key]) [self setCheck:key value:run[key]];
     if (self.mode > 0) {
         self.pane.frame = NSMakeRect(0, 0, 690, 576);
         NSArray *titles = @[L(@"Save app profile", @"앱 설정 저장"), L(@"Load profile", @"앱 설정 불러오기"), L(@"Delete profile", @"앱 설정 삭제")];
@@ -515,7 +527,7 @@ typedef void (^DXReply)(id data, NSString *error);
 }
 - (void)renderAbout {
     DXFlippedView *card = [self card:L(@"DX Manager for macOS", @"Mac용 DX Manager") y:0 height:435];
-    [self label:L(@"Community macOS edition based on maze-mei/DX-Manager.\n\nThe native Mac window uses the same C# device and DeX services as the portable edition. Settings remain outside the signed app bundle.\n\nVersion 2.1.0 provides a native Mac GUI. Focused-window key conversion, capture and a mini control bar use macOS permissions. Device and Intel hardware validation are tracked separately.\n\nAd-hoc signed; not Apple notarized. macOS may require approval in Privacy & Security.", @"maze-mei/DX-Manager 기반의 커뮤니티 Mac 버전입니다.\n\nMac 창은 기존 포터블 버전의 C# 기기·DeX 서비스를 사용합니다. 설정은 서명된 앱 밖에 보관합니다.\n\n2.1.0은 Mac 네이티브 GUI를 제공합니다. 키 변환·캡처·미니 컨트롤바는 macOS 권한을 사용합니다. 기기·Intel 실기 확인은 별도입니다.\n\n무결성 확인용 ad-hoc 서명이며 Apple 공증은 없습니다. 개인정보 보호 및 보안에서 실행 승인이 필요할 수 있습니다.") frame:NSMakeRect(20, 50, 645, 320) font:14 parent:card];
+    [self label:L(@"Community macOS edition based on maze-mei/DX-Manager.\n\nThe native Mac window uses the same C# device and DeX services as the portable edition. Settings remain outside the signed app bundle.\n\nVersion 2.2.0 adds an experimental per-phone option to hide the phone's DeX preview. Focused-window key conversion, capture and a mini control bar use macOS permissions. Device and Intel hardware validation are tracked separately.\n\nOfficial releases are Developer ID signed and Apple notarized when the maintainer's signing credentials are configured; otherwise the build is ad-hoc signed.", @"maze-mei/DX-Manager 기반의 커뮤니티 Mac 버전입니다.\n\nMac 창은 기존 포터블 버전의 C# 기기·DeX 서비스를 사용합니다. 설정은 서명된 앱 밖에 보관합니다.\n\n2.2.0은 휴대폰별 실험 기능 '휴대폰 미리보기 숨김'을 추가했습니다. 키 변환·캡처·미니 컨트롤바는 macOS 권한을 사용합니다. 기기·Intel 실기 확인은 별도입니다.\n\n유지관리자의 서명 정보가 설정된 공식 릴리스는 Developer ID 서명과 Apple 공증을 거칩니다. 그렇지 않은 빌드는 ad-hoc 서명입니다.") frame:NSMakeRect(20, 50, 645, 320) font:14 parent:card];
     [self button:L(@"Project releases", @"프로젝트 릴리스") action:@selector(openProject:) frame:NSMakeRect(20, 382, 290, 32) parent:card];
 }
 - (void)resolution:(NSPopUpButton *)sender {
@@ -529,7 +541,7 @@ typedef void (^DXReply)(id data, NSString *error);
         if (![scan scanInteger:&number] || !scan.isAtEnd) { [self showError:L(@"Enter a whole number for resolution, DPI and FPS.", @"해상도·DPI·FPS에는 정수를 입력하세요.")]; return nil; }
         values[key] = @(number);
     }
-    for (NSString *key in @[@"turnScreenOff", @"stayAwake", @"useHidKeyboard", @"useHidMouse", @"forceStopStartApp", @"flexDisplay"]) values[key] = @([self checkValue:key]);
+    for (NSString *key in @[@"turnScreenOff", @"stayAwake", @"useHidKeyboard", @"useHidMouse", @"forceStopStartApp", @"flexDisplay", @"hidePhonePreview"]) if (self.fields[key]) values[key] = @([self checkValue:key]);
     for (NSString *key in @[@"bitRate", @"startAppPackage", @"additionalArguments"]) values[key] = [self textValue:key];
     values[@"startAppName"] = values[@"startAppPackage"];
     NSComboBox *box = (NSComboBox *)self.fields[@"startAppPackage"];

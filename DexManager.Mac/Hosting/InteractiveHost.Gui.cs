@@ -167,6 +167,9 @@ public sealed partial class InteractiveHost
             case "save":
                 var value = request.GetProperty("run").Deserialize<GuiRunSettings>(GuiProtocol.Json);
                 value.Validate(mode);
+                if (mode == 0 && _guiRuntimes.TryGetValue(identity, out var savingRuntime) && savingRuntime.Dex.IsRunning &&
+                    value.HidePhonePreview != _runSettings.GetSnapshot(identity).VirtualDisplay.HidePhonePreview)
+                    throw new InvalidOperationException("Stop DeX before changing phone-preview hiding. / 휴대폰 미리보기 숨김은 DeX를 중지한 뒤 바꿀 수 있습니다.");
                 _runSettings.UpdateAndSave(identity, p => value.Apply(p, mode));
                 return new { message = "Settings saved. / 설정을 저장했습니다." };
             case "general":

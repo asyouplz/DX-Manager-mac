@@ -59,7 +59,7 @@ int main(int argc, const char *argv[]) {
             return 1;
         }
         if ([mode isEqualToString:@"--verify"]) {
-            puts("DX Manager app bundle integrity verified (ad-hoc signature; not notarized).");
+            puts("DX Manager app bundle integrity verified.");
             return 0;
         }
         if (mode != nil) {

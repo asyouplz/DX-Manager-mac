@@ -23,6 +23,7 @@ namespace DexManager.Services
         private int _shutdownRequested;
         private Task _shutdownTask;
         private ManagedDisplaySession _currentSession;
+        private volatile bool _lastStartUsedLoopback;
         private readonly List<DeferredDisplayCleanup>
             _pendingDisplayCleanup =
                 new List<DeferredDisplayCleanup>();
@@ -246,6 +247,10 @@ namespace DexManager.Services
             }
             CleanupStaleSession(serial, deviceIdentity);
             var runSettings = GetDeviceRunSettings(deviceIdentity);
+            _lastStartUsedLoopback = runSettings.VirtualDisplay.HidePhonePreview;
+            var effectiveScrcpy = _lastStartUsedLoopback
+                ? LoopbackDexProtocol.CreateScrcpySettings(runSettings.Scrcpy)
+                : runSettings.Scrcpy;
 
             VirtualDisplayLease lease = null;
             var scrcpyStarted = false;
@@ -258,13 +263,14 @@ namespace DexManager.Services
                         serial,
                         runSettings.VirtualDisplay,
                         _settings.Timing.VirtualDisplayDetectionTimeoutMs,
-                        delegate { return IsShutdownRequested; });
+                        delegate { return IsShutdownRequested; },
+                        deviceIdentity);
                     CompleteDeferredCleanupCore(
                         serial,
                         deviceIdentity);
                     ThrowIfShutdownRequested();
                     _scrcpyService.Start(
-                        runSettings.Scrcpy,
+                        effectiveScrcpy,
                         lease.DisplayId,
                         serial);
                     scrcpyStarted = true;
@@ -515,6 +521,15 @@ namespace DexManager.Services
         {
             var stale = _currentSession;
             if (stale == null) return;
+            if (stale.DisplayLease != null && stale.DisplayLease.IsLoopback)
+            {
+                // A helper channel never survives as a reusable display.
+                if (ReleaseDisplayLease(stale.DisplayLease, stale.DeviceIdentity))
+                    ClearSession(stale);
+                else
+                    DeferDisplayCleanup(stale);
+                return;
+            }
             if (string.Equals(
                 stale.Serial,
                 nextSerial,
@@ -626,6 +641,13 @@ namespace DexManager.Services
                 serial,
                 deviceIdentity);
             if (pendingEntries.Count == 0) return;
+            for (var index = pendingEntries.Count - 1; index >= 0; index--)
+            {
+                var pending = pendingEntries[index];
+                if (pending.Lease != null && pending.Lease.IsLoopback &&
+                    !_virtualDisplayService.Release(pending.Lease))
+                    pendingEntries.RemoveAt(index);
+            }
             RemoveDeferredCleanupEntries(pendingEntries);
             _logService.Info(LocalizationService.Format(
                 "Log.Dex.DeferredCleanupCompleted",
@@ -671,6 +693,9 @@ namespace DexManager.Services
             string expectedDeviceIdentity)
         {
             if (lease == null) return true;
+            // Closing an owned helper channel needs no online device: the
+            // helper's EOF/heartbeat watchdog removes its own DeX connection.
+            if (lease.IsLoopback) return _virtualDisplayService.Release(lease);
             string verifiedIdentity;
             var cleanupSerial = FindVerifiedCleanupTransport(
                 lease.Serial,
@@ -703,6 +728,12 @@ namespace DexManager.Services
                 out verifiedDeviceIdentity);
             if (string.IsNullOrWhiteSpace(cleanupSerial))
                 return false;
+            // Hidden-preview mode never owns an overlay setting; do not
+            // delete a display that another owner may have configured.
+            if (_lastStartUsedLoopback ||
+                GetDeviceRunSettings(verifiedDeviceIdentity)
+                    .VirtualDisplay.HidePhonePreview)
+                return true;
 
             return _virtualDisplayService.Reset(cleanupSerial);
         }
@@ -859,18 +890,25 @@ namespace DexManager.Services
                 var runSettings = GetDeviceRunSettings(
                     settings,
                     deviceIdentity);
-                runSettings.LastSuccess.Width =
-                    runSettings.VirtualDisplay.Width;
-                runSettings.LastSuccess.Height =
-                    runSettings.VirtualDisplay.Height;
-                runSettings.LastSuccess.Dpi =
-                    runSettings.VirtualDisplay.Dpi;
+                var hidden = runSettings.VirtualDisplay.HidePhonePreview;
+                if (!hidden)
+                {
+                    // Samsung negotiates the hidden display size.
+                    runSettings.LastSuccess.Width =
+                        runSettings.VirtualDisplay.Width;
+                    runSettings.LastSuccess.Height =
+                        runSettings.VirtualDisplay.Height;
+                    runSettings.LastSuccess.Dpi =
+                        runSettings.VirtualDisplay.Dpi;
+                }
                 runSettings.LastSuccess.AdbPath = _adbService.AdbPath;
                 runSettings.LastSuccess.ScrcpyPath =
                     _scrcpyService.ScrcpyPath;
                 runSettings.LastSuccess.ScrcpyArguments =
                     _scrcpyService.BuildArguments(
-                        runSettings.Scrcpy,
+                        hidden
+                            ? LoopbackDexProtocol.CreateScrcpySettings(runSettings.Scrcpy)
+                            : runSettings.Scrcpy,
                         displayId,
                         serial);
                 runSettings.LastSuccess.DisplayId = displayId;

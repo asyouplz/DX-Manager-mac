@@ -5,7 +5,7 @@ set -euo pipefail
 script_directory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repository_root="$(cd "$script_directory/.." && pwd)"
 
-version="2.1.0"
+version="2.2.0"
 rid=""
 output_directory="$repository_root/dist"
 scrcpy_archive=""
@@ -27,17 +27,27 @@ Usage:
   scripts/Package-Mac-Release.sh --rid osx-arm64|osx-x64 [options]
 
 Options:
-  --version VERSION          Package version (default: 2.1.0)
+  --version VERSION          Package version (default: 2.2.0)
   --output-dir DIRECTORY    Generated ZIP directory (default: ./dist)
   --scrcpy-archive FILE     Use an already downloaded official scrcpy archive
   --skip-tests              Skip the test suites (intended only after CI tests)
   --include-app             Also include a Finder-launchable DX Manager.app
-                            (ad-hoc signed, not Apple notarized; default: off)
   -h, --help                Show this help
+
+Signing (environment variables; all optional):
+  DXM_CODESIGN_IDENTITY     "Developer ID Application: …" identity in the
+                            keychain. Default "-" (ad-hoc, not notarizable).
+  DXM_CODESIGN_KEYCHAIN     Keychain that holds that identity.
+  DXM_HARDENED_RUNTIME=1    Use the hardened runtime even for ad-hoc builds
+                            (always on with a Developer ID identity).
+  DXM_NOTARY_KEY_PATH, DXM_NOTARY_KEY_ID, DXM_NOTARY_ISSUER
+                            App Store Connect API key (.p8) used to notarize
+                            the whole package and staple DX Manager.app.
+                            Requires a Developer ID identity.
 
 Examples:
   scripts/Package-Mac-Release.sh --rid osx-arm64
-  scripts/Package-Mac-Release.sh --rid osx-x64 --version 2.1.0
+  scripts/Package-Mac-Release.sh --rid osx-x64 --version 2.2.0
 EOF
 }
 
@@ -180,6 +190,50 @@ if [[ $include_app -eq 1 ]]; then
     require_command plutil
 fi
 
+sign_identity="${DXM_CODESIGN_IDENTITY:--}"
+[[ -n "$sign_identity" ]] || sign_identity="-"
+sign_keychain=()
+if [[ -n "${DXM_CODESIGN_KEYCHAIN:-}" ]]; then
+    sign_keychain=(--keychain "$DXM_CODESIGN_KEYCHAIN")
+fi
+entitlements="$repository_root/build/macos/DXManager.entitlements"
+hardened=0
+if [[ "$sign_identity" != "-" || "${DXM_HARDENED_RUNTIME:-0}" == "1" ]]; then
+    hardened=1
+fi
+notarize=0
+if [[ -n "${DXM_NOTARY_KEY_PATH:-}${DXM_NOTARY_KEY_ID:-}${DXM_NOTARY_ISSUER:-}" ]]; then
+    [[ -f "${DXM_NOTARY_KEY_PATH:-}" && -n "${DXM_NOTARY_KEY_ID:-}" && -n "${DXM_NOTARY_ISSUER:-}" ]] ||
+        fail "notarization needs DXM_NOTARY_KEY_PATH, DXM_NOTARY_KEY_ID and DXM_NOTARY_ISSUER"
+    [[ "$sign_identity" != "-" ]] ||
+        fail "notarization requires a Developer ID identity in DXM_CODESIGN_IDENTITY"
+    require_command xcrun
+    notarize=1
+fi
+
+# sign_code FILE [entitlements]: Developer ID builds get the hardened runtime
+# and a secure timestamp, both required by Apple notarization.
+sign_code() {
+    local target="$1"
+    local with_entitlements="${2:-}"
+    local options=(--force --sign "$sign_identity")
+    if [[ ${#sign_keychain[@]} -gt 0 ]]; then
+        options+=("${sign_keychain[@]}")
+    fi
+    if [[ "$sign_identity" == "-" ]]; then
+        options+=(--timestamp=none)
+    else
+        options+=(--timestamp)
+    fi
+    if [[ $hardened -eq 1 ]]; then
+        options+=(--options runtime)
+        if [[ -n "$with_entitlements" ]]; then
+            options+=(--entitlements "$entitlements")
+        fi
+    fi
+    codesign "${options[@]}" "$target"
+}
+
 output_directory="$(mkdir -p "$output_directory" && cd "$output_directory" && pwd)"
 temporary_base="${TMPDIR:-/tmp}"
 temporary_base="${temporary_base%/}"
@@ -283,11 +337,22 @@ done
 package_parent="$work_root/package"
 package_root="$package_parent/DX Manager"
 mkdir -p "$package_root/tools/scrcpy" "$package_root/tools/adb-proxy" \
+    "$package_root/tools/loopback" \
     "$package_root/config" "$package_root/licenses" "$package_root/docs"
 
 cp "$main_publish/DXManager.Mac" "$package_root/DXManager.Mac"
 cp "$proxy_publish/DXMAdbProxy" "$package_root/tools/adb-proxy/DXMAdbProxy"
 cp -R "$scrcpy_root/." "$package_root/tools/scrcpy/"
+# Hidden-preview DeX helper: Android dex payload, verified against its pin.
+(
+    cd "$repository_root/tools/loopback"
+    shasum -a 256 -c dxm-loopback.jar.sha256 >/dev/null
+) || fail "tools/loopback/dxm-loopback.jar does not match its SHA-256 pin"
+for loopback_file in dxm-loopback.jar dxm-loopback.jar.sha256 LICENSE NOTICE; do
+    cp "$repository_root/tools/loopback/$loopback_file" "$package_root/tools/loopback/"
+done
+cp "$repository_root/tools/loopback/LICENSE" "$package_root/licenses/dxm-loopback-LICENSE.txt"
+cp "$repository_root/tools/loopback/NOTICE" "$package_root/licenses/dxm-loopback-NOTICE.txt"
 cp "$repository_root/build/macos/Start DX Manager.command" \
     "$package_root/Start DX Manager.command"
 cp "$repository_root/build/macos/PORTABLE_PACKAGE.txt" \
@@ -334,6 +399,8 @@ for required in \
     "tools/scrcpy/scrcpy" \
     "tools/scrcpy/scrcpy-server" \
     "tools/scrcpy/adb" \
+    "tools/loopback/dxm-loopback.jar" \
+    "tools/loopback/NOTICE" \
     "licenses/THIRD_PARTY_NOTICES.md" \
     "licenses/dotnet-LICENSE.txt" \
     "licenses/dotnet-THIRD-PARTY-NOTICES.txt"; do
@@ -368,15 +435,17 @@ assert_portable_dependencies "$package_root/tools/scrcpy/adb"
 for signed_binary in \
     "$package_root/DXManager.Mac" \
     "$package_root/tools/adb-proxy/DXMAdbProxy"; do
-    codesign --force --sign - --timestamp=none "$signed_binary"
+    sign_code "$signed_binary" entitlements
     codesign --verify --strict "$signed_binary"
 done
 
 for upstream_binary in \
     "$package_root/tools/scrcpy/scrcpy" \
     "$package_root/tools/scrcpy/adb"; do
-    if ! codesign --verify --strict "$upstream_binary" 2>/dev/null; then
-        codesign --force --sign - --timestamp=none "$upstream_binary"
+    # Notarization requires every executable under this Developer ID.
+    if [[ "$sign_identity" != "-" ]] ||
+        ! codesign --verify --strict "$upstream_binary" 2>/dev/null; then
+        sign_code "$upstream_binary"
     fi
     codesign --verify --strict "$upstream_binary"
 done
@@ -459,14 +528,44 @@ EOF
     assert_architecture "$app_macos/DXManager.Launcher" "$binary_arch" "Finder launcher"
     assert_portable_dependencies "$app_macos/DXManager.Launcher"
     # Payload binaries were signed individually above. Do not re-sign nested tools.
-    codesign --force --sign - --timestamp=none "$app_macos/DXManager.Launcher"
-    codesign --force --sign - --timestamp=none "$app_root"
+    sign_code "$app_macos/DXManager.Launcher"
+    sign_code "$app_root"
     codesign --verify --deep --strict "$app_root"
     for relative_binary in DXManager.Mac tools/adb-proxy/DXMAdbProxy tools/scrcpy/scrcpy tools/scrcpy/adb; do
         cmp "$package_root/$relative_binary" "$app_macos/$relative_binary" ||
             fail "app bundle changed its verified payload: $relative_binary"
     done
     cp -R "$app_root" "$package_root/DX Manager.app"
+fi
+
+if [[ $notarize -eq 1 ]]; then
+    # One submission registers every signed executable in the package, so
+    # Gatekeeper can also verify the portable tools online; the app gets a
+    # stapled ticket for offline first launch.
+    notary_zip="$work_root/notarize-$package_arch.zip"
+    ( cd "$package_parent" && ditto -c -k --keepParent "DX Manager" "$notary_zip" )
+    notary_log="$work_root/notary-result.json"
+    if ! xcrun notarytool submit "$notary_zip" \
+        --key "$DXM_NOTARY_KEY_PATH" --key-id "$DXM_NOTARY_KEY_ID" \
+        --issuer "$DXM_NOTARY_ISSUER" --wait --timeout 45m \
+        --output-format json > "$notary_log"; then
+        cat "$notary_log" >&2 || true
+        fail "Apple notarization submission failed"
+    fi
+    notary_status="$(plutil -extract status raw -o - "$notary_log" 2>/dev/null || true)"
+    if [[ "$notary_status" != "Accepted" ]]; then
+        notary_id="$(plutil -extract id raw -o - "$notary_log" 2>/dev/null || true)"
+        [[ -z "$notary_id" ]] || xcrun notarytool log "$notary_id" \
+            --key "$DXM_NOTARY_KEY_PATH" --key-id "$DXM_NOTARY_KEY_ID" \
+            --issuer "$DXM_NOTARY_ISSUER" >&2 || true
+        fail "Apple notarization status: ${notary_status:-unknown}"
+    fi
+    echo "Apple notarization accepted."
+    if [[ $include_app -eq 1 ]]; then
+        xcrun stapler staple "$package_root/DX Manager.app"
+        xcrun stapler validate "$package_root/DX Manager.app"
+        spctl --assess --type execute --verbose=2 "$package_root/DX Manager.app"
+    fi
 fi
 
 zip_path="$output_directory/DX-Manager-v$version-macos-$package_arch.zip"

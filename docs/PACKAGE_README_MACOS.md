@@ -1,10 +1,10 @@
-# DX Manager for macOS 2.1.0
+# DX Manager for macOS 2.2.0
 
 ## English
 
-This is the **community macOS 2.1.0 release**, adding a native Mac control
-window to the 2.0.2 runtime. Open `.app` to use buttons and checkboxes without
-Terminal. macOS 14 or later is required.
+This is the **community macOS 2.2.0 release**. It keeps the 2.1.0 native Mac
+control window and adds the experimental, per-phone **Hide phone preview** DeX
+option ported from the Windows edition. macOS 14 or later is required.
 Use arm64 for Apple Silicon and x64 for Intel. Both ZIPs contain the runtime,
 ADB, scrcpy 4.1, proxy and notices; no Homebrew or separate .NET is needed.
 
@@ -13,15 +13,23 @@ Applications. Keep its internal files intact. In Finder, select the ZIP and
 matching checksum file from the same build; the checksum can be verified with:
 
 ```bash
-release_version="2.1.0"
+release_version="2.2.0"
 shasum -a 256 -c "DX-Manager-v${release_version}-macos-arm64.zip.sha256"
 ```
 
 Replace arm64 with x64 on Intel. A checksum mismatch means the file must be
 obtained again. The app's startup integrity check also rejects modified bundles.
-The app has an ad-hoc signature, **not Developer ID/notarization**. macOS may
-ask for approval in System Settings > Privacy & Security > Open Anyway, including
-individual bundled components. Approval remains the user's decision.
+Releases built with the maintainer's Apple Developer ID are notarized and open
+without a Gatekeeper warning. A build without that signature shows "Apple could
+not verify 'DX Manager' is free of malware". For a download you trust, use
+System Settings > Privacy & Security > **Open Anyway**, or remove the download
+quarantine from the whole extracted folder yourself:
+
+```bash
+xattr -dr com.apple.quarantine "/path/to/DX Manager"
+```
+
+Approval remains the user's decision. Do not run this on files of unknown origin.
 
 1. Unlock a Galaxy, enable USB debugging, connect a data cable, and approve its RSA prompt.
 2. Select that phone in the upper right. An unselected device edits common defaults only.
@@ -35,6 +43,24 @@ individual bundled components. Approval remains the user's decision.
    transfer folders, diagnostics/logs and explicitly selected-device Companion actions.
 7. **Stop** stops the selected mode. **Command+Q** stops the app's sessions and
    waits for cleanup; keep the phone connected until the app exits.
+
+### Hide phone preview (experimental)
+
+On the DeX page, **Hide phone preview** starts Samsung wireless DeX over the
+phone's own `127.0.0.1` instead of a simulated overlay display. The Mac window
+still shows DeX through scrcpy over USB or wireless ADB, while the phone keeps
+its normal home screen without the small DeX preview. The option is off by
+default, saved per phone, and changes only while DeX is stopped.
+
+A bundled, SHA-256-pinned helper (`tools/loopback/dxm-loopback.jar`) runs via
+`app_process`; no root, extra APK or Java install is needed. Samsung negotiates
+resolution and DPI, so those fields and phone screen-off are disabled in this
+mode, and scrcpy screen-power arguments are rejected. Saved values return when
+the option is turned off. If another DeX, HDMI or overlay display is active the
+start is refused. The Mac sends a heartbeat every 3 seconds; Stop, a closed
+channel or 15 seconds without a heartbeat makes the helper end only its own
+DeX connection. 15 seconds is a cleanup trigger, not a guaranteed completion
+time. Real Galaxy/One UI behavior on Mac remains **physically unverified**.
 
 In the focused DeX window, left Option+O turns the phone panel off, and left
 Option+Shift+O turns it on. Panel off is different from security lock. Locking or
@@ -65,17 +91,25 @@ The app does not silently install a Companion APK or add one to this package.
 
 ## 한국어
 
-이 패키지는 기존 2.0.2 실행 코드를 바탕으로 네이티브 GUI를 추가한 **커뮤니티
-macOS 2.1.0 배포본**입니다. `.app`을 열면 Terminal 없이 버튼·체크박스로 설정합니다.
+**커뮤니티 macOS 2.2.0 배포본**입니다. 2.1.0의 네이티브 GUI를 유지하고,
+Windows 판의 휴대폰별 실험 기능 **휴대폰 미리보기 숨김**을 DeX에 추가했습니다.
 macOS 14 이상에서 M 시리즈는 arm64, Intel은 x64를 사용합니다. 실행에 필요한
 런타임·ADB·scrcpy 4.1·proxy·라이선스가 포함되어 Homebrew나 .NET은 필요하지 않습니다.
 
 ZIP 전체를 풀고 **DX Manager.app**을 엽니다. 앱 전체를 응용 프로그램 폴더로
 옮길 수 있지만 내부 파일을 따로 이동하지 마세요. 위 명령으로 같은 빌드의
 ZIP·체크섬을 확인할 수 있습니다. Intel에서는 arm64를 x64로 바꿉니다.
-앱은 시작 시 무결성도 확인합니다. **Apple Developer ID 서명·공증은 없습니다.**
-차단되면 시스템 설정 > 개인정보 보호 및 보안에서 '그래도 열기'를 확인해야 하며,
-개별 구성요소도 승인이 필요할 수 있습니다. 승인은 사용자가 판단합니다.
+앱은 시작 시 무결성도 확인합니다. 유지관리자의 Apple Developer ID로 서명·공증된
+릴리스는 경고 없이 열립니다. 서명·공증이 없는 빌드는 "Apple은 'DX Manager'에 악성
+코드가 없음을 확인할 수 없습니다"라고 표시합니다. 신뢰하는 다운로드라면 시스템 설정 >
+개인정보 보호 및 보안 > **그래도 열기**를 누르거나, 압축을 푼 폴더 전체의 다운로드
+격리 속성을 직접 제거할 수 있습니다.
+
+```bash
+xattr -dr com.apple.quarantine "/압축을/푼/경로/DX Manager"
+```
+
+승인은 사용자가 판단합니다. 출처를 모르는 파일에는 사용하지 마세요.
 
 1. Galaxy의 잠금을 풀고 USB 디버깅을 켠 뒤 데이터 케이블로 연결하고 RSA 승인을 합니다.
 2. 오른쪽 위에서 해당 휴대폰을 선택합니다. 기기를 선택하지 않으면 공통 기본값을 편집합니다.
@@ -89,6 +123,22 @@ ZIP·체크섬을 확인할 수 있습니다. Intel에서는 arm64를 x64로 바
    선택 기기의 Companion을 관리합니다.
 7. **중지**는 선택한 모드만 종료합니다. **Command+Q**는 이 앱의 세션 정리를
    기다린 뒤 종료합니다. 끝날 때까지 휴대폰 연결을 유지하세요.
+
+### 휴대폰 미리보기 숨김 (실험 기능)
+
+DeX 화면의 **휴대폰 미리보기 숨김**을 켜면 가상 오버레이 화면 대신 휴대폰 내부
+`127.0.0.1`로 삼성 무선 DeX를 연결합니다. Mac 창에는 USB 또는 무선 ADB로 scrcpy가
+DeX를 표시하고, 휴대폰은 작은 DeX 미리보기 없이 홈 화면과 앱을 그대로 사용합니다.
+기본값은 꺼짐이며 휴대폰별로 저장하고 DeX가 중지된 상태에서만 바꿀 수 있습니다.
+
+해시가 고정된 보조 파일(`tools/loopback/dxm-loopback.jar`)을 `app_process`로
+실행하며 루팅·추가 APK·Java 설치가 필요 없습니다. 해상도·DPI는 삼성이 협상하므로
+이 모드에서는 해당 입력과 화면 끄기를 비활성화하고 화면 전원 관련 scrcpy 인자를
+거부합니다. 옵션을 끄면 저장값을 다시 사용합니다. 다른 DeX·HDMI·오버레이 화면이
+사용 중이면 시작을 거부합니다. Mac은 3초마다 신호를 보내며 중지·연결 종료·15초 신호
+손실 시 보조 프로그램이 자신이 만든 DeX 연결만 정리합니다. 15초는 정리 시작
+기준이며 완료 시간을 보장하지 않습니다. Mac에서의 실제 Galaxy/One UI 동작은
+**실기 미확인**입니다.
 
 DeX 창을 클릭하고 왼쪽 Option+O로 휴대폰 패널을 끄고 Option+Shift+O로 켭니다.
 패널 끄기는 보안 잠금과 다릅니다. 전원 버튼이나 접기로 잠그면 DeX도 잠길 수 있습니다.

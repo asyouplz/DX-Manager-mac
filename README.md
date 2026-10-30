@@ -24,18 +24,18 @@
   <a href="DexManager/licenses/THIRD_PARTY_NOTICES.md">Third-party notices</a>
 </p>
 
-## macOS 2.1.0 — native GUI community distribution
+## macOS 2.2.0 — native GUI community distribution
 
 This fork distributes macOS builds of [maze-mei/DX-Manager](https://github.com/maze-mei/DX-Manager),
 including the macOS port by [kimdongup](https://github.com/kimdongup), maintained
 separately by [asyouplz](https://github.com/asyouplz).
 
-**[macOS 2.1.0 release and download details](https://github.com/asyouplz/DX-Manager-mac/releases/tag/macos-v2.1.0)**
+**[macOS 2.2.0 release and download details](https://github.com/asyouplz/DX-Manager-mac/releases/tag/macos-v2.2.0)**
 
 | Mac | Download | Verify |
 | --- | --- | --- |
-| Apple Silicon (M-series) | [arm64 ZIP](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.1.0/DX-Manager-v2.1.0-macos-arm64.zip) | [SHA-256](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.1.0/DX-Manager-v2.1.0-macos-arm64.zip.sha256) |
-| Intel | [x64 ZIP](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.1.0/DX-Manager-v2.1.0-macos-x64.zip) | [SHA-256](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.1.0/DX-Manager-v2.1.0-macos-x64.zip.sha256) |
+| Apple Silicon (M-series) | [arm64 ZIP](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.2.0/DX-Manager-v2.2.0-macos-arm64.zip) | [SHA-256](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.2.0/DX-Manager-v2.2.0-macos-arm64.zip.sha256) |
+| Intel | [x64 ZIP](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.2.0/DX-Manager-v2.2.0-macos-x64.zip) | [SHA-256](https://github.com/asyouplz/DX-Manager-mac/releases/download/macos-v2.2.0/DX-Manager-v2.2.0-macos-x64.zip.sha256) |
 
 Requires **macOS 14 Sonoma or later**. Extract the ZIP and open **DX Manager.app**
 for a native window with DeX / three single-window modes and per-device settings.
@@ -47,8 +47,16 @@ Keyboard settings provide right Option language switching, right Shift compatibi
 F8 whole-window/region capture, and an attached mini bar. The original-size button
 keeps the resized DeX window inside the current Mac display. Grant **Accessibility**
 for key/control features and **Screen Recording** for capture through the app's
-permission buttons. **Developer ID signing and notarization are not included**;
-first-launch approval may still be needed for the app and bundled components.
+permission buttons. Releases are Developer ID signed and Apple notarized only
+when the maintainer's signing credentials are configured (see
+[macOS signing](docs/MACOS_SIGNING.md)); otherwise first-launch approval may be
+needed for the app and bundled components.
+
+**2.2.0** adds the experimental, per-phone **Hide phone preview** DeX option
+ported from the Windows edition: Samsung wireless DeX over the phone's own
+loopback, so the phone keeps its normal screen without the DeX preview. It is
+off by default and physically unverified on Mac; see
+[phone preview mode](docs/PHONE_PREVIEW_MODE.md).
 
 USB DeX, panel off/on, native language/right Shift input, capture with matching phone
 copies, mini-bar actions and normal cleanup were checked on **SM-S942N / Android 17**
@@ -59,18 +67,18 @@ Panel off is distinct from security lock; locking/folding can still lock DeX.
 
 See [first launch and use](docs/PACKAGE_README_MACOS.md),
 [GUI scope / upstream updates](docs/MACOS_GUI_PARITY.md), and
-[2.1.0 release record](docs/RELEASE_NOTES_macos-v2.1.0.md).
+[2.2.0 release notes](docs/RELEASE_NOTES_macos-v2.2.0.md) and [2.1.0 release record](docs/RELEASE_NOTES_macos-v2.1.0.md).
 The Mac release number is maintained independently; this release does not claim
 integration of a later Windows release. Windows downloads remain on the
 [original project's Releases page](https://github.com/maze-mei/DX-Manager/releases).
 
-## macOS 2.1.0 — 네이티브 GUI 커뮤니티 배포본
+## macOS 2.2.0 — 네이티브 GUI 커뮤니티 배포본
 
 [maze-mei/DX-Manager](https://github.com/maze-mei/DX-Manager)를 바탕으로
 [kimdongup](https://github.com/kimdongup)님의 Mac 포팅을 포함하며,
 [asyouplz](https://github.com/asyouplz)가 원본 Windows 릴리스와 별도로 관리합니다.
 
-**[macOS 2.1.0 릴리스 및 다운로드 안내](https://github.com/asyouplz/DX-Manager-mac/releases/tag/macos-v2.1.0)**
+**[macOS 2.2.0 릴리스 및 다운로드 안내](https://github.com/asyouplz/DX-Manager-mac/releases/tag/macos-v2.2.0)**
 
 위 표에서 **M 시리즈는 arm64**, **Intel은 x64**를 받으세요. **macOS 14 이상**에서
 ZIP을 풀고 **DX Manager.app**을 열면 Terminal 없이 버튼·체크박스로 DeX·단일창
@@ -81,8 +89,13 @@ ZIP을 풀고 **DX Manager.app**을 열면 Terminal 없이 버튼·체크박스�
 키 입력 설정에서 오른쪽 Option 한/영 전환, 오른쪽 Shift 보정, F8 전체·영역 캡처와
 미니바를 사용합니다. 원래 크기 버튼은 조정한 창이 현재 Mac 화면을 벗어나지 않게
 맞춥니다. 앱의 권한 버튼으로 **손쉬운 사용**과 **화면 기록**을 허용합니다.
-**Apple Developer ID 서명·공증은 없으므로** 최초 실행 때 앱이나 포함된 도구의
-별도 승인이 필요할 수 있습니다.
+유지관리자의 서명 정보가 설정된 경우에만 Apple Developer ID 서명·공증을 거칩니다
+([macOS 서명](docs/MACOS_SIGNING.md)). 그렇지 않으면 최초 실행 때 앱이나 포함된
+도구의 별도 승인이 필요할 수 있습니다.
+
+**2.2.0**은 Windows 판의 휴대폰별 실험 기능 **휴대폰 미리보기 숨김**을 DeX에
+추가했습니다. 휴대폰 내부 루프백으로 삼성 무선 DeX를 연결해 휴대폰에는 DeX
+미리보기가 표시되지 않습니다. 기본값은 꺼짐이며 Mac 실기는 미확인입니다.
 
 앞선 GUI 검토 빌드에서 **SM-S942N / Android 17**의 USB DeX·화면 켜기/끄기,
 한/영·오른쪽 Shift, 캡처와 휴대폰 사본 일치, 미니바 및 정상 종료 복원을 확인했습니다.
@@ -92,7 +105,7 @@ F14 Enter 전환·다른 Galaxy·외부 화면·무선·복수 기기·Intel/Gal
 
 [최초 실행·사용법](docs/PACKAGE_README_MACOS.md),
 [원작 대응 범위와 업데이트 절차](docs/MACOS_GUI_PARITY.md),
-[2.1.0 배포 기록](docs/RELEASE_NOTES_macos-v2.1.0.md)을 참고하세요.
+[2.2.0 릴리스 노트](docs/RELEASE_NOTES_macos-v2.2.0.md)와 [2.1.0 배포 기록](docs/RELEASE_NOTES_macos-v2.1.0.md)을 참고하세요.
 Mac 버전 번호는 별도로 관리하며, 이번 배포가 이후 Windows 업데이트까지 반영했다는
 뜻은 아닙니다. Windows 파일은 [원본 Releases](https://github.com/maze-mei/DX-Manager/releases)에서 받습니다.
 
