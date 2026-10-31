@@ -18,6 +18,19 @@ source tag.
 
 Official source: https://github.com/dotnet/runtime/tree/v8.0.30
 
+## DX Manager loopback DeX helper (ScrcpyDeX-derived)
+
+`tools/loopback/dxm-loopback.jar` is used only by the experimental Hide phone
+preview mode. Its Samsung loopback wireless DeX configuration and WFD
+negotiation are adapted from ScrcpyDeX
+(https://github.com/Aureliano021/ScrcpyDex, commit
+3e58823000a897300df5cf2c6d4a131d97b28162). Copyright 2026 Aureliano Peixoto
+and ScrcpyDeX Contributors. Licensed under the Apache License, Version 2.0;
+see `tools/loopback/LICENSE`, `tools/loopback/NOTICE`, and the copies
+`dxm-loopback-LICENSE.txt` / `dxm-loopback-NOTICE.txt` in the license
+directory. Source and the reproducible build script are in `DXLoopback/` and
+`scripts/Build-DexLoopback.sh` of the source repository.
+
 ## scrcpy
 
 The package includes the official static scrcpy 4.1 archive for the selected

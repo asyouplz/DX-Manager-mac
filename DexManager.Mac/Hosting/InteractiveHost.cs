@@ -894,6 +894,7 @@ public sealed partial class InteractiveHost : IDisposable
             AnsiConsole.KeyValue("5. Max FPS", runSettings.Scrcpy.MaxFps.ToString());
             AnsiConsole.KeyValue("6. Turn Screen Off", runSettings.Scrcpy.TurnScreenOff.ToString());
             AnsiConsole.KeyValue("7. Stay Awake", runSettings.Scrcpy.StayAwake.ToString());
+            AnsiConsole.KeyValue("8. Hide Phone Preview (experimental DeX)", runSettings.VirtualDisplay.HidePhonePreview.ToString());
             AnsiConsole.KeyValue("Scrcpy Path (read only)", _settings.Paths.ScrcpyPath ?? "(auto)");
             AnsiConsole.KeyValue("ADB Path (read only)", _settings.Paths.AdbPath ?? "(auto)");
             AnsiConsole.Info("Saved changes apply when DeX or a single-app window is started again.");
@@ -932,6 +933,19 @@ public sealed partial class InteractiveHost : IDisposable
                     break;
                 case "7":
                     update = settings => settings.Scrcpy.StayAwake = !settings.Scrcpy.StayAwake;
+                    break;
+                case "8":
+                    if (_activeRuntime?.Dex.IsRunning == true)
+                    {
+                        AnsiConsole.Warning("Stop DeX before changing phone-preview hiding.");
+                        return;
+                    }
+                    if (!runSettings.VirtualDisplay.HidePhonePreview)
+                    {
+                        try { LoopbackDexProtocol.ValidateAdditionalArguments(runSettings.Scrcpy.AdditionalArguments); }
+                        catch (InvalidOperationException ex) { AnsiConsole.Warning(ex.Message); return; }
+                    }
+                    update = settings => settings.VirtualDisplay.HidePhonePreview = !settings.VirtualDisplay.HidePhonePreview;
                     break;
             }
 

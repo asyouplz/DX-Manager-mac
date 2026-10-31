@@ -5,7 +5,7 @@ set -euo pipefail
 script_directory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repository_root="$(cd "$script_directory/.." && pwd)"
 output_directory="$repository_root/dist"
-version="${DXM_VERSION:-2.1.0}"
+version="${DXM_VERSION:-2.2.0}"
 rid=""
 extra_arguments=("--include-app")
 
@@ -39,7 +39,7 @@ No quarantine attributes or system security settings are changed.
 Usage: scripts/Create-AppBundle.sh [--rid osx-arm64|osx-x64] [--version VERSION]
        [--output-dir DIRECTORY] [--scrcpy-archive FILE] [--skip-tests]
 
-Defaults: current Mac architecture, version 2.1.0, repository dist directory.
+Defaults: current Mac architecture, version 2.2.0, repository dist directory.
 An existing DX Manager.app is never replaced; select a new output directory.
 EOF
             exit 0

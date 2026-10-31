@@ -729,4 +729,10 @@
   <data name="MiniBar.Collapse" xml:space="preserve"><value>Collapse the control bar</value></data>
   <data name="MiniBar.Expand" xml:space="preserve"><value>Expand the control bar</value></data>
   <data name="Log.MiniBar.CommandFailed" xml:space="preserve"><value>The mini control bar command could not be sent.</value></data>
+  <data name="Error.Loopback.BundleMissing" xml:space="preserve"><value>The experimental DeX helper is missing or could not be verified. Extract the complete package again.</value></data>
+  <data name="Error.Loopback.StartFailed" xml:space="preserve"><value>Could not start DeX with the phone preview hidden. Stop any existing DeX or external display session, unlock the phone, and try again. This mode needs verification on each device and One UI version. Details: {0}</value></data>
+  <data name="Error.Loopback.Timeout" xml:space="preserve"><value>Timed out while creating the hidden DeX display. You can switch back to the existing preview mode.</value></data>
+  <data name="Error.Loopback.OverlayActive" xml:space="preserve"><value>Stop the currently displayed DeX session first. The existing virtual display setting has not been deleted automatically.</value></data>
+  <data name="Error.Loopback.PowerArgument" xml:space="preserve"><value>Hidden-preview mode does not allow additional screen-power arguments: {0}</value></data>
+  <data name="Error.Loopback.DeviceIdentity" xml:space="preserve"><value>The selected phone identity could not be verified or has changed. Reconnect the intended phone and try again.</value></data>
 </root>

@@ -1031,7 +1031,8 @@ namespace DexManager.Models
                 Suffix = source.Suffix,
                 ReuseExistingDisplay = source.ReuseExistingDisplay,
                 CustomWidth = source.CustomWidth,
-                CustomHeight = source.CustomHeight
+                CustomHeight = source.CustomHeight,
+                HidePhonePreview = source.HidePhonePreview
             };
         }
 
