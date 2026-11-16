@@ -13,7 +13,7 @@ namespace DexManager.Services
     public sealed class LoopbackDexService
     {
         // Updated only together with the checked-in, reproducibly built helper.
-        internal const string HelperSha256 = "7d03e0ab7a95cd12e79e13dab77016c80f6bd96ce61fb455299b6b77272e5473";
+        internal const string HelperSha256 = "65d12bd344ff4e3808d9e0f113a4a003cf83893769368043365af4e1f80979e3";
         private readonly AdbService _adb;
         private readonly LogService _log;
         private readonly object _sync = new object();
@@ -27,7 +27,8 @@ namespace DexManager.Services
         }
 
         public VirtualDisplayLease Start(string serial, int creationWaitMs,
-            Func<bool> cancellationRequested, string expectedDeviceIdentity)
+            Func<bool> cancellationRequested, string expectedDeviceIdentity,
+            bool keepPhoneActive = false)
         {
             ThrowIfCancelled(cancellationRequested);
             var helper = FindHelper(AppDomain.CurrentDomain.BaseDirectory);
@@ -55,12 +56,19 @@ namespace DexManager.Services
                 VerifyDeviceIdentity(serial, expectedDeviceIdentity);
                 ThrowIfCancelled(cancellationRequested);
                 session.Process = _adb.StartShellSession(serial,
-                    LoopbackDexProtocol.BuildShellCommand(token),
+                    LoopbackDexProtocol.BuildShellCommand(token, keepPhoneActive),
                     delegate(object sender, DataReceivedEventArgs e)
                     {
                         int id;
                         if (LoopbackDexProtocol.TryParseReady(e.Data, out id))
                             Interlocked.CompareExchange(ref session.DisplayId, id, 0);
+                        else if (e.Data != null && e.Data.StartsWith(
+                            "DXM_LOOPBACK_WARN ", StringComparison.Ordinal))
+                        {
+                            if (Interlocked.Exchange(ref session.WarningReported, 1) == 0)
+                                _log.Warning("Loopback DeX could not keep the phone active. " +
+                                    "The phone's screen timeout may still lock the phone and DeX.");
+                        }
                         else if (e.Data != null && e.Data.StartsWith(
                             "DXM_LOOPBACK_ERROR ", StringComparison.Ordinal))
                         {
@@ -248,6 +256,7 @@ namespace DexManager.Services
             internal string Error;
             internal int Stopping;
             internal int CleanupUnconfirmed;
+            internal int WarningReported;
             private int _heartbeatInFlight;
 
             internal Session(string serial, string token)

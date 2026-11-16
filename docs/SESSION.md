@@ -1,6 +1,130 @@
 # Session Handoff
 
-마지막 갱신: 2026-10-12
+마지막 갱신: 2026-11-16
+
+## 2026-11-16 — Loopback keep-active documentation (unreleased)
+
+- Branch `fix/loopback-keep-active` already contained uncommitted DXLoopback,
+  DexManager.Core wiring, test, jar and pinned-hash changes. This task changes
+  documentation only and preserves those changes. No tests were rerun here;
+  the automated and device results below were supplied by the orchestrating agent.
+- In hidden-preview (loopback / native DeX) mode, per-device stay-awake on now
+  adds the fixed `keep-active` argument to the helper. After READY and while
+  its lease is alive, it signals default-display activity about every 4 s via
+  hidden `IPowerManager.userActivity(displayId 0, uptime, EVENT_OTHER, USER_ACTIVITY_FLAG_NO_CHANGE_LIGHTS)`.
+  It stops on STOP / 15 s heartbeat expiry / ownership loss. No Android settings
+  are written, no wakelock is held, no wakeUp/goToSleep/keyguard/display-power
+  APIs are called, and nothing needs restoring. With stay-awake off, the helper
+  command line is unchanged; its device behavior remains untested.
+- An unavailable call prints `DXM_LOOPBACK_WARN keep_active_unavailable` once;
+  the host logs a warning and DeX continues. The real-device WARN path is untested.
+- Source-verified and device-observed cause: scrcpy `--keep-active` (4.1 and
+  5.0.1) targets only its own display. The test phone's loopback DeX used group 2
+  and its built-in display group 0, so the phone timeout was not refreshed.
+  Windows-only `stay_on_while_plugged_in=7` works only while charging. The Mac
+  app never sets it; before this change hidden-preview Mac DeX relied on
+  scrcpy `--keep-active` alone for USB and wireless.
+- Device record, 2026-11-16 (Asia/Seoul): one Galaxy SM-S942N, Android 17
+  (SDK 37), One UI 9.0, timeout 120 s, `stay_on_while_plugged_in=0`, Smart Stay
+  on, USB ADB while charging. The agent launched the helper directly over ADB
+  from a Mac and attached Homebrew scrcpy 4.1 with
+  `--display-id <id> --keep-active --no-audio`; neither platform's DX Manager
+  app was used. In four sessions, group separation and scrcpy activity for DeX
+  only were logged. Without helper keep-active (one session, about 4 min), the
+  built-in group slept about 120 s after its last activity while DeX stayed
+  awake. Keyguard appearing / DeX window locking were not observed in the
+  approximately 30 s afterward and remain untested.
+- With helper keep-active (three sessions, about 14 min total), display 0
+  NO_CHANGE_LIGHTS calls were logged at no greater than about 4 s spacing and
+  the built-in group never slept. However, Smart Stay face detection reset
+  activity at roughly 100 s in every cycle even with the front camera covered.
+  No > 120 s interval without other activity was produced, so the fix was not
+  isolated from Smart Stay. Starting while asleep/locked did not wake or unlock
+  the phone; calls were ignored until user unlock. After every session, no
+  helper jar or Wi-Fi display remained on the phone.
+- Reported automated results, run outside the Codex sandbox on a macOS host:
+  DXLoopback host tests 25/25; jar hash identical across three builds and both
+  repositories. New jar SHA-256:
+  `65d12bd344ff4e3808d9e0f113a4a003cf83893769368043365af4e1f80979e3`.
+  Private repo `dotnet run --project DexManager.WindowsTests -c Release -p:UseSharedCompilation=false`
+  passed 33/33. Mac 2.2 repo `dotnet test DexManager.Mac.sln -c Release` passed
+  183/183; `dotnet run --project DexManager.MultiDeviceTests -c Release` reported
+  39 passed. A local unsigned-for-release test package built with
+  `scripts/Package-Mac-Release.sh --rid osx-arm64 --include-app` completed.
+  These macOS-host results do not establish Windows build or runtime behavior.
+- All remaining items are explicitly untested / Unverified in the
+  [acceptance table and dated observation](PHONE_PREVIEW_MODE.md), with open
+  entries in [TODO](TODO.md) and limitations in [KNOWN_ISSUES](KNOWN_ISSUES.md).
+  This includes Smart Stay isolation, the old-behavior lock, Wi-Fi ADB on battery,
+  both real app paths, Windows validation, manual lock/folding/long sessions/
+  panel dimming/battery/heat, stay-awake off and timeout after disconnect/crash,
+  concurrent sessions, other models/firmware/Smart Stay off, and real-device WARN.
+- Limitation: stay-awake on in hidden DeX keeps the phone from timing out, so
+  its panel can stay on (possibly dimmed) throughout the session; battery and
+  heat impact is unmeasured. Manual lock is not prevented by design. Turning
+  the phone panel fully off with DeX alive, PC/Mac audio volume control, and
+  upstream Windows v3.0.0 (NativeDex helper) were out of scope and not done.
+- This is the released v2.2.0 line; a new version/package is needed to ship
+  the helper. That release has not been prepared, signed, notarized or published.
+  The git-ignored `dist/local-keep-active-test/` package is a local test only.
+  No version bump, commit, stash, branch change, packaging, signing or publication
+  was performed in this documentation task.
+
+### 한국어
+
+- `fix/loopback-keep-active`에는 DXLoopback·DexManager.Core 연결·테스트·jar·고정
+  해시의 미커밋 변경이 이미 있었습니다. 이번 작업은 문서만 수정하고 기존 변경을
+  보존합니다. 테스트를 다시 실행하지 않았으며 아래 자동·실기 결과는
+  오케스트레이션 에이전트가 전달한 기록입니다.
+- 숨김(loopback / native DeX) 모드에서 기기별 잠자기 방지가 켜져 있으면 helper에
+  고정 인자 `keep-active`를 추가합니다. READY 이후 lease가 유효한 동안 약 4초마다
+  숨겨진 `IPowerManager.userActivity(displayId 0, uptime, EVENT_OTHER, USER_ACTIVITY_FLAG_NO_CHANGE_LIGHTS)`로
+  기본 디스플레이의 활동을 알립니다. STOP·15초 heartbeat 만료·소유권 상실 시
+  중지합니다. Android 설정·wakelock·wakeUp/goToSleep/keyguard/display-power API를
+  사용하지 않고 복원할 상태도 없습니다. 옵션을 끄면 helper 명령행은 기존과
+  같으며, 꺼진 상태의 실기는 미확인입니다.
+- 호출 불가 시 `DXM_LOOPBACK_WARN keep_active_unavailable`을 한 번 출력하고
+  호스트는 경고를 기록하며 DeX를 계속합니다. 실제 기기의 WARN 경로는 미확인입니다.
+- 소스와 기기에서 확인한 원인: scrcpy 4.1·5.0.1의 `--keep-active`는 대상
+  디스플레이에만 활동을 알립니다. 시험 기기의 loopback DeX는 그룹 2, 내장
+  화면은 그룹 0이어서 휴대폰 timeout이 갱신되지 않았습니다. Windows 전용
+  `stay_on_while_plugged_in=7`은 충전 중에만 동작하고 Mac 앱은 이 값을 설정하지
+  않습니다. 변경 전 Mac 숨김 DeX는 USB·무선 모두 scrcpy 인자에만 의존했습니다.
+- 2026-11-16(Asia/Seoul) Galaxy SM-S942N 한 대, Android 17(SDK 37), One UI 9.0,
+  timeout 120초, `stay_on_while_plugged_in=0`, Smart Stay 켜짐, 충전 중 USB ADB로
+  관찰했습니다. Mac에서 helper를 직접 ADB로 시작하고 Homebrew scrcpy 4.1을
+  `--display-id <id> --keep-active --no-audio`로 연결했으며 양쪽 DX Manager 앱은
+  사용하지 않았습니다. 네 세션에서 그룹 분리와 DeX에만 기록된 scrcpy 활동을
+  관찰했습니다. 이전 동작 한 세션 약 4분에서 마지막 활동 약 120초 뒤 내장 그룹은
+  잠들고 DeX는 깨어 있었습니다. 이후 약 30초의 keyguard 표시·DeX 창 잠금은
+  관찰하지 못했으며 미확인으로 남깁니다.
+- 새 동작 세 세션 합계 약 14분에서 display 0의 NO_CHANGE_LIGHTS 호출 간격은
+  약 4초 이하였고 내장 그룹은 잠들지 않았습니다. 다만 카메라를 가려도 매 주기
+  약 100초에 Smart Stay 얼굴 감지가 활동을 갱신하여, 다른 활동 없이 120초를
+  넘긴 구간은 없었습니다. 따라서 Smart Stay와 분리된 효과는 미확인입니다.
+  이미 잠든·잠긴 상태에서 시작하면 깨우거나 잠금을 풀지 않았고 사용자 잠금
+  해제 전 호출은 무시되었습니다. 각 세션 후 helper jar·Wi-Fi 화면은 남지 않았습니다.
+- Codex sandbox 밖 macOS 호스트에서 전달된 자동 검증: helper 25/25, 세 번의
+  빌드와 두 저장소의 jar 해시 일치. 새 SHA-256은 위와 같습니다. private 저장소의
+  `dotnet run --project DexManager.WindowsTests -c Release -p:UseSharedCompilation=false`는
+  33/33, Mac 2.2 저장소의 `dotnet test DexManager.Mac.sln -c Release`는 183/183,
+  `dotnet run --project DexManager.MultiDeviceTests -c Release`는 39개 통과입니다.
+  `scripts/Package-Mac-Release.sh --rid osx-arm64 --include-app`의 릴리스용 서명이
+  없는 로컬 시험 패키지 빌드가 완료되었습니다. Windows 빌드·실행 검증은 아닙니다.
+- [수용 표·관찰 기록](PHONE_PREVIEW_MODE.md)의 모든 남은 항목을 미확인으로,
+  [TODO](TODO.md)에 열린 항목으로 남깁니다. Smart Stay 영향 분리, 이전 동작의
+  잠금, 배터리 무선 ADB, 양쪽 실제 앱 경로, Windows 검증, 수동 잠금·접기·장시간·
+  패널 어두워짐·배터리·발열, 옵션 끔·연결 해제/비정상 종료 뒤 timeout, 동시 세션,
+  다른 모델·펌웨어·Smart Stay 끔, 실제 WARN 경로가 포함됩니다.
+- 숨김 DeX의 잠자기 방지가 켜지면 휴대폰 timeout을 막아 화면이 세션 내내
+  켜지거나 어두워진 채 남을 수 있고 배터리·발열 영향은 미측정입니다. 설계상
+  수동 잠금은 막지 않습니다. DeX를 유지하며 패널 완전히 끄기, PC/Mac 오디오
+  볼륨 제어, upstream Windows v3.0.0(NativeDex helper)은 범위 밖이며 수행하지
+  않았습니다. 제약은 [KNOWN_ISSUES](KNOWN_ISSUES.md)에 기록합니다.
+- 공개 v2.2.0 계열에 새 helper를 배포하려면 새 버전·패키지가 필요하며 해당
+  릴리스는 준비·서명·공증·게시하지 않았습니다. Git에서 제외한
+  `dist/local-keep-active-test/`는 로컬 시험용입니다. 이번 문서 작업에서 버전
+  변경·커밋·stash·브랜치 변경·패키징·서명·게시는 하지 않았습니다.
 
 ## 2026-10-12 — macOS 2.1.0 published; GUI PR open
 

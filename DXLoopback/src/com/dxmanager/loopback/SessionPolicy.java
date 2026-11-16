@@ -7,6 +7,8 @@ import java.util.Set;
 /** Pure session policy, exercised on the build host without Android. */
 final class SessionPolicy {
     static final long HEARTBEAT_NS = 15_000_000_000L;
+    static final String KEEP_ACTIVE_ARGUMENT = "keep-active";
+    static final long KEEP_ACTIVE_NS = 4_000_000_000L;
     private final String token;
     private volatile long heartbeat;
     private volatile boolean stopped;
@@ -21,6 +23,14 @@ final class SessionPolicy {
     }
     void stop() { stopped = true; }
     boolean expired(long now) { return stopped || now - heartbeat >= HEARTBEAT_NS; }
+    static boolean validArguments(String[] args) {
+        return args != null && (args.length == 1 || args.length == 2)
+                && args[0] != null && args[0].matches("[0-9a-f]{32}")
+                && (args.length == 1 || KEEP_ACTIVE_ARGUMENT.equals(args[1]));
+    }
+    static boolean keepActiveDue(long dueNanos, long nowNanos) {
+        return nowNanos - dueNanos >= 0;
+    }
     static boolean owns(String expectedName, String expectedAddress, String name, String address) {
         return expectedName.equals(name) && expectedAddress.equalsIgnoreCase(address);
     }

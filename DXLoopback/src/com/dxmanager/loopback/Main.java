@@ -23,6 +23,7 @@ public final class Main {
     private final AtomicBoolean protocolFailed = new AtomicBoolean(false);
     private final AtomicBoolean cleaned = new AtomicBoolean(false);
     private final String token;
+    private final boolean keepActive;
     private SamsungDisplay display;
     private Socket rtspSocket;
     private DatagramSocket video;
@@ -30,14 +31,18 @@ public final class Main {
     private boolean connectIssued;
     private boolean connectionWasOwned;
 
-    private Main(String token) { this.token = token; lease = new SessionPolicy(token, System.nanoTime()); }
+    private Main(String token, boolean keepActive) {
+        this.token = token;
+        this.keepActive = keepActive;
+        lease = new SessionPolicy(token, System.nanoTime());
+    }
 
     public static void main(String[] args) {
-        if (args.length != 1 || !args[0].matches("[0-9a-f]{32}")) {
+        if (!SessionPolicy.validArguments(args)) {
             report("DXM_LOOPBACK_ERROR invalid_arguments");
             return;
         }
-        Main instance = new Main(args[0]);
+        Main instance = new Main(args[0], args.length == 2);
         instance.run(args[0]);
     }
 
@@ -81,8 +86,19 @@ public final class Main {
                 Thread.sleep(100);
             }
             report("DXM_LOOPBACK_READY " + displayId);
+            PhonePower phonePower = keepActive ? new PhonePower() : null;
+            long nextKeepActive = System.nanoTime();
             while (!lease.expired(System.nanoTime()) && !protocolFailed.get()) {
                 if (!display.ownsActive() || !containsDisplay(displayId)) break;
+                long now = System.nanoTime();
+                if (phonePower != null && !lease.expired(now) && !protocolFailed.get()
+                        && SessionPolicy.keepActiveDue(nextKeepActive, now)) {
+                    if (phonePower.poke()) nextKeepActive = System.nanoTime() + SessionPolicy.KEEP_ACTIVE_NS;
+                    else {
+                        report("DXM_LOOPBACK_WARN keep_active_unavailable");
+                        phonePower = null;
+                    }
+                }
                 Thread.sleep(250);
             }
         } catch (Exception failure) {

@@ -1,5 +1,66 @@
 # Changelog
 
+## Unreleased — 2026-11-16 loopback keep-active
+
+- In hidden-preview (loopback / native DeX) mode, per-device stay-awake on
+  adds the fixed `keep-active` helper argument. After READY, while the lease
+  is alive, the helper signals user activity for default display 0 about every
+  4 s with NO_CHANGE_LIGHTS; it stops on STOP / 15 s heartbeat expiry / ownership
+  loss. It changes no Android settings, holds no wakelock, calls no
+  wakeUp/goToSleep/keyguard/display-power APIs, and needs nothing restored.
+  With stay-awake off, the helper command line is unchanged.
+- If the hidden call is unavailable, the helper warns once with
+  `DXM_LOOPBACK_WARN keep_active_unavailable`, the host logs a warning and DeX
+  continues. Real-device WARN behavior is untested.
+- Source and single-phone observations explain the change: scrcpy 4.1/5.0.1
+  `--keep-active` targets only its own display; the test phone's loopback DeX
+  and built-in display used separate groups. Mac never sets the charging-only
+  `stay_on_while_plugged_in` setting and previously relied on scrcpy alone.
+- Stay-awake on can leave the phone panel on (possibly dimmed) for the whole
+  hidden-DeX session. Dimming, battery and heat impact are untested. Manual
+  locking is not prevented by design, and locking during a session is untested.
+- The 2026-11-16 USB observation used one SM-S942N and a helper launched directly
+  over ADB from Mac with Homebrew scrcpy 4.1, not either DX Manager app. Smart
+  Stay also refreshed activity; an independent keep-active effect is untested.
+  Wi-Fi ADB on battery, both app paths, Windows validation and every other
+  [acceptance item](PHONE_PREVIEW_MODE.md) remain explicitly Unverified.
+  Reported automated results and the local test build are in [SESSION](SESSION.md).
+- A new version/package is required to ship this helper from the released
+  v2.2.0 line; that release has not been prepared, signed, notarized or
+  published. `dist/local-keep-active-test/` is git-ignored local testing only.
+  Panel fully off with DeX alive, PC/Mac audio volume control and upstream
+  Windows v3.0.0 (NativeDex helper) were out of scope and not done.
+
+### 한국어
+
+- 숨김(loopback / native DeX) 모드에서 기기별 잠자기 방지가 켜지면 helper에
+  고정 인자 `keep-active`를 추가합니다. READY 이후 lease가 유효한 동안 약
+  4초마다 NO_CHANGE_LIGHTS로 기본 display 0의 활동을 알리고 STOP·15초 heartbeat
+  만료·소유권 상실 시 중지합니다. Android 설정 변경·wakelock·wakeUp/goToSleep/
+  keyguard/display-power API 호출은 없고 복원할 상태도 없습니다. 옵션을 끄면
+  helper 명령행은 기존과 같습니다.
+- 숨겨진 호출을 사용할 수 없으면 `DXM_LOOPBACK_WARN keep_active_unavailable`을
+  한 번 출력하고 호스트는 경고를 기록하며 DeX를 계속합니다. 실제 WARN 경로는
+  미확인입니다.
+- 소스와 단일 기기 관찰상 scrcpy 4.1·5.0.1의 `--keep-active`는 자신의 대상
+  디스플레이에만 활동을 알리며, 시험 기기의 loopback DeX와 내장 화면은 서로
+  다른 그룹이었습니다. Mac은 충전 중에만 동작하는 `stay_on_while_plugged_in`을
+  설정하지 않고 변경 전에는 scrcpy에만 의존했습니다.
+- 잠자기 방지를 켜면 숨김 DeX 세션 내내 휴대폰 화면이 켜지거나 어두워진 채
+  남을 수 있습니다. 어두워짐·배터리·발열 영향은 미확인입니다. 설계상 수동 잠금을
+  막지 않으며 세션 중 수동 잠금 실기는 미확인입니다.
+- 2026-11-16 USB 관찰은 SM-S942N 한 대에서 Mac의 직접 ADB helper와 Homebrew
+  scrcpy 4.1을 사용했으며 양쪽 DX Manager 앱 시험이 아닙니다. Smart Stay도
+  활동을 갱신했으므로 독립된 수정 효과는 미확인입니다. 배터리 무선 ADB·양쪽
+  앱 경로·Windows 검증과 [수용 표](PHONE_PREVIEW_MODE.md)의 나머지 항목도
+  모두 미확인입니다. 전달받은 자동 검증·로컬 시험 빌드는 [SESSION](SESSION.md)에
+  기록합니다.
+- 공개 v2.2.0 계열에서 새 helper를 배포하려면 새 버전·패키지가 필요하며 해당
+  릴리스는 준비·서명·공증·게시하지 않았습니다. Git에서 제외된
+  `dist/local-keep-active-test/`는 로컬 시험용입니다. DeX 유지 중 패널 완전히
+  끄기·PC/Mac 오디오 볼륨 제어·upstream Windows v3.0.0(NativeDex helper)은
+  범위 밖이며 수행하지 않았습니다.
+
 ## macOS 2.1.0 — native GUI release
 
 Open `.app` without Terminal, configure devices/modes with native controls, use

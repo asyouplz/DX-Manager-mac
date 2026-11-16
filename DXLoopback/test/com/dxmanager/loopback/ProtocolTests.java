@@ -59,6 +59,55 @@ public final class ProtocolTests {
             try { new Rtsp.Handshake(20000, 20001).accept(message("RTSP/1.0 200 OK\r\nCSeq: 42\r\nSession: abc\r\n\r\n"), new ByteArrayOutputStream()); throw new AssertionError(); }
             catch (IOException expected) { }
         }});
+        test("token-only arguments accepted", new Test() { public void run() {
+            check(SessionPolicy.validArguments(new String[] { TOKEN }));
+        }});
+        test("optional keep-active argument accepted", new Test() { public void run() {
+            check(SessionPolicy.validArguments(new String[] { TOKEN, "keep-active" }));
+        }});
+        test("wrong keep-active literal rejected", new Test() { public void run() {
+            check(!SessionPolicy.validArguments(new String[] { TOKEN, "--keep-active" }));
+            check(!SessionPolicy.validArguments(new String[] { TOKEN, "KEEP-ACTIVE" }));
+            check(!SessionPolicy.validArguments(new String[] { TOKEN, null }));
+        }});
+        test("missing and extra arguments rejected", new Test() { public void run() {
+            check(!SessionPolicy.validArguments(null));
+            check(!SessionPolicy.validArguments(new String[0]));
+            check(!SessionPolicy.validArguments(new String[] { TOKEN, "keep-active", "extra" }));
+        }});
+        test("invalid argument tokens rejected", new Test() { public void run() {
+            check(!SessionPolicy.validArguments(new String[] { "bad-token" }));
+            check(!SessionPolicy.validArguments(new String[] { TOKEN.toUpperCase(java.util.Locale.ROOT), "keep-active" }));
+            check(!SessionPolicy.validArguments(new String[] { TOKEN.substring(1) }));
+            check(!SessionPolicy.validArguments(new String[] { TOKEN + "0", "keep-active" }));
+            check(!SessionPolicy.validArguments(new String[] { null }));
+        }});
+        test("keep-active due immediately then every four seconds", new Test() { public void run() {
+            long due = 123_000_000_000L;
+            check(SessionPolicy.KEEP_ACTIVE_NS == 4_000_000_000L);
+            check(!SessionPolicy.keepActiveDue(due, due - 1));
+            check(SessionPolicy.keepActiveDue(due, due));
+            due += SessionPolicy.KEEP_ACTIVE_NS;
+            check(!SessionPolicy.keepActiveDue(due, due - 250_000_000L));
+            check(!SessionPolicy.keepActiveDue(due, due - 1));
+            check(SessionPolicy.keepActiveDue(due, due));
+            check(SessionPolicy.keepActiveDue(due, due + 250_000_000L));
+            due += SessionPolicy.KEEP_ACTIVE_NS;
+            check(!SessionPolicy.keepActiveDue(due, due - 1));
+            check(SessionPolicy.keepActiveDue(due, due));
+        }});
+        test("keep-active cadence survives nanoTime wraparound", new Test() { public void run() {
+            long due = Long.MAX_VALUE - SessionPolicy.KEEP_ACTIVE_NS / 2;
+            long next = due + SessionPolicy.KEEP_ACTIVE_NS;
+            check(next < 0);
+            check(!SessionPolicy.keepActiveDue(due, due - 1));
+            check(SessionPolicy.keepActiveDue(due, due));
+            check(SessionPolicy.keepActiveDue(due, next));
+            check(!SessionPolicy.keepActiveDue(next, due));
+            check(!SessionPolicy.keepActiveDue(next, next - 1));
+            check(SessionPolicy.keepActiveDue(next, next));
+            check(SessionPolicy.keepActiveDue(next, next + 1));
+        }});
         test("heartbeat expires at 15 seconds", new Test() { public void run() {
             SessionPolicy lease = new SessionPolicy(TOKEN, 0); check(!lease.expired(14_999_999_999L)); check(lease.expired(15_000_000_000L));
         }});

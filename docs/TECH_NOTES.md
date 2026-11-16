@@ -279,6 +279,56 @@ Scrcpy 3.3.4에서는 지원하지 않는 `--keep-active`와 `--flex-display`를
 시작하지 않는다. 모든 세션 종료, 프로그램 종료, 연결 해제 시 화면과
 stay-awake 상태를 복구한다.
 
+### 2026-11-16 — DXLoopback keep-active (unreleased)
+
+In hidden-preview (loopback / native DeX) mode, the Core host wiring passes the
+fixed argument `keep-active` to DXLoopback only when per-device stay-awake is on;
+off leaves its command line unchanged. After READY, while the lease is alive
+(until STOP / 15 s heartbeat expiry / ownership loss), the helper calls hidden
+`IPowerManager.userActivity(displayId 0, uptime, EVENT_OTHER, USER_ACTIVITY_FLAG_NO_CHANGE_LIGHTS)`
+about every 4 seconds. Unlike scrcpy 4.1/5.0.1 `--keep-active`, which signals
+only its target display, this signals the phone's default display.
+No Android settings, wakelock, wakeUp/goToSleep/keyguard/display-power APIs or
+restoration are involved. An unavailable call produces
+`DXM_LOOPBACK_WARN keep_active_unavailable` once, a host warning, and continued
+DeX operation. The Mac app never sets `stay_on_while_plugged_in`.
+
+Helper JAR SHA-256:
+`65d12bd344ff4e3808d9e0f113a4a003cf83893769368043365af4e1f80979e3`.
+The orchestrator reported 25/25 helper host tests and an identical hash across
+three builds and both repositories, run outside the Codex sandbox on macOS.
+These are automated results. The single-phone direct-ADB observation did not
+isolate Smart Stay or test either app end to end; all untested items remain
+[Unverified in the acceptance record](PHONE_PREVIEW_MODE.md).
+The phone panel can remain on, possibly dimmed; battery and heat impact and
+whether it dims are unmeasured. Manual locking is not prevented by design and
+its behaviour during a keep-active session is untested. A new version/package
+is required to ship this helper; no release was prepared, signed, notarized or
+published.
+
+#### 한국어
+
+미리보기 숨김(loopback / native DeX) 모드에서 Core 호스트는 기기별 잠자기 방지가
+켜져 있을 때만 DXLoopback에 고정 인자 `keep-active`를 전달한다. 꺼져 있으면
+명령행은 기존과 같다. READY 이후 lease가 유지되는 동안(STOP / 15초 heartbeat
+만료 / 소유권 상실 전까지) 약 4초마다 숨겨진
+`IPowerManager.userActivity(displayId 0, uptime, EVENT_OTHER, USER_ACTIVITY_FLAG_NO_CHANGE_LIGHTS)`를
+호출한다. 자신의 대상 display에만 활동을 알리는 scrcpy 4.1/5.0.1
+`--keep-active`와 달리 휴대폰 기본 화면을 대상으로 한다. Android 설정, wakelock,
+wakeUp/goToSleep/keyguard/display-power API를 사용하지 않아 복원할 항목이 없다.
+호출 불가 시 `DXM_LOOPBACK_WARN keep_active_unavailable`을 한 번 출력하고
+호스트가 경고를 기록하며 DeX는 계속된다. Mac 앱은 `stay_on_while_plugged_in`을
+설정하지 않는다.
+
+위 SHA-256은 새 helper JAR의 값이다. 오케스트레이터가 macOS의 Codex 샌드박스
+밖에서 실행한 결과로 helper 호스트 테스트 25/25와 세 번의 빌드·두 저장소의
+동일 해시가 보고됐다. 이는 자동 검증 결과다. 한 대의 직접 ADB 관찰은 Smart
+Stay 효과를 분리하거나 양쪽 앱의 전체 경로를 시험하지 않았으며 모든 미시험 항목은
+[수용 기록의 미확인 항목](PHONE_PREVIEW_MODE.md)으로 남긴다. 휴대폰 패널이 계속
+켜지거나 어두워진 채 남을 수 있으며 배터리·발열 영향과 어두워짐 여부는 미확인이다.
+설계상 수동 잠금을 막지 않지만 keep-active 세션 중 동작은 미확인이다. helper를
+배포하려면 새 버전·패키지가 필요하며 정식 릴리스를 준비·서명·공증·게시하지 않았다.
+
 ## 키 입력
 
 - LowLevelKeyboardHook은 Scrcpy 활성 상태에서만 보정한다.

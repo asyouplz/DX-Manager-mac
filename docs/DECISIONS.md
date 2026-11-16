@@ -453,3 +453,75 @@ Do not add an HTTP control endpoint, a helper scrcpy process, or automatic OS gr
 기존 scrcpy의 전원 단축키를 사용해 종료 복원 경계를 유지한다. 캡처는 소유한 창만
 PNG로 저장하고 C#이 파일·물리 기기를 다시 확인한 후 선택적으로 휴대폰에 전송한다.
 OS 권한은 사용자가 승인하며 별도 제어 서버나 scrcpy helper를 추가하지 않는다.
+
+## 2026-11-16 — Lease-bound phone activity for hidden-preview DeX (unreleased)
+
+Source verification of scrcpy 4.1 and 5.0.1 showed that `--keep-active` signals
+user activity only for its target display. On the one observed phone, Samsung
+loopback DeX used power/display group 2 while the built-in display used group 0,
+so scrcpy did not refresh the phone's own screen timeout. The Windows-only
+`stay_on_while_plugged_in=7` works only while charging. The Mac app never sets
+that setting; before this change hidden-preview DeX on Mac relied on scrcpy
+`--keep-active` alone over both USB and wireless ADB.
+
+When the per-device stay-awake option is on in hidden-preview (loopback / native
+DeX) mode, pass the fixed `keep-active` argument to DXLoopback. After READY and
+only while its lease is alive, the helper signals default-display user activity
+about every 4 seconds through hidden
+`IPowerManager.userActivity(displayId 0, uptime, EVENT_OTHER, USER_ACTIVITY_FLAG_NO_CHANGE_LIGHTS)`.
+STOP, 15 s heartbeat expiry, or ownership loss ends that activity. It writes no
+Android settings, holds no wakelock, never calls wakeUp/goToSleep/keyguard/display-power
+APIs, and needs nothing restored. If unavailable, print
+`DXM_LOOPBACK_WARN keep_active_unavailable` once; the host logs a warning and DeX
+continues. Stay-awake off leaves the helper command line unchanged.
+
+The limitation is that the phone itself is kept from timing out during a
+hidden-DeX session with stay-awake on: its panel can stay on, possibly dimmed,
+throughout the session. Battery and heat impact and whether it dims are
+unmeasured. Manual locking is not prevented by design; manual-lock behaviour
+during this session remains untested. Turning the panel fully off while DeX
+stays alive, PC/Mac audio volume control, and upstream Windows v3.0.0 NativeDex
+helper work are out of scope and were not done.
+
+The 2026-11-16 observation used direct helper/ADB launch from a Mac and Homebrew
+scrcpy 4.1 on one SM-S942N, not either DX Manager app. Smart Stay also reset
+activity, so the fix was not isolated from it. Automated results do not establish
+the untested app, Wi-Fi/battery, or Smart-Stay-independent paths. See
+[the dated observation and unverified acceptance items](PHONE_PREVIEW_MODE.md).
+This is an unreleased change to the released v2.2.0 line; a new version/package
+to ship the helper has not been prepared, signed, notarized or published.
+
+### 한국어
+
+scrcpy 4.1과 5.0.1 소스에서 `--keep-active`는 자신이 대상으로 삼는 display에만
+사용자 활동을 알리는 것을 확인했다. 관찰한 휴대폰 한 대에서는 삼성 loopback DeX가
+전원/display 그룹 2, 내장 화면이 그룹 0을 사용하므로 scrcpy가 휴대폰 자체의 화면
+꺼짐 시간을 갱신하지 않았다. Windows 전용 `stay_on_while_plugged_in=7`은 충전
+중에만 작동한다. Mac 앱은 이 설정을 쓰지 않으며, 변경 전 Mac의 미리보기 숨김
+DeX는 USB와 무선 ADB 모두 scrcpy `--keep-active`에만 의존했다.
+
+미리보기 숨김(loopback / native DeX) 모드에서 기기별 잠자기 방지가 켜져 있으면
+DXLoopback에 고정 인자 `keep-active`를 전달한다. READY 이후 lease가 유지되는
+동안 약 4초마다 숨겨진
+`IPowerManager.userActivity(displayId 0, uptime, EVENT_OTHER, USER_ACTIVITY_FLAG_NO_CHANGE_LIGHTS)`로
+기본 화면의 사용자 활동을 알린다. STOP, 15초 heartbeat 만료 또는 소유권 상실 시
+활동 알림을 끝낸다. Android 설정을 쓰거나 wakelock을 보유하지 않고
+wakeUp/goToSleep/keyguard/display-power API도 호출하지 않아 복원할 항목이 없다.
+호출을 사용할 수 없으면 `DXM_LOOPBACK_WARN keep_active_unavailable`을 한 번
+출력하고 호스트가 경고를 기록하며 DeX 세션은 계속된다. 잠자기 방지가 꺼져 있으면
+helper 명령행은 기존과 같다.
+
+제약은 잠자기 방지가 켜진 숨김 DeX 세션 동안 휴대폰 자체의 시간 초과를 막으므로
+패널이 세션 내내 켜져 있거나 어두워진 채 남을 수 있다는 점이다. 배터리·발열
+영향과 실제 어두워짐 여부는 미확인이다. 설계상 수동 잠금을 막지 않지만, 해당
+세션 중 수동 잠금 동작은 미확인이다. DeX를 유지하면서 패널을 완전히 끄는 기능,
+PC/Mac 오디오 음량 제어, upstream Windows v3.0.0 NativeDex helper는 범위 밖이며
+수행하지 않았다.
+
+2026-11-16 관찰은 SM-S942N 한 대에서 Mac의 직접 helper/ADB 실행과 Homebrew
+scrcpy 4.1로 진행했으며 양쪽 DX Manager 앱을 거치지 않았다. Smart Stay도 활동
+시간을 갱신해 수정 효과를 분리하지 못했다. 자동 검증 결과는 앱 전체 경로,
+Wi-Fi/배터리 또는 Smart Stay와 독립된 효과를 검증하지 않는다.
+[날짜별 관찰과 미확인 수용 항목](PHONE_PREVIEW_MODE.md)을 함께 확인한다.
+공개 v2.2.0 계열의 미출시 변경이며 helper 배포용 새 버전·패키지는 준비·서명·공증·
+게시하지 않았다.

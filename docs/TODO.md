@@ -1,5 +1,83 @@
 # TODO
 
+## 2026-11-16 — Hidden-preview keep-active (unreleased)
+
+All test entries below are **untested / Unverified**. The single-phone direct
+helper observation and host automation do not close them; see
+[PHONE_PREVIEW_MODE.md](PHONE_PREVIEW_MODE.md) for the observation and acceptance
+table.
+
+- [ ] Unverified: isolate the fix from Smart Stay with Smart Stay OFF and more
+  than 120 seconds idle while the phone stays awake.
+- [ ] Unverified: observe keyguard appearing and the DeX window locking in the
+  old behavior on this phone.
+- [ ] Unverified: wireless (Wi-Fi) ADB on battery, the originally reported
+  scenario.
+- [ ] Unverified: real Windows and Mac DX Manager app paths end to end,
+  launching the helper with the flag.
+- [ ] Unverified: Windows net462 x64 Release build,
+  `DexManager.MultiDeviceTests`, Windows 7 SP1 / Windows 11, and any device run.
+- [ ] Unverified: manual lock by power button / DeX menu during keep-active;
+  folding; long sessions; battery and heat with the panel on or dimmed; whether
+  the panel dims.
+- [ ] Unverified: stay-awake OFF on a device; disconnect / host crash followed
+  by return to the normal timeout (expected within the 15-second lease expiry,
+  not measured).
+- [ ] Unverified: two or more phones at once; DeX plus single-window sessions
+  on the same phone.
+- [ ] Unverified: other Galaxy models, Android / One UI versions, and phones
+  with Smart Stay OFF.
+- [ ] Unverified: real-device WARN path when firmware lacks or rejects the
+  hidden call.
+- [ ] New version/package needed to ship the helper from this released v2.2.0
+  line. No new release version/package has been prepared, signed, notarized or
+  published. `dist/local-keep-active-test/` is git-ignored local test output,
+  not a release.
+- [ ] Open item, pre-existing and unchanged: the Mac **Restore stay-awake on
+  stop** checkbox is stored but nothing on Mac reads it.
+
+Limitation: stay-awake ON keeps the phone itself from timing out throughout a
+hidden-DeX session; its screen can remain on (possibly dimmed), with battery
+and heat impact unmeasured. Manual locking is not prevented by design. Turning
+the phone panel fully off while DeX stays alive, PC/Mac audio volume control,
+and upstream Windows v3.0.0 (NativeDex helper) are out of scope and were not
+done.
+
+### 한국어
+
+아래 시험 항목은 모두 **미시험 / 미확인**으로 남긴다. 휴대폰 한 대의 직접
+helper 관찰과 호스트 자동화 결과로 완료 처리하지 않는다. 관찰 기록과 검수 표는
+[PHONE_PREVIEW_MODE.md](PHONE_PREVIEW_MODE.md)를 참조한다.
+
+- [ ] 미확인: Smart Stay를 끄고 120초 넘게 다른 활동 없이 대기해도 휴대폰이
+  깨어 있는지 확인하여 Smart Stay와 수정 효과를 분리한다.
+- [ ] 미확인: 이 휴대폰의 기존 동작에서 keyguard가 나타나고 DeX 창이 잠기는지.
+- [ ] 미확인: 최초 보고 조건인 배터리 사용 중 무선(Wi-Fi) ADB.
+- [ ] 미확인: Windows·Mac DX Manager 앱이 해당 인자로 helper를 실행하는 전체
+  경로.
+- [ ] 미확인: Windows net462 x64 Release 빌드, `DexManager.MultiDeviceTests`,
+  Windows 7 SP1·Windows 11 및 모든 기기 실행.
+- [ ] 미확인: keep-active 중 전원 버튼·DeX 메뉴 수동 잠금, 접기, 장시간 실행,
+  패널이 켜지거나 어두워진 상태의 배터리·발열과 패널이 어두워지는지.
+- [ ] 미확인: 실제 기기의 stay-awake OFF, 연결 해제·호스트 비정상 종료 뒤 정상
+  화면 시간 초과로 돌아오는지(15초 lease 만료 안에 돌아올 것으로 예상하지만
+  측정하지 않음).
+- [ ] 미확인: 휴대폰 두 대 이상 동시 실행, 같은 휴대폰의 DeX·단일창 동시 실행.
+- [ ] 미확인: 다른 Galaxy 모델·Android·One UI 버전과 Smart Stay가 꺼진 휴대폰.
+- [ ] 미확인: 숨김 호출이 없거나 거부되는 펌웨어의 실제 기기 WARN 경로.
+- [ ] 공개된 v2.2.0 계열에서 새 helper를 배포하려면 새 버전·패키지가 필요하다.
+  새 릴리스 버전·패키지는 준비·서명·공증·공개하지 않았다.
+  `dist/local-keep-active-test/`는 Git에서 제외된 로컬 시험 산출물이며 릴리스가
+  아니다.
+- [ ] 기존 미해결 항목(이번 변경 없음): Mac의 **중지 시 절전모드 해제 복원**
+  체크박스는 저장되지만 Mac에서 읽는 곳이 없다.
+
+제약: 숨김 DeX 세션에서 stay-awake가 켜져 있으면 휴대폰 자체의 화면 시간
+초과를 막으므로 세션 전체에서 화면이 켜져 있을 수 있으며 어두워질 가능성도
+있다. 배터리·발열 영향은 측정하지 않았다. 설계상 수동 잠금을 막지 않는다.
+DeX를 유지한 채 휴대폰 패널을 완전히 끄기, PC·Mac 오디오 음량 제어, upstream
+Windows v3.0.0의 NativeDex helper는 범위 밖이며 수행하지 않았다.
+
 ## Native Mac GUI 2.1.0 — current work
 
 - [x] Native AppKit window and persistent C# host, without Terminal
