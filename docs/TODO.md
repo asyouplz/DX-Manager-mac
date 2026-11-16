@@ -2,39 +2,56 @@
 
 ## 2026-11-16 — Hidden-preview keep-active (unreleased)
 
-All test entries below are **untested / Unverified**. The single-phone direct
-helper observation and host automation do not close them; see
-[PHONE_PREVIEW_MODE.md](PHONE_PREVIEW_MODE.md) for the observation and acceptance
-table.
+Observed entries below apply only to the same one Galaxy SM-S942N (Android 17 /
+SDK 37, One UI 9.0, timeout 120 s, `stay_on_while_plugged_in=0`) on 2026-11-16
+(Asia/Seoul). Open test entries remain **untested / Unverified**; see
+[PHONE_PREVIEW_MODE.md](PHONE_PREVIEW_MODE.md) for the record and acceptance table.
 
-- [ ] Unverified: isolate the fix from Smart Stay with Smart Stay OFF and more
-  than 120 seconds idle while the phone stays awake.
+- [x] Observed with Smart Stay OFF: USB ADB while charging, direct helper from
+  Mac with Homebrew scrcpy 4.1; phone untouched about 5 min, built-in group awake
+  beyond two 120 s timeouts, keyguard not showing. The about 3 min control without
+  helper keep-active slept at about 120 s while DeX stayed awake; keyguard was
+  not showing during the roughly 60 s observed afterward.
+- [x] Observed once: new Wi-Fi ADB behavior on battery, Smart Stay OFF, through
+  a local Mac 2.2 app build with Hide phone preview and stay-awake ON. The helper
+  had `keep-active`; bundled scrcpy 4.1 had `--keep-active` on DeX. Phone untouched
+  about 7 min, built-in group awake beyond three timeouts, keyguard not showing;
+  helper and scrcpy still running at the end.
+- [x] Observed once: real Mac app start path with the new helper; lifecycle
+  checks below remain open.
 - [ ] Unverified: observe keyguard appearing and the DeX window locking in the
-  old behavior on this phone.
-- [ ] Unverified: wireless (Wi-Fi) ADB on battery, the originally reported
-  scenario.
-- [ ] Unverified: real Windows and Mac DX Manager app paths end to end,
-  launching the helper with the flag.
+  old behavior on this phone; neither has been observed in any recorded run.
+- [ ] Unverified: old behavior over Wi-Fi ADB on battery; no Wi-Fi control run
+  was performed.
+- [ ] Unverified: real Windows DX Manager app start path.
 - [ ] Unverified: Windows net462 x64 Release build,
-  `DexManager.MultiDeviceTests`, Windows 7 SP1 / Windows 11, and any device run.
+  `DexManager.MultiDeviceTests` on Windows, Windows 7 SP1 / Windows 11, and any
+  Windows device run.
 - [ ] Unverified: manual lock by power button / DeX menu during keep-active;
   folding; long sessions; battery and heat with the panel on or dimmed; whether
   the panel dims.
-- [ ] Unverified: stay-awake OFF on a device; disconnect / host crash followed
-  by return to the normal timeout (expected within the 15-second lease expiry,
-  not measured).
+- [ ] Unverified: stay-awake OFF through the app; app stop, disconnect, host
+  crash and return to the normal timeout. The 15-second lease expiry is a design
+  expectation; timeout return was not measured in the Mac app run.
 - [ ] Unverified: two or more phones at once; DeX plus single-window sessions
   on the same phone.
-- [ ] Unverified: other Galaxy models, Android / One UI versions, and phones
-  with Smart Stay OFF.
+- [ ] Unverified: other models / Android / One UI versions; Smart Stay ON over
+  Wi-Fi through the app.
 - [ ] Unverified: real-device WARN path when firmware lacks or rejects the
   hidden call.
 - [ ] New version/package needed to ship the helper from this released v2.2.0
   line. No new release version/package has been prepared, signed, notarized or
   published. `dist/local-keep-active-test/` is git-ignored local test output,
-  not a release.
+  not a release. The observed Mac test build (helper SHA-256 `65d12bd3…79e3`)
+  was local only, not signed for release, not notarized and not published.
 - [ ] Open item, pre-existing and unchanged: the Mac **Restore stay-awake on
   stop** checkbox is stored but nothing on Mac reads it.
+
+Correction: in every helper keep-active session, including Smart Stay OFF,
+the built-in group's regular (lights-changing) last-user-activity time reset
+about every 95–100 s; no such reset was seen in the control. Smart Stay face
+detection is not a supported explanation. Logs did not identify the mechanism;
+this is observed Samsung behavior on this phone/firmware, not a guarantee.
 
 Limitation: stay-awake ON keeps the phone itself from timing out throughout a
 hidden-DeX session; its screen can remain on (possibly dimmed), with battery
@@ -45,32 +62,50 @@ done.
 
 ### 한국어
 
-아래 시험 항목은 모두 **미시험 / 미확인**으로 남긴다. 휴대폰 한 대의 직접
-helper 관찰과 호스트 자동화 결과로 완료 처리하지 않는다. 관찰 기록과 검수 표는
-[PHONE_PREVIEW_MODE.md](PHONE_PREVIEW_MODE.md)를 참조한다.
+아래 관찰 항목은 2026-11-16(Asia/Seoul)의 같은 Galaxy SM-S942N 한 대에만
+적용된다. Android 17 / SDK 37, One UI 9.0, timeout 120초,
+`stay_on_while_plugged_in=0`이다. 열린 시험 항목은 **미시험 / 미확인**으로
+남긴다. 관찰 기록과 검수 표는 [PHONE_PREVIEW_MODE.md](PHONE_PREVIEW_MODE.md)를
+참조한다.
 
-- [ ] 미확인: Smart Stay를 끄고 120초 넘게 다른 활동 없이 대기해도 휴대폰이
-  깨어 있는지 확인하여 Smart Stay와 수정 효과를 분리한다.
-- [ ] 미확인: 이 휴대폰의 기존 동작에서 keyguard가 나타나고 DeX 창이 잠기는지.
-- [ ] 미확인: 최초 보고 조건인 배터리 사용 중 무선(Wi-Fi) ADB.
-- [ ] 미확인: Windows·Mac DX Manager 앱이 해당 인자로 helper를 실행하는 전체
-  경로.
-- [ ] 미확인: Windows net462 x64 Release 빌드, `DexManager.MultiDeviceTests`,
-  Windows 7 SP1·Windows 11 및 모든 기기 실행.
+- [x] Smart Stay OFF 관찰: 충전 중 USB ADB, Mac의 직접 helper·Homebrew
+  scrcpy 4.1에서 휴대폰을 약 5분 건드리지 않아도 120초 timeout 두 회를 넘겨
+  내장 그룹이 깨어 있었고 keyguard는 표시되지 않았다. helper keep-active 없는
+  약 3분 대조 실행에서는 약 120초에 내장 그룹이 잠들고 DeX는 깨어 있었다.
+  이후 관찰한 약 60초 동안 keyguard는 표시되지 않았다.
+- [x] 한 번 관찰: 배터리 Wi-Fi ADB, Smart Stay OFF에서 로컬 Mac 2.2 앱의
+  미리보기 숨김·잠자기 방지를 켠 새 동작. helper의 `keep-active`와 번들 scrcpy
+  4.1의 DeX 대상 `--keep-active`를 확인했다. 약 7분 동안 휴대폰을 건드리지
+  않아도 timeout 세 회를 넘겨 내장 그룹이 깨어 있었고 keyguard는 표시되지
+  않았다. 마지막에도 helper와 scrcpy가 실행 중이었다.
+- [x] 한 번 관찰: 새 helper를 시작하는 실제 Mac 앱 경로. 아래 수명주기 검증은
+  열린 항목으로 남긴다.
+- [ ] 미확인: 이 휴대폰의 기존 동작에서 keyguard 표시·DeX 창 실제 잠금.
+  기록한 어느 실행에서도 관찰되지 않았다.
+- [ ] 미확인: 배터리 Wi-Fi ADB의 이전 동작. Wi-Fi 대조 실행은 하지 않았다.
+- [ ] 미확인: 실제 Windows DX Manager 앱 시작 경로.
+- [ ] 미확인: Windows net462 x64 Release 빌드, Windows의 `DexManager.MultiDeviceTests`,
+  Windows 7 SP1·Windows 11 및 모든 Windows 기기 실행.
 - [ ] 미확인: keep-active 중 전원 버튼·DeX 메뉴 수동 잠금, 접기, 장시간 실행,
   패널이 켜지거나 어두워진 상태의 배터리·발열과 패널이 어두워지는지.
-- [ ] 미확인: 실제 기기의 stay-awake OFF, 연결 해제·호스트 비정상 종료 뒤 정상
-  화면 시간 초과로 돌아오는지(15초 lease 만료 안에 돌아올 것으로 예상하지만
-  측정하지 않음).
+- [ ] 미확인: 앱에서 stay-awake OFF, 앱 중지·연결 해제·호스트 비정상 종료와
+  정상 화면 timeout 복귀. 15초 lease 만료는 설계상 예상이며 Mac 앱 실행에서
+  timeout 복귀는 측정하지 않았다.
 - [ ] 미확인: 휴대폰 두 대 이상 동시 실행, 같은 휴대폰의 DeX·단일창 동시 실행.
-- [ ] 미확인: 다른 Galaxy 모델·Android·One UI 버전과 Smart Stay가 꺼진 휴대폰.
+- [ ] 미확인: 다른 모델·Android·One UI 버전과 앱의 Wi-Fi 경로에서 Smart Stay ON.
 - [ ] 미확인: 숨김 호출이 없거나 거부되는 펌웨어의 실제 기기 WARN 경로.
 - [ ] 공개된 v2.2.0 계열에서 새 helper를 배포하려면 새 버전·패키지가 필요하다.
   새 릴리스 버전·패키지는 준비·서명·공증·공개하지 않았다.
   `dist/local-keep-active-test/`는 Git에서 제외된 로컬 시험 산출물이며 릴리스가
-  아니다.
+  아니다. 관찰한 Mac 시험 빌드(helper SHA-256 `65d12bd3…79e3`)는 로컬 전용이며
+  릴리스용 서명·공증·게시를 하지 않았다.
 - [ ] 기존 미해결 항목(이번 변경 없음): Mac의 **중지 시 절전모드 해제 복원**
   체크박스는 저장되지만 Mac에서 읽는 곳이 없다.
+
+정정: Smart Stay OFF를 포함한 모든 helper keep-active 세션에서 내장 그룹의
+일반(lights-changing) last-user-activity 시각이 약 95–100초마다 갱신되었고
+대조 실행에서는 없었다. Smart Stay 얼굴 감지라는 설명은 근거가 없다. 로그에서
+원인을 식별하지 못했으므로 이 휴대폰·펌웨어의 Samsung 동작 관찰이며 보장이 아니다.
 
 제약: 숨김 DeX 세션에서 stay-awake가 켜져 있으면 휴대폰 자체의 화면 시간
 초과를 막으므로 세션 전체에서 화면이 켜져 있을 수 있으며 어두워질 가능성도

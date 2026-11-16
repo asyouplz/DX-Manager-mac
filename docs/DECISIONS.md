@@ -483,13 +483,35 @@ during this session remains untested. Turning the panel fully off while DeX
 stays alive, PC/Mac audio volume control, and upstream Windows v3.0.0 NativeDex
 helper work are out of scope and were not done.
 
-The 2026-11-16 observation used direct helper/ADB launch from a Mac and Homebrew
-scrcpy 4.1 on one SM-S942N, not either DX Manager app. Smart Stay also reset
-activity, so the fix was not isolated from it. Automated results do not establish
-the untested app, Wi-Fi/battery, or Smart-Stay-independent paths. See
-[the dated observation and unverified acceptance items](PHONE_PREVIEW_MODE.md).
+The 2026-11-16 (Asia/Seoul) follow-up used the same one Galaxy SM-S942N, Android
+17 / SDK 37, One UI 9.0, timeout 120 s, `stay_on_while_plugged_in=0`. With Smart
+Stay OFF, charging USB ADB, a direct helper from Mac and Homebrew scrcpy 4.1,
+the untouched built-in group stayed awake about 5 min with keep-active, beyond
+two timeouts, keyguard not showing. The about 3 min control slept about 120 s
+after last activity while DeX stayed awake; keyguard was not showing during
+the roughly 60 s observed afterward. Actual DeX window locking remains unobserved.
+
+Correction: regular (lights-changing) last-user-activity time reset about every
+95–100 s in every helper keep-active session, also with Smart Stay OFF, and not
+in the control. The earlier Smart Stay face-detection attribution is unsupported.
+Logs did not identify the reset mechanism; this is observed Samsung behavior
+on this phone/firmware, not a guarantee.
+
+Once through the real Mac app, the user started a local, unreleased Mac 2.2
+test build containing helper SHA-256 `65d12bd3…79e3`, Hide phone preview and
+stay-awake ON, Wi-Fi ADB on battery (not charging), Smart Stay OFF. The helper
+had `keep-active`; bundled scrcpy 4.1 had `--keep-active` on DeX. About 7 min
+untouched, beyond three timeouts: built-in group awake throughout, keyguard
+not showing, helper and scrcpy still running at the end, same 95–100 s resets.
+This observes the new Wi-Fi behavior and Mac start path once. There was no
+Wi-Fi control of old behavior; keyguard / DeX window actually locking in old
+behavior has not been observed anywhere in this record. Windows paths remain
+untested; Mac app stop/disconnect/host crash/normal timeout return were not
+measured. See [the dated observations and remaining untested items](PHONE_PREVIEW_MODE.md).
 This is an unreleased change to the released v2.2.0 line; a new version/package
 to ship the helper has not been prepared, signed, notarized or published.
+The observed Mac test build was local only, not signed for release, not
+notarized and not published.
 
 ### 한국어
 
@@ -518,10 +540,30 @@ helper 명령행은 기존과 같다.
 PC/Mac 오디오 음량 제어, upstream Windows v3.0.0 NativeDex helper는 범위 밖이며
 수행하지 않았다.
 
-2026-11-16 관찰은 SM-S942N 한 대에서 Mac의 직접 helper/ADB 실행과 Homebrew
-scrcpy 4.1로 진행했으며 양쪽 DX Manager 앱을 거치지 않았다. Smart Stay도 활동
-시간을 갱신해 수정 효과를 분리하지 못했다. 자동 검증 결과는 앱 전체 경로,
-Wi-Fi/배터리 또는 Smart Stay와 독립된 효과를 검증하지 않는다.
-[날짜별 관찰과 미확인 수용 항목](PHONE_PREVIEW_MODE.md)을 함께 확인한다.
+2026-11-16(Asia/Seoul) 후속 관찰도 같은 Galaxy SM-S942N 한 대이며 Android 17 /
+SDK 37, One UI 9.0, timeout 120초, `stay_on_while_plugged_in=0`이었다. Smart
+Stay OFF, 충전 중 USB ADB, Mac의 직접 helper·Homebrew scrcpy 4.1에서 약 5분
+건드리지 않아도 keep-active 사용 시 timeout 두 회를 넘겨 내장 그룹이 깨어 있었고
+keyguard는 표시되지 않았다. 약 3분 대조 실행은 마지막 활동 약 120초 뒤 내장
+그룹이 잠들고 DeX는 깨어 있었다. 이후 관찰한 약 60초 동안 keyguard는 표시되지
+않았다. DeX 창 실제 잠금은 미관찰 상태다.
+
+정정: Smart Stay OFF를 포함한 모든 helper keep-active 세션에서 일반
+(lights-changing) last-user-activity 시각은 약 95–100초마다 갱신되었고 대조
+실행에서는 없었다. Smart Stay 얼굴 감지라는 기존 설명은 근거가 없다. 로그에서
+원인을 식별하지 못했으므로 이 휴대폰·펌웨어의 Samsung 동작 관찰이며 보장이 아니다.
+
+실제 Mac 앱에서 사용자가 새 helper(SHA-256 `65d12bd3…79e3`)를 포함한 로컬
+미출시 Mac 2.2 시험 빌드로 미리보기 숨김·잠자기 방지를 켜고 충전하지 않는 배터리
+Wi-Fi ADB, Smart Stay OFF로 시작한 결과를 한 번 관찰했다. helper에는
+`keep-active`, 번들 scrcpy 4.1에는 DeX 대상 `--keep-active`가 있었다. 약 7분
+건드리지 않아도 timeout 세 회를 넘겨 내장 그룹이 깨어 있었고 keyguard는 표시되지
+않았다. 마지막에도 helper·scrcpy가 실행 중이었고 약 95–100초 갱신도 같았다.
+새 Wi-Fi 동작과 Mac 시작 경로의 한 번 관찰이다. 이전 Wi-Fi 동작의 대조 실행은
+없었으며 이 기록 전체에서 이전 동작의 keyguard·DeX 창 실제 잠금은 관찰되지
+않았다. Windows 경로는 미시험이며 Mac 앱 중지·연결 해제·호스트 비정상 종료·
+정상 timeout 복귀는 미측정이다.
+[날짜별 관찰과 남은 미시험 항목](PHONE_PREVIEW_MODE.md)을 함께 확인한다.
 공개 v2.2.0 계열의 미출시 변경이며 helper 배포용 새 버전·패키지는 준비·서명·공증·
 게시하지 않았다.
+관찰한 Mac 시험 빌드는 로컬 전용이며 릴리스용 서명·공증·게시를 하지 않았다.

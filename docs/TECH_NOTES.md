@@ -297,14 +297,37 @@ Helper JAR SHA-256:
 `65d12bd344ff4e3808d9e0f113a4a003cf83893769368043365af4e1f80979e3`.
 The orchestrator reported 25/25 helper host tests and an identical hash across
 three builds and both repositories, run outside the Codex sandbox on macOS.
-These are automated results. The single-phone direct-ADB observation did not
-isolate Smart Stay or test either app end to end; all untested items remain
-[Unverified in the acceptance record](PHONE_PREVIEW_MODE.md).
+These are automated results, separate from device observations. Follow-up on
+2026-11-16 (Asia/Seoul) used the same one Galaxy SM-S942N, Android 17 / SDK 37,
+One UI 9.0, timeout 120 s, `stay_on_while_plugged_in=0`. With Smart Stay OFF,
+charging USB ADB and a direct helper from Mac with Homebrew scrcpy 4.1, the
+untouched phone's built-in power group stayed awake about 5 min with helper
+keep-active (beyond two timeouts), keyguard not showing. The about 3 min control
+without it slept about 120 s after last activity while DeX stayed awake;
+keyguard was not showing in the roughly 60 s observed afterward.
+
+The user also started a local, unreleased Mac 2.2 app build with the new helper,
+Hide phone preview and stay-awake ON, over Wi-Fi ADB on battery (not charging),
+Smart Stay OFF. Helper `keep-active` and bundled scrcpy 4.1 `--keep-active` on
+DeX were observed. About 7 min untouched (beyond three timeouts): built-in group
+awake throughout, keyguard not showing, helper and scrcpy still running at the
+end. This observes the new Wi-Fi behavior and Mac app start path once. No old
+Wi-Fi control was run; old-behavior keyguard / DeX window locking has not been
+observed anywhere in this record. Windows paths remain untested. Mac app stop,
+disconnect, host crash and normal timeout return were not measured.
+
+Correction: the built-in group's regular (lights-changing) last-user-activity
+time reset about every 95–100 s in every helper keep-active session, including
+Smart Stay OFF and the Wi-Fi app run, and not in the control. The earlier
+Smart Stay face-detection attribution is unsupported. Logs did not identify
+the mechanism; this is observed Samsung behavior on this phone/firmware, not
+a guarantee. See the [observations and remaining untested items](PHONE_PREVIEW_MODE.md).
 The phone panel can remain on, possibly dimmed; battery and heat impact and
 whether it dims are unmeasured. Manual locking is not prevented by design and
 its behaviour during a keep-active session is untested. A new version/package
 is required to ship this helper; no release was prepared, signed, notarized or
-published.
+published. The observed Mac test build was local only, not signed for release,
+not notarized and not published.
 
 #### 한국어
 
@@ -322,12 +345,35 @@ wakeUp/goToSleep/keyguard/display-power API를 사용하지 않아 복원할 항
 
 위 SHA-256은 새 helper JAR의 값이다. 오케스트레이터가 macOS의 Codex 샌드박스
 밖에서 실행한 결과로 helper 호스트 테스트 25/25와 세 번의 빌드·두 저장소의
-동일 해시가 보고됐다. 이는 자동 검증 결과다. 한 대의 직접 ADB 관찰은 Smart
-Stay 효과를 분리하거나 양쪽 앱의 전체 경로를 시험하지 않았으며 모든 미시험 항목은
-[수용 기록의 미확인 항목](PHONE_PREVIEW_MODE.md)으로 남긴다. 휴대폰 패널이 계속
-켜지거나 어두워진 채 남을 수 있으며 배터리·발열 영향과 어두워짐 여부는 미확인이다.
+동일 해시가 보고됐다. 이는 실기 관찰과 별개인 자동 검증 결과다. 2026-11-16
+(Asia/Seoul) 후속 관찰도 같은 Galaxy SM-S942N 한 대이며 Android 17 / SDK 37,
+One UI 9.0, timeout 120초, `stay_on_while_plugged_in=0`이었다. Smart Stay OFF,
+충전 중 USB ADB, Mac의 직접 helper·Homebrew scrcpy 4.1에서 휴대폰을 건드리지
+않고 helper keep-active로 약 5분, timeout 두 회를 넘겨 내장 전원 그룹이 계속
+깨어 있었고 keyguard는 표시되지 않았다. keep-active 없는 약 3분 대조 실행은
+마지막 활동 약 120초 뒤 내장 그룹이 잠들고 DeX는 깨어 있었다. 이후 관찰한
+약 60초 동안 keyguard는 표시되지 않았다.
+
+사용자는 새 helper를 포함한 로컬 미출시 Mac 2.2 앱에서 미리보기 숨김·잠자기
+방지를 켜고 충전하지 않는 배터리 Wi-Fi ADB, Smart Stay OFF로 시작했다.
+helper의 `keep-active`와 번들 scrcpy 4.1의 DeX 대상 `--keep-active`를 관찰했다.
+약 7분 건드리지 않아도 timeout 세 회를 넘겨 내장 그룹이 계속 깨어 있었고
+keyguard는 표시되지 않았으며 마지막에도 helper·scrcpy가 실행 중이었다.
+새 Wi-Fi 동작·Mac 앱 시작 경로의 한 번 관찰이다. 이전 Wi-Fi 동작의 대조 실행은
+없었고 이 기록 전체에서 이전 동작의 keyguard·DeX 창 실제 잠금은 관찰되지 않았다.
+Windows 경로는 미시험이며 Mac 앱 중지·분리·호스트 비정상 종료·정상 timeout
+복귀는 측정하지 않았다.
+
+정정: Smart Stay OFF·Wi-Fi 앱 실행을 포함한 모든 helper keep-active 세션에서
+내장 그룹의 일반(lights-changing) last-user-activity 시각이 약 95–100초마다
+갱신되었고 대조 실행에서는 없었다. Smart Stay 얼굴 감지라는 기존 설명은 근거가
+없다. 로그에서 원인을 식별하지 못했으므로 이 휴대폰·펌웨어의 Samsung 동작
+관찰이며 보장이 아니다. [관찰과 남은 미시험 항목](PHONE_PREVIEW_MODE.md)을 참조한다.
+휴대폰 패널이 계속 켜지거나 어두워진 채 남을 수 있으며 배터리·발열 영향과
+어두워짐 여부는 미확인이다.
 설계상 수동 잠금을 막지 않지만 keep-active 세션 중 동작은 미확인이다. helper를
 배포하려면 새 버전·패키지가 필요하며 정식 릴리스를 준비·서명·공증·게시하지 않았다.
+관찰한 Mac 시험 빌드는 로컬 전용이며 릴리스용 서명·공증·게시를 하지 않았다.
 
 ## 키 입력
 
