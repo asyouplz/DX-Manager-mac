@@ -16,9 +16,18 @@ public sealed class LoopbackDexTests : IDisposable
     {
         var path = LoopbackDexProtocol.CreateRemotePath(Token);
         Assert.Equal("/data/local/tmp/dxm-loopback-" + Token + ".jar", path);
-        Assert.Equal("CLASSPATH=" + path + " app_process / com.dxmanager.loopback.Main " + Token,
-            LoopbackDexProtocol.BuildShellCommand(Token));
+        var command = "CLASSPATH=" + path + " app_process / com.dxmanager.loopback.Main " + Token;
+        Assert.Equal(command, LoopbackDexProtocol.BuildShellCommand(Token));
+        Assert.Equal(command, LoopbackDexProtocol.BuildShellCommand(Token, false));
         Assert.NotEqual(path, LoopbackDexProtocol.CreateRemotePath(new string('1', 32)));
+    }
+
+    [Fact]
+    public void ShellCommandAppendsPhoneKeepActiveWhenRequested()
+    {
+        Assert.Equal("CLASSPATH=/data/local/tmp/dxm-loopback-" + Token +
+            ".jar app_process / com.dxmanager.loopback.Main " + Token + " keep-active",
+            LoopbackDexProtocol.BuildShellCommand(Token, true));
     }
 
     [Theory]

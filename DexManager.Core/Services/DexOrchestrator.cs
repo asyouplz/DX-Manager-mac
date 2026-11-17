@@ -264,7 +264,8 @@ namespace DexManager.Services
                         runSettings.VirtualDisplay,
                         _settings.Timing.VirtualDisplayDetectionTimeoutMs,
                         delegate { return IsShutdownRequested; },
-                        deviceIdentity);
+                        deviceIdentity,
+                        effectiveScrcpy.StayAwake);
                     CompleteDeferredCleanupCore(
                         serial,
                         deviceIdentity);

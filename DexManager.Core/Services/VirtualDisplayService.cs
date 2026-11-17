@@ -62,7 +62,8 @@ namespace DexManager.Services
             VirtualDisplaySettings settings,
             int creationWaitMs,
             Func<bool> cancellationRequested,
-            string expectedDeviceIdentity = null)
+            string expectedDeviceIdentity = null,
+            bool keepPhoneActive = false)
         {
             if (string.IsNullOrWhiteSpace(serial))
                 throw new ArgumentException("Device serial is empty.", "serial");
@@ -77,7 +78,7 @@ namespace DexManager.Services
                     throw new InvalidOperationException(LocalizationService.Get(
                         "Error.Loopback.OverlayActive"));
                 return _loopback.Start(serial, creationWaitMs, cancellationRequested,
-                    expectedDeviceIdentity);
+                    expectedDeviceIdentity, keepPhoneActive);
             }
             var before = GetVirtualDisplays(serial);
             LogDisplaySnapshot("before", before);

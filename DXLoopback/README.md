@@ -25,7 +25,7 @@ DX Manager pushes the bundled jar to its own session path and holds an ADB shell
 with redirected stdin/stdout open:
 
 ```text
-CLASSPATH=/data/local/tmp/dxm-loopback-<token>.jar app_process / com.dxmanager.loopback.Main <token>
+CLASSPATH=/data/local/tmp/dxm-loopback-<token>.jar app_process / com.dxmanager.loopback.Main <token> [keep-active]
 ```
 
 `<token>` must be a fresh 32-character lowercase hexadecimal session identifier.
@@ -34,8 +34,19 @@ The host sends `PING <token>` every 3 seconds, starting during activation, and
 15 seconds expires the lease. The host must keep stdin open, parse output by line,
 and never treat a log message or the highest display ID as readiness.
 
+The optional second argument is the literal `keep-active` (without brackets).
+When requested, the helper sends default-display user-activity signals immediately
+after READY, then every 4 seconds in the existing 250 ms hold loop, only while its
+host lease is alive. It writes no settings and has no power state to restore;
+signals simply stop when the loop exits. If the power API is unavailable or a
+signal fails, the helper reports `DXM_LOOPBACK_WARN keep_active_unavailable` once
+and stops sending signals while keeping the DeX session running. Without the
+argument, no user-activity signals are sent. Keep-active device behaviour,
+including its effect on phone timeout and DeX locking, is **unverified**.
+
 ```text
 DXM_LOOPBACK_READY <positive display ID>
+DXM_LOOPBACK_WARN keep_active_unavailable
 DXM_LOOPBACK_ERROR <safe_reason>
 DXM_LOOPBACK_STOPPED
 ```
@@ -80,11 +91,12 @@ https://dl.google.com/dl/android/maven2/com/android/tools/r8/8.7.18/r8-8.7.18.ja
 58366f77067207c39a17d469de7b05701d2877212a9c55201bcb0af43e59e903
 ```
 
-The scripts compile with warnings as errors, run 18 host-side protocol/policy
+The scripts compile with warnings as errors, run 25 host-side protocol/policy
 tests, compile DEX with minimum API 31, then build a timestamp-normalized archive
 containing only `classes.dex`, `LICENSE` and `NOTICE`. Tests cover bounded RTSP
 framing, truncated/duplicate messages, PLAY correlation, loopback-only URLs,
-heartbeat/STOP/EOF, ownership and unique display selection. They do **not** emulate
+heartbeat/STOP/EOF, optional arguments, overflow-safe keep-active cadence,
+ownership and unique display selection. They do **not** emulate
 Samsung firmware or confirm actual Windows/device cleanup. The adjacent
 `dxm-loopback.jar.sha256` is a lowercase SHA-256 plus the artifact filename.
 Use `-OutputDirectory` / `DXM_LOOPBACK_OUTPUT` for a comparison build without
@@ -116,6 +128,16 @@ helper's Apache-2.0 license does not replace the main application's MIT license.
 무선 디스플레이 종류, 해당 실행의 이름과 MAC 주소, RTSP 시작 응답이 모두
 일치해야 화면 ID를 반환하며, 가장 큰 ID를 추측해 사용하지 않는다.
 
+실행 인자는 `<token>` 또는 `<token> keep-active`만 허용한다. 선택 인자
+`keep-active`를 넣으면 READY 출력 직후부터 기존 250 ms 유지 루프에서
+4초마다 기본 디스플레이에 사용자 활동 신호를 보낸다. 이 신호는 PC의
+세션 생존 기간에만 보내며 설정을 기록하지 않는다. 복원할 전원 상태는
+없고 루프가 끝나면 신호도 중단한다. 전원 API를 사용할 수 없거나 신호
+전송이 실패하면 `DXM_LOOPBACK_WARN keep_active_unavailable`을 한 번만
+출력하고 활동 신호만 중단하며 DeX 세션은 유지한다. 선택 인자가 없으면
+활동 신호를 보내지 않는다. 휴대폰 화면 시간 초과와 DeX 잠금 방지 효과를
+포함한 keep-active의 실제 기기 동작은 **미확인**이다.
+
 이미 외부 화면·보조 화면·무선 DeX 또는 삼성 데스크톱 모드가 실행 중이면
 기존 연결을 끊지 않고 새 실행을 거부한다. 종료 때도 현재 연결의 이름과
 MAC 주소가 이번 실행과 일치할 때만 연결 해제를 요청한다. 다른 scrcpy나
@@ -126,6 +148,7 @@ MAC 주소가 이번 실행과 일치할 때만 연결 해제를 요청한다. �
 사용자는 이미 빌드된 `tools/loopback/dxm-loopback.jar`를 받으므로 Java나
 Android SDK를 설치할 필요가 없다. 개발자가 다시 빌드할 때만 위 명령과
 JDK 17이 필요하며, 고정 해시를 검증한 D8 8.7.18을 사용한다. 자동 테스트
-18개는 통신 형식과 세션 정책 검증이고 실제 삼성 기기 검증을 대신하지
+25개는 통신 형식, 세션 정책, 선택 인자와 시간값 오버플로를 고려한
+keep-active 주기 검증이고 실제 삼성 기기 검증을 대신하지
 않는다. 원본 ScrcpyDeX의 출처와 Apache-2.0 라이선스는 `NOTICE`, `LICENSE`
 및 배포 JAR 안에 함께 포함한다.

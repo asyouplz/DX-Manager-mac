@@ -453,3 +453,117 @@ Do not add an HTTP control endpoint, a helper scrcpy process, or automatic OS gr
 기존 scrcpy의 전원 단축키를 사용해 종료 복원 경계를 유지한다. 캡처는 소유한 창만
 PNG로 저장하고 C#이 파일·물리 기기를 다시 확인한 후 선택적으로 휴대폰에 전송한다.
 OS 권한은 사용자가 승인하며 별도 제어 서버나 scrcpy helper를 추가하지 않는다.
+
+## 2026-11-16 — Lease-bound phone activity for hidden-preview DeX (unreleased)
+
+Source verification of scrcpy 4.1 and 5.0.1 showed that `--keep-active` signals
+user activity only for its target display. On the one observed phone, Samsung
+loopback DeX used power/display group 2 while the built-in display used group 0,
+so scrcpy did not refresh the phone's own screen timeout. The Windows-only
+`stay_on_while_plugged_in=7` works only while charging. The Mac app never sets
+that setting; before this change hidden-preview DeX on Mac relied on scrcpy
+`--keep-active` alone over both USB and wireless ADB.
+
+When the per-device stay-awake option is on in hidden-preview (loopback / native
+DeX) mode, pass the fixed `keep-active` argument to DXLoopback. After READY and
+only while its lease is alive, the helper signals default-display user activity
+about every 4 seconds through hidden
+`IPowerManager.userActivity(displayId 0, uptime, EVENT_OTHER, USER_ACTIVITY_FLAG_NO_CHANGE_LIGHTS)`.
+STOP, 15 s heartbeat expiry, or ownership loss ends that activity. It writes no
+Android settings, holds no wakelock, never calls wakeUp/goToSleep/keyguard/display-power
+APIs, and needs nothing restored. If unavailable, print
+`DXM_LOOPBACK_WARN keep_active_unavailable` once; the host logs a warning and DeX
+continues. Stay-awake off leaves the helper command line unchanged.
+
+The limitation is that the phone itself is kept from timing out during a
+hidden-DeX session with stay-awake on: its panel can stay on, possibly dimmed,
+throughout the session. Battery and heat impact and whether it dims are
+unmeasured. Manual locking is not prevented by design; manual-lock behaviour
+during this session remains untested. Turning the panel fully off while DeX
+stays alive, PC/Mac audio volume control, and upstream Windows v3.0.0 NativeDex
+helper work are out of scope and were not done.
+
+The 2026-11-16 (Asia/Seoul) follow-up used the same one Galaxy SM-S942N, Android
+17 / SDK 37, One UI 9.0, timeout 120 s, `stay_on_while_plugged_in=0`. With Smart
+Stay OFF, charging USB ADB, a direct helper from Mac and Homebrew scrcpy 4.1,
+the untouched built-in group stayed awake about 5 min with keep-active, beyond
+two timeouts, keyguard not showing. The about 3 min control slept about 120 s
+after last activity while DeX stayed awake; keyguard was not showing during
+the roughly 60 s observed afterward. Actual DeX window locking remains unobserved.
+
+Correction: regular (lights-changing) last-user-activity time reset about every
+95–100 s in every helper keep-active session, also with Smart Stay OFF, and not
+in the control. The earlier Smart Stay face-detection attribution is unsupported.
+Logs did not identify the reset mechanism; this is observed Samsung behavior
+on this phone/firmware, not a guarantee.
+
+Once through the real Mac app, the user started a local, unreleased Mac 2.2
+test build containing helper SHA-256 `65d12bd3…79e3`, Hide phone preview and
+stay-awake ON, Wi-Fi ADB on battery (not charging), Smart Stay OFF. The helper
+had `keep-active`; bundled scrcpy 4.1 had `--keep-active` on DeX. About 7 min
+untouched, beyond three timeouts: built-in group awake throughout, keyguard
+not showing, helper and scrcpy still running at the end, same 95–100 s resets.
+This observes the new Wi-Fi behavior and Mac start path once. There was no
+Wi-Fi control of old behavior; keyguard / DeX window actually locking in old
+behavior has not been observed anywhere in this record. Windows paths remain
+untested; Mac app stop/disconnect/host crash/normal timeout return were not
+measured. See [the dated observations and remaining untested items](PHONE_PREVIEW_MODE.md).
+This is an unreleased change to the released v2.2.0 line; a new version/package
+to ship the helper has not been prepared, signed, notarized or published.
+The observed Mac test build was local only, not signed for release, not
+notarized and not published.
+
+### 한국어
+
+scrcpy 4.1과 5.0.1 소스에서 `--keep-active`는 자신이 대상으로 삼는 display에만
+사용자 활동을 알리는 것을 확인했다. 관찰한 휴대폰 한 대에서는 삼성 loopback DeX가
+전원/display 그룹 2, 내장 화면이 그룹 0을 사용하므로 scrcpy가 휴대폰 자체의 화면
+꺼짐 시간을 갱신하지 않았다. Windows 전용 `stay_on_while_plugged_in=7`은 충전
+중에만 작동한다. Mac 앱은 이 설정을 쓰지 않으며, 변경 전 Mac의 미리보기 숨김
+DeX는 USB와 무선 ADB 모두 scrcpy `--keep-active`에만 의존했다.
+
+미리보기 숨김(loopback / native DeX) 모드에서 기기별 잠자기 방지가 켜져 있으면
+DXLoopback에 고정 인자 `keep-active`를 전달한다. READY 이후 lease가 유지되는
+동안 약 4초마다 숨겨진
+`IPowerManager.userActivity(displayId 0, uptime, EVENT_OTHER, USER_ACTIVITY_FLAG_NO_CHANGE_LIGHTS)`로
+기본 화면의 사용자 활동을 알린다. STOP, 15초 heartbeat 만료 또는 소유권 상실 시
+활동 알림을 끝낸다. Android 설정을 쓰거나 wakelock을 보유하지 않고
+wakeUp/goToSleep/keyguard/display-power API도 호출하지 않아 복원할 항목이 없다.
+호출을 사용할 수 없으면 `DXM_LOOPBACK_WARN keep_active_unavailable`을 한 번
+출력하고 호스트가 경고를 기록하며 DeX 세션은 계속된다. 잠자기 방지가 꺼져 있으면
+helper 명령행은 기존과 같다.
+
+제약은 잠자기 방지가 켜진 숨김 DeX 세션 동안 휴대폰 자체의 시간 초과를 막으므로
+패널이 세션 내내 켜져 있거나 어두워진 채 남을 수 있다는 점이다. 배터리·발열
+영향과 실제 어두워짐 여부는 미확인이다. 설계상 수동 잠금을 막지 않지만, 해당
+세션 중 수동 잠금 동작은 미확인이다. DeX를 유지하면서 패널을 완전히 끄는 기능,
+PC/Mac 오디오 음량 제어, upstream Windows v3.0.0 NativeDex helper는 범위 밖이며
+수행하지 않았다.
+
+2026-11-16(Asia/Seoul) 후속 관찰도 같은 Galaxy SM-S942N 한 대이며 Android 17 /
+SDK 37, One UI 9.0, timeout 120초, `stay_on_while_plugged_in=0`이었다. Smart
+Stay OFF, 충전 중 USB ADB, Mac의 직접 helper·Homebrew scrcpy 4.1에서 약 5분
+건드리지 않아도 keep-active 사용 시 timeout 두 회를 넘겨 내장 그룹이 깨어 있었고
+keyguard는 표시되지 않았다. 약 3분 대조 실행은 마지막 활동 약 120초 뒤 내장
+그룹이 잠들고 DeX는 깨어 있었다. 이후 관찰한 약 60초 동안 keyguard는 표시되지
+않았다. DeX 창 실제 잠금은 미관찰 상태다.
+
+정정: Smart Stay OFF를 포함한 모든 helper keep-active 세션에서 일반
+(lights-changing) last-user-activity 시각은 약 95–100초마다 갱신되었고 대조
+실행에서는 없었다. Smart Stay 얼굴 감지라는 기존 설명은 근거가 없다. 로그에서
+원인을 식별하지 못했으므로 이 휴대폰·펌웨어의 Samsung 동작 관찰이며 보장이 아니다.
+
+실제 Mac 앱에서 사용자가 새 helper(SHA-256 `65d12bd3…79e3`)를 포함한 로컬
+미출시 Mac 2.2 시험 빌드로 미리보기 숨김·잠자기 방지를 켜고 충전하지 않는 배터리
+Wi-Fi ADB, Smart Stay OFF로 시작한 결과를 한 번 관찰했다. helper에는
+`keep-active`, 번들 scrcpy 4.1에는 DeX 대상 `--keep-active`가 있었다. 약 7분
+건드리지 않아도 timeout 세 회를 넘겨 내장 그룹이 깨어 있었고 keyguard는 표시되지
+않았다. 마지막에도 helper·scrcpy가 실행 중이었고 약 95–100초 갱신도 같았다.
+새 Wi-Fi 동작과 Mac 시작 경로의 한 번 관찰이다. 이전 Wi-Fi 동작의 대조 실행은
+없었으며 이 기록 전체에서 이전 동작의 keyguard·DeX 창 실제 잠금은 관찰되지
+않았다. Windows 경로는 미시험이며 Mac 앱 중지·연결 해제·호스트 비정상 종료·
+정상 timeout 복귀는 미측정이다.
+[날짜별 관찰과 남은 미시험 항목](PHONE_PREVIEW_MODE.md)을 함께 확인한다.
+공개 v2.2.0 계열의 미출시 변경이며 helper 배포용 새 버전·패키지는 준비·서명·공증·
+게시하지 않았다.
+관찰한 Mac 시험 빌드는 로컬 전용이며 릴리스용 서명·공증·게시를 하지 않았다.

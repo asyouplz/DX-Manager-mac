@@ -15,10 +15,11 @@ namespace DexManager.Services
             return "/data/local/tmp/dxm-loopback-" + token + ".jar";
         }
 
-        public static string BuildShellCommand(string token)
+        public static string BuildShellCommand(string token, bool keepPhoneActive = false)
         {
             return "CLASSPATH=" + CreateRemotePath(token) +
-                " app_process / com.dxmanager.loopback.Main " + token;
+                " app_process / com.dxmanager.loopback.Main " + token +
+                (keepPhoneActive ? " keep-active" : string.Empty);
         }
 
         public static bool TryParseReady(string line, out int displayId)
